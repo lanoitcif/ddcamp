@@ -21,6 +21,17 @@ function logIssue(severity, category, description, details = '') {
   console.log(`  ⚠️ [${severity}] ${category}: ${description}${details ? ' — ' + details : ''}`);
 }
 
+const agentActions = {
+  dm: [],
+  lily: [],
+  thorne: [],
+  valerius: [],
+};
+
+function noteAction(agent, action) {
+  agentActions[agent].push(action);
+}
+
 // Helpers
 async function waitForSync(ms = 600) {
   await new Promise(r => setTimeout(r, ms));
@@ -102,6 +113,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   // DM Agent: Verify starting scene
   const startScene = await dmPage.locator('.parchment h2').first().textContent();
   console.log(`  🎲 DM: "Welcome adventurers! We begin at ${startScene}"`);
+  noteAction('dm', `Opened campaign at ${startScene}`);
   if (!startScene.includes('Bakery')) {
     logIssue('CRITICAL', 'Init', 'Starting scene is not Bakery');
   }
@@ -112,6 +124,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   const narrationInput = dmPage.locator('textarea');
   await narrationInput.fill('The bakery smells of cinnamon, but something is wrong — the Sun-Cakes are missing!');
   await safeClick(dmPage, 'button:has-text("Send")', 'Send Narration');
+  noteAction('dm', 'Narrated opening bakery mystery');
   await waitForSync(800);
 
   // Verify narration on Player View
@@ -155,6 +168,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
       if (await revealBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await revealBtn.click();
         console.log('  🔦 DM: Found a clue! Flour Paw Prints revealed ✓');
+        noteAction('dm', 'Revealed clue: Flour Paw Prints');
       } else {
         console.log('  🔦 DM: Spotlight near zone but reveal not triggered (might need finer positioning)');
       }
@@ -173,6 +187,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
       if (await revealBtn2.isVisible({ timeout: 1500 }).catch(() => false)) {
         await revealBtn2.click();
         console.log('  🔦 DM: Found a clue! Crumpled Note revealed ✓');
+        noteAction('dm', 'Revealed clue: Crumpled Note');
       }
 
       // Move to clue zone 3 (frosting-smear at 50%, 78%)
@@ -189,6 +204,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
       if (await revealBtn3.isVisible({ timeout: 1500 }).catch(() => false)) {
         await revealBtn3.click();
         console.log('  🔦 DM: Found a clue! Blue Frosting Smear revealed ✓');
+        noteAction('dm', 'Revealed clue: Blue Frosting Smear');
       }
     } else {
       logIssue('MEDIUM', 'Puzzle', 'Could not find spotlight drag area bounds');
@@ -205,6 +221,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   // DM Agent: Award bakery clue quest
   console.log('  🎲 DM: "You found the clue! Awarding quest..."');
   await safeClick(dmPage, 'button:has-text("Find the Bakery Clue")', 'Award Bakery Clue');
+  noteAction('dm', 'Awarded quest: Find the Bakery Clue');
   await waitForSync(1500);
 
   // Verify quest toast on Player View
@@ -224,6 +241,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   console.log('\n  🗡️ Lily: "I search for more clues with my keen eyes!"');
   const lilyCard = dmPage.locator('[data-testid="card-lily"]');
   await safeClick(dmPage, '[data-testid="card-lily"] >> button:has-text("Sneak Attack")', 'Lily Sneak Attack');
+  noteAction('lily', 'Used Sneak Attack in bakery to investigate');
   await waitForSync(1500);
 
   // Verify dice overlay on Player View
@@ -272,6 +290,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   // DM Agent: Narrate the encounter
   await narrationInput.fill('A great owl blocks the path! Its eyes glow with ancient wisdom.');
   await safeClick(dmPage, 'button:has-text("Send")', 'Send Narration');
+  noteAction('dm', 'Narrated the Hoot encounter in the woods');
   await waitForSync(800);
   console.log('  🎲 DM: "A great owl blocks the path!"');
 
@@ -279,6 +298,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   console.log('\n  🦉 DM: "Hoot has a riddle for you! Launching puzzle..."');
   try {
     await safeClick(dmPage, '[data-testid="start-puzzle"]', 'Start Riddle Puzzle');
+    noteAction('dm', "Started puzzle: Hoot's Riddle");
     await waitForSync(800);
 
     // Verify riddle on Player View
@@ -299,14 +319,17 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
 
     // Thorne Agent: "I have no idea..."
     console.log('  🛡️ Thorne: "Um... is it... a sword?"');
+    noteAction('thorne', 'Tried a playful wrong answer to the riddle');
 
     // DM Agent: Give a hint
     console.log('  🎲 DM: "Let me give a hint..."');
     await safeClick(dmPage, 'button:has-text("Hint")', 'Give Hint');
+    noteAction('dm', 'Gave one riddle hint');
     await waitForSync(600);
 
     // Valerius Agent: "I know! It's a map!"
     console.log('  ✨ Valerius: "A MAP! It\'s a map!"');
+    noteAction('valerius', 'Solved the riddle with "A Map"');
 
     // DM Agent: Mark solved
     await safeClick(dmPage, 'button:has-text("Answer:")', 'Reveal Answer');
@@ -330,6 +353,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
 
   // DM Agent: Award riddle quest
   await safeClick(dmPage, 'button:has-text("Solve Hoot\'s Riddle")', 'Award Riddle Quest');
+  noteAction('dm', "Awarded quest: Solve Hoot's Riddle");
   await waitForSync(2000);
   console.log('  🎲 DM: Hoot\'s Riddle quest awarded!');
   await safeClick(dmPage, 'button:has-text("Dismiss Overlay")', 'Dismiss');
@@ -342,6 +366,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   // Turn 1: Lily
   console.log('  🗡️ Lily: "Sneak Attack!"');
   await safeClick(dmPage, '[data-testid="card-lily"] >> button:has-text("Sneak Attack")', 'Lily Sneak Attack');
+  noteAction('lily', 'Opened woods combat with Sneak Attack');
   await waitForSync(2500);
   await safeClick(dmPage, 'button:has-text("Dismiss Overlay")', 'Dismiss');
 
@@ -362,6 +387,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   // Turn 2: Thorne
   console.log('  🛡️ Thorne: "LONGSWORD ATTACK!"');
   await safeClick(dmPage, '[data-testid="card-thorne"] >> button:has-text("Longsword")', 'Thorne Longsword');
+  noteAction('thorne', 'Attacked Hoot with Longsword');
   await waitForSync(2500);
   await safeClick(dmPage, 'button:has-text("Dismiss Overlay")', 'Dismiss');
 
@@ -372,6 +398,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   // Turn 3: Valerius Divine Smite
   console.log('  ✨ Valerius: "By the light! DIVINE SMITE!"');
   await safeClick(dmPage, '[data-testid="card-valerius"] >> button:has-text("Divine Smite")', 'Valerius Divine Smite');
+  noteAction('valerius', 'Used Divine Smite on Hoot');
   await waitForSync(2500);
   await safeClick(dmPage, 'button:has-text("Dismiss Overlay")', 'Dismiss');
 
@@ -456,11 +483,13 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   // DM Agent: Set mood to tense
   console.log('\n  🎲 DM: Setting mood to TENSE...');
   await safeClick(dmPage, 'button:has-text("tense")', 'Set Tense Mood');
+  noteAction('dm', 'Set ambience mood to tense for peak approach');
   await waitForSync(500);
 
   // DM Agent: Narrate the dragon encounter
   await narrationInput.fill('Glint the Dragon lounges in a pile of Sun-Cake crumbs. His scales shimmer blue in the dim light.');
   await safeClick(dmPage, 'button:has-text("Send")', 'Send Dragon Narration');
+  noteAction('dm', 'Narrated Glint encounter at Whispering Peak');
   await waitForSync(800);
   console.log('  🎲 DM: "Glint the Dragon lounges in a pile of Sun-Cake crumbs..."');
 
@@ -468,6 +497,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   console.log('\n  🪨 DM: "First, cross the Glimmer Stream!"');
   try {
     await safeClick(dmPage, '[data-testid="start-puzzle"]', 'Start Stones Puzzle');
+    noteAction('dm', 'Started puzzle: Glimmer Stream stepping stones');
     await waitForSync(800);
 
     // Verify stones puzzle on Player View
@@ -482,6 +512,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
 
     // Thorne: "I'll go first! I pick the mushroom!" (WRONG - index 1)
     console.log('  🛡️ Thorne: "I pick the mushroom! 🍄"');
+    noteAction('thorne', 'Picked mushroom stone first and triggered splash');
     const stoneButtons = playerPage.locator('button.w-36');
     const totalButtons = await stoneButtons.count();
     console.log(`  📺 Player TV: Found ${totalButtons} stone buttons`);
@@ -499,24 +530,28 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
       // Lily: "Let me try... I pick the star! ⭐"
       console.log('  🗡️ Lily: "The star looks safe! ⭐"');
       await stoneButtons.nth(11).click();
+      noteAction('lily', 'Picked the star stone correctly');
       await waitForSync(800);
       console.log('  ✨ Correct! Row 1 reached.');
 
       // Row 1 (safe=1 💎): buttons 6, 7, 8 → safe is 7
       console.log('  ✨ Valerius: "The gem sparkles with divine light! 💎"');
       await stoneButtons.nth(7).click();
+      noteAction('valerius', 'Picked the gem stone correctly');
       await waitForSync(800);
       console.log('  ✨ Correct! Row 2 reached.');
 
       // Row 2 (safe=0 🌙): buttons 3, 4, 5 → safe is 3
       console.log('  🗡️ Lily: "The moon... it reminds me of sneaking! 🌙"');
       await stoneButtons.nth(3).click();
+      noteAction('lily', 'Picked the moon stone correctly');
       await waitForSync(800);
       console.log('  ✨ Correct! Row 3 reached.');
 
       // Row 3 (safe=0 🪨): buttons 0, 1, 2 → safe is 0
       console.log('  🛡️ Thorne: "The rock! Solid ground! 🪨"');
       await stoneButtons.nth(0).click();
+      noteAction('thorne', 'Finished crossing by picking the rock stone');
       await waitForSync(1000);
       console.log('  🏆 Safe Across!');
 
@@ -541,6 +576,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
 
   // DM Agent: Award river crossing quest
   await safeClick(dmPage, 'button:has-text("Cross the Glimmer Stream")', 'Award River Quest');
+  noteAction('dm', 'Awarded quest: Cross the Glimmer Stream');
   await waitForSync(2000);
   console.log('  🎲 DM: River crossing quest awarded!');
   await safeClick(dmPage, 'button:has-text("Dismiss Overlay")', 'Dismiss');
@@ -551,6 +587,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
 
   // DM Agent: Set mood to combat
   await safeClick(dmPage, 'button:has-text("combat")', 'Set Combat Mood');
+  noteAction('dm', 'Set ambience mood to combat');
   await waitForSync(300);
 
   // Reset turns to start from Lily
@@ -565,12 +602,14 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   const skillInput = dmPage.locator('input[placeholder="Investigation..."]');
   await skillInput.fill('Initiative');
   await safeClick(dmPage, 'button:has-text("d20")', 'Initiative Roll');
+  noteAction('dm', 'Ran initiative roll check');
   await waitForSync(2000);
   await safeClick(dmPage, 'button:has-text("Dismiss Overlay")', 'Dismiss');
 
   // Round 1
   console.log('  🗡️ Lily: "Sneak Attack on the dragon!"');
   await safeClick(dmPage, '[data-testid="card-lily"] >> button:has-text("Shortbow")', 'Lily Shortbow');
+  noteAction('lily', 'Opened Glint combat with Shortbow shot');
   await waitForSync(2500);
   await safeClick(dmPage, 'button:has-text("Dismiss Overlay")', 'Dismiss');
   await waitForSync(200);
@@ -578,6 +617,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   await safeClick(dmPage, 'button:has-text("Next Turn")', 'Next Turn');
   console.log('  🛡️ Thorne: "Handaxe THROW!"');
   await safeClick(dmPage, '[data-testid="card-thorne"] >> button:has-text("Handaxe")', 'Thorne Handaxe');
+  noteAction('thorne', 'Threw Handaxe at Glint');
   await waitForSync(2500);
   await safeClick(dmPage, 'button:has-text("Dismiss Overlay")', 'Dismiss');
   await waitForSync(200);
@@ -585,6 +625,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   await safeClick(dmPage, 'button:has-text("Next Turn")', 'Next Turn');
   console.log('  ✨ Valerius: "DIVINE SMITE! Feel the power of justice!"');
   await safeClick(dmPage, '[data-testid="card-valerius"] >> button:has-text("Divine Smite")', 'Valerius Smite');
+  noteAction('valerius', 'Used Divine Smite against Glint');
   await waitForSync(2500);
   await safeClick(dmPage, 'button:has-text("Dismiss Overlay")', 'Dismiss');
   await waitForSync(200);
@@ -634,16 +675,19 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
 
   // DM Agent: Set mood to calm
   await safeClick(dmPage, 'button:has-text("calm")', 'Set Calm Mood');
+  noteAction('dm', 'Set ambience mood to calm for finale');
   await waitForSync(300);
 
   // DM Agent: Final narration
   await narrationInput.fill('With Glint defeated, you find a sack of golden Sun-Cakes behind the dragon! Mrs. Crumb will be so happy!');
   await safeClick(dmPage, 'button:has-text("Send")', 'Send Finale Narration');
+  noteAction('dm', 'Narrated final Sun-Cakes recovery');
   await waitForSync(1000);
   console.log('  🎲 DM: "You find the Sun-Cakes!"');
 
   // Award final quest
   await safeClick(dmPage, 'button:has-text("Recover the Sun-Cakes")', 'Award Final Quest');
+  noteAction('dm', 'Awarded quest: Recover the Sun-Cakes');
   await waitForSync(2000);
 
   // Verify grand finale toast
@@ -788,6 +832,22 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
       if (issue.details) console.log(`      └─ ${issue.details}`);
     });
   }
+  console.log('\n   ═══════════════════════════════════════════════════════\n');
+
+  console.log('🎭 ═══════════════════════════════════════════════════════');
+  console.log('   AGENT ROLEPLAY ACTION SUMMARY');
+  console.log('   ═══════════════════════════════════════════════════════\n');
+  console.log(`   🎲 DM Agent (${agentActions.dm.length} actions):`);
+  agentActions.dm.forEach((a, i) => console.log(`      ${i + 1}. ${a}`));
+  console.log('');
+  console.log(`   🗡️ Lily Agent (${agentActions.lily.length} actions):`);
+  agentActions.lily.forEach((a, i) => console.log(`      ${i + 1}. ${a}`));
+  console.log('');
+  console.log(`   🛡️ Thorne Agent (${agentActions.thorne.length} actions):`);
+  agentActions.thorne.forEach((a, i) => console.log(`      ${i + 1}. ${a}`));
+  console.log('');
+  console.log(`   ✨ Valerius Agent (${agentActions.valerius.length} actions):`);
+  agentActions.valerius.forEach((a, i) => console.log(`      ${i + 1}. ${a}`));
   console.log('\n   ═══════════════════════════════════════════════════════\n');
 
   // Fail test if critical issues found
