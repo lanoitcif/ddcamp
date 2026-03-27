@@ -53,3 +53,32 @@ When the action gets intense, time slows down into **Rounds** and **Turns**.
 *   **Glint:** The "teenage" dragon. He’s not mean, just lonely and hungry! (Tone: Shy, nervous).
 
 **DM Secret:** You aren't playing *against* the kids; you're the narrator of their legend. Have fun!
+
+---
+
+## 🧩 In-App Puzzle Control Quick Guide
+
+Each scene now has a matching puzzle in the DM sidebar (`Puzzle Controls`):
+
+- **Bakery:** `Search the Bakery` (Spotlight puzzle)
+  - Drag spotlight in DM panel
+  - Click `Reveal` when clues are found
+- **Woods:** `Hoot's Riddle`
+  - Use `Reveal More`, `Show All`, `Hint`, then mark solved
+- **Peak:** `Glimmer Stream`
+  - Kids click stones on Player View
+  - DM monitors progress and can `Reset`
+
+Use `End Puzzle` to close any puzzle overlay instantly.
+
+---
+
+## 🎵 Audio + Mood Quick Guide
+
+The DM sidebar now includes `Ambience` controls:
+
+- `Start/Playing` button: toggle ambient audio
+- Volume slider + mute toggle
+- Mood buttons: `calm`, `tense`, `combat`
+
+Mood changes update the Player View soundscape in real time.
