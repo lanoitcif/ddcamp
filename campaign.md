@@ -76,3 +76,15 @@ The heroes return to Oakhaven with Glint (and hopefully some cakes). Mrs. Crumb 
 - A "Dragon-Scale Medal" from the Mayor.
 - A permanent "Free Sun-Cake" pass.
 - A new dragon friend who can fly them around the valley!
+
+---
+
+## 🎮 VTT Integration Notes (Live App)
+
+This campaign is fully mapped to the in-app scene/puzzle flow:
+
+- **Act 1 / Bakery:** Spotlight Search puzzle (find clue zones)
+- **Act 2 / Woods:** Hoot riddle with typewriter reveal + hints
+- **Act 3 / Peak:** Interactive stepping stones + Glint combat
+
+The DM can run all story beats directly from the DM Console, while kids watch and interact on the Player View.
