@@ -2,7 +2,8 @@ import React from 'react';
 import { useCampaign } from './useCampaign';
 import { useAudio } from './useAudio';
 import SceneParticles, { ActionVfx } from './SceneEffects';
-import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Hash, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music } from 'lucide-react';
+import { PUZZLES } from './Puzzles';
+import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Hash, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle } from 'lucide-react';
 
 /* ─── DM Console ─────────────────────────────────────────────── */
 
@@ -12,7 +13,7 @@ function DMControl() {
     updateGameState, handleHpChange, setHp,
     rollDice, rollSkillCheck, rollSecret,
     nextTurn, awardLoot, setNarration,
-    dismissOverlay, resetGame,
+    dismissOverlay, startPuzzle, updatePuzzle, endPuzzle, resetGame,
   } = useCampaign();
 
   const [hpInput, setHpInput] = React.useState({});
@@ -229,6 +230,46 @@ function DMControl() {
           </div>
         </div>
 
+        {/* ─── Puzzle Controls ─── */}
+        {(() => {
+          const scenePuzzle = PUZZLES[gameState.currentSceneId];
+          const activePuzzle = gameState.activePuzzle;
+          const isPuzzleActive = activePuzzle && activePuzzle.puzzleId === scenePuzzle?.id;
+
+          if (!scenePuzzle) return null;
+
+          const PuzzleIcon = scenePuzzle.icon;
+          const DMComp = scenePuzzle.DMComponent;
+
+          return (
+            <div className="bg-gray-900 p-3 rounded-lg border border-purple-700 mb-3" data-testid="puzzle-controls">
+              <p className="text-xs text-purple-400 mb-2 uppercase tracking-widest flex items-center gap-1">
+                <Puzzle size={12} /> {scenePuzzle.title}
+              </p>
+              {!isPuzzleActive ? (
+                <button
+                  onClick={() => startPuzzle(scenePuzzle.id, gameState.currentSceneId, scenePuzzle.defaultState)}
+                  className="w-full px-3 py-2 bg-purple-900 hover:bg-purple-800 border border-purple-500 rounded text-sm font-bold text-purple-200 flex items-center justify-center gap-2"
+                  data-testid="start-puzzle"
+                >
+                  <PuzzleIcon size={16} /> Launch Puzzle
+                </button>
+              ) : (
+                <>
+                  <DMComp puzzle={activePuzzle} onUpdate={updatePuzzle} />
+                  <button
+                    onClick={endPuzzle}
+                    className="w-full mt-2 px-3 py-1 bg-red-900 hover:bg-red-800 border border-red-600 rounded text-xs text-red-300"
+                    data-testid="end-puzzle"
+                  >
+                    End Puzzle
+                  </button>
+                </>
+              )}
+            </div>
+          );
+        })()}
+
         {/* Dismiss Overlay */}
         <button
           onClick={dismissOverlay}
@@ -403,7 +444,7 @@ function DMControl() {
 /* ─── Player View (TV) ───────────────────────────────────────── */
 
 function PlayerView() {
-  const { campaignData, gameState, sceneMonsters } = useCampaign();
+  const { campaignData, gameState, sceneMonsters, updatePuzzle } = useCampaign();
   const activeScene = campaignData.scenes.find(s => s.id === gameState.currentSceneId);
   const [showRoll, setShowRoll] = React.useState(false);
   const [showToast, setShowToast] = React.useState(false);
@@ -549,6 +590,14 @@ function PlayerView() {
           </div>
         </div>
       )}
+
+      {/* Active Puzzle Overlay */}
+      {gameState.activePuzzle && (() => {
+        const puzzleDef = PUZZLES[gameState.activePuzzle.sceneId];
+        if (!puzzleDef) return null;
+        const PlayerComp = puzzleDef.PlayerComponent;
+        return <PlayerComp puzzle={gameState.activePuzzle} onUpdate={updatePuzzle} />;
+      })()}
 
       {/* Quest Completion Toast */}
       {showToast && gameState.toast && (

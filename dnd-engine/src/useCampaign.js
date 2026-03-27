@@ -17,6 +17,7 @@ function defaultState() {
     narration: null,
     rollLog: [],
     mood: null,
+    activePuzzle: null,  // { puzzleId, sceneId, ...puzzleState }
   };
 }
 
@@ -156,6 +157,18 @@ export function useCampaign() {
     updateGameState({ lastRoll: null, toast: null });
   }, [updateGameState]);
 
+  const startPuzzle = useCallback((puzzleId, sceneId, defaultPuzzleState) => {
+    updateGameState({ activePuzzle: { puzzleId, sceneId, ...defaultPuzzleState } });
+  }, [updateGameState]);
+
+  const updatePuzzle = useCallback((puzzleState) => {
+    updateGameState({ activePuzzle: puzzleState });
+  }, [updateGameState]);
+
+  const endPuzzle = useCallback(() => {
+    updateGameState({ activePuzzle: null });
+  }, [updateGameState]);
+
   const resetGame = useCallback(() => {
     const fresh = defaultState();
     localStorage.removeItem('dnd_game_state');
@@ -177,6 +190,9 @@ export function useCampaign() {
     awardLoot,
     setNarration,
     dismissOverlay,
+    startPuzzle,
+    updatePuzzle,
+    endPuzzle,
     resetGame,
   };
 }
