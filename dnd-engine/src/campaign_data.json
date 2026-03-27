@@ -1,0 +1,79 @@
+{
+  "campaignName": "The Dragon of Whispering Peak",
+  "characters": [
+    {
+      "id": "lily",
+      "name": "Lily the Silent",
+      "class": "Thief (Rogue)",
+      "hp": 9,
+      "maxHp": 9,
+      "bonus": 5,
+      "image": "https://api.dicebear.com/7.x/adventurer/svg?seed=Lily",
+      "actions": [
+        { "name": "Sneak Attack", "bonus": 5, "damage": "1d6+3" },
+        { "name": "Shortbow", "bonus": 5, "damage": "1d6+3" }
+      ]
+    },
+    {
+      "id": "thorne",
+      "name": "Brave Thorne",
+      "class": "Fighter",
+      "hp": 12,
+      "maxHp": 12,
+      "bonus": 5,
+      "image": "https://api.dicebear.com/7.x/adventurer/svg?seed=Thorne",
+      "actions": [
+        { "name": "Longsword", "bonus": 5, "damage": "1d8+3" },
+        { "name": "Handaxe", "bonus": 5, "damage": "1d6+3" }
+      ]
+    },
+    {
+      "id": "valerius",
+      "name": "Valerius the Just",
+      "class": "Paladin",
+      "hp": 12,
+      "maxHp": 12,
+      "bonus": 4,
+      "image": "https://api.dicebear.com/7.x/adventurer/svg?seed=Valerius",
+      "actions": [
+        { "name": "Warhammer", "bonus": 4, "damage": "1d8+2" },
+        { "name": "Divine Smite", "bonus": 4, "damage": "2d8" }
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "id": "bakery",
+      "title": "Mrs. Crumb's Bakery",
+      "description": "The smell of honey and cinnamon fills the air... but the Sun-Cakes are gone!",
+      "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      "id": "woods",
+      "title": "The Sparkle Woods",
+      "description": "The trees glow like emeralds and the wind whispers secrets.",
+      "image": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      "id": "peak",
+      "title": "Whispering Peak",
+      "description": "The trail leads to a cozy cave at the very top. A blue dragon is licking frosting off his claws.",
+      "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"
+    }
+  ],
+  "monsters": [
+    {
+      "id": "hoot",
+      "name": "Hoot the Owl",
+      "hp": 20,
+      "image": "https://api.dicebear.com/7.x/bottts/svg?seed=Hoot"
+    },
+    {
+      "id": "glint",
+      "name": "Glint the Dragon",
+      "hp": 45,
+      "maxHp": 45,
+      "image": "https://api.dicebear.com/7.x/identicon/svg?seed=Glint"
+    }
+  ]
+}

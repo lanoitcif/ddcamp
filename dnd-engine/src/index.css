@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-dnd-dark text-white overflow-hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.parchment {
+  background-color: #f4f1ea;
+  color: #1a1a1a;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  border: 2px solid #d4af37;
+}
+
+.dnd-button {
+  @apply px-4 py-2 bg-dnd-red text-white font-bold rounded border-2 border-dnd-gold hover:bg-red-700 transition-colors shadow-lg active:scale-95;
+}
+
+.dnd-card {
+  @apply bg-gray-900 border border-dnd-gold p-4 rounded-lg shadow-2xl;
+}
