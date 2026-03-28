@@ -66,7 +66,11 @@ export function useCampaign() {
   useEffect(() => {
     const ch = new BroadcastChannel(SYNC_CHANNEL);
     channelRef.current = ch;
-    const handleMessage = (event) => setGameState(event.data);
+    const handleMessage = (event) => {
+      if (event.data && typeof event.data === 'object') {
+        setGameState(event.data);
+      }
+    };
     ch.addEventListener('message', handleMessage);
     return () => {
       ch.removeEventListener('message', handleMessage);
@@ -78,7 +82,8 @@ export function useCampaign() {
     const char = campaignData.characters.find(c => c.id === id);
     if (char) return char.maxHp;
     const mon = campaignData.monsters.find(m => m.id === id);
-    return mon?.maxHp ?? mon?.hp ?? 99;
+    if (!mon) console.warn(`getMaxHp: unknown entity "${id}"`);
+    return mon?.maxHp ?? mon?.hp ?? 1;
   }, []);
 
   const handleHpChange = useCallback((id, delta) => {

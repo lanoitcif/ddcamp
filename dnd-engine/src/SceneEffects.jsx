@@ -100,7 +100,7 @@ function Particle({ config }) {
     const anim = el.animate(keyframes, {
       duration: duration * 1000,
       delay: delay * 1000,
-      iterations: Infinity,
+      iterations: Math.ceil(120 / duration), // ~2 minutes, then stop
       easing: 'ease-in-out',
     });
 

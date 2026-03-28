@@ -5,6 +5,43 @@ import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } f
 import { PUZZLES } from './Puzzles';
 import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Hash, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon } from 'lucide-react';
 
+/* ─── Error Boundary ─────────────────────────────────────────── */
+
+class ErrorBoundary extends React.Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error, info) { console.error('D&D Engine error:', error, info); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex items-center justify-center h-screen bg-dnd-dark text-white">
+          <div className="text-center p-12">
+            <p className="text-6xl mb-6">🐉</p>
+            <h1 className="text-3xl font-serif text-dnd-gold mb-4">The Dragon Sneezed!</h1>
+            <p className="text-gray-400 mb-8">Something went wrong, but we can fix it.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="dnd-button px-8 py-3 text-lg"
+            >
+              Restart Adventure
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+/* ─── Image fallback for offline/broken URLs ─────────────────── */
+
+const FALLBACK_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23333' width='100' height='100' rx='50'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='%23d4af37' font-size='36'%3E⚔%3C/text%3E%3C/svg%3E";
+
+function handleImgError(e) {
+  e.target.onerror = null;
+  e.target.src = FALLBACK_IMG;
+}
+
 const PORTRAITS = [
   { label: "Lily 1", url: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=400&q=80" },
   { label: "Lily 2", url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" },
@@ -29,7 +66,7 @@ function PortraitGallery({ onSelect, onClose }) {
               onClick={() => onSelect(p.url)}
               className="group relative rounded-xl overflow-hidden border-2 border-transparent hover:border-dnd-gold transition-all"
             >
-              <img src={p.url} className="w-full aspect-square object-cover" alt="" />
+              <img src={p.url} className="w-full aspect-square object-cover" alt={p.label} onError={handleImgError} />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center">
                 <span className="text-xs font-bold text-white uppercase tracking-widest">Select</span>
               </div>
@@ -86,7 +123,7 @@ function DMControl() {
       <div data-testid={`card-${entity.id}`} className={`dnd-card transition-all ${isActive ? 'ring-2 ring-white scale-105 z-10' : 'opacity-80 hover:opacity-100'}`}>
         <div className="flex items-center gap-4 mb-4">
           <div className="relative group/portrait">
-            <img src={portrait} alt={entity.name} className={`w-16 h-16 rounded-full border-2 shadow-lg object-cover ${isMonster ? 'border-red-500' : 'border-dnd-gold'}`} />
+            <img src={portrait} alt={entity.name} className={`w-16 h-16 rounded-full border-2 shadow-lg object-cover ${isMonster ? 'border-red-500' : 'border-dnd-gold'}`} onError={handleImgError} />
             {!isMonster && (
               <button 
                 onClick={() => setShowPortraits(entity.id)}
@@ -199,7 +236,7 @@ function DMControl() {
           <p className="text-xs text-gray-400 mb-2 uppercase tracking-widest">Active Turn</p>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-full border-2 border-dnd-gold bg-black flex items-center justify-center overflow-hidden">
-               <img src={gameState.characterPortraits[gameState.activeTurnId] || activeTurnEntity?.image} alt="" className="w-8 h-8 rounded-full object-cover" />
+               <img src={gameState.characterPortraits[gameState.activeTurnId] || activeTurnEntity?.image} alt={activeTurnEntity?.name || 'Active turn'} className="w-8 h-8 rounded-full object-cover" onError={handleImgError} />
             </div>
             <span className="font-bold text-white truncate">{activeTurnEntity?.name}</span>
           </div>
@@ -529,7 +566,7 @@ function DMControl() {
               onClick={() => setHandout(h)}
               className="p-2 bg-gray-900 border border-gray-700 rounded text-[10px] hover:border-dnd-gold transition-all flex flex-col items-center gap-1 text-gray-400 hover:text-dnd-gold"
             >
-               <img src={h.image} className="w-12 h-12 rounded object-cover border border-gray-800" alt="" />
+               <img src={h.image} className="w-12 h-12 rounded object-cover border border-gray-800" alt={h.title} onError={handleImgError} />
                {h.title}
             </button>
           ))}
@@ -603,53 +640,62 @@ function PlayerView() {
     }
   }, [gameState.currentSceneId, prevSceneId]);
 
-  // Dice roll: animated spin then reveal
+  // Dice roll: animated spin then reveal (keyed by roll ID to prevent duplicate triggers)
+  const lastRollId = gameState.lastRoll?.id;
   React.useEffect(() => {
-    if (gameState.lastRoll) {
-      // Start dice animation
-      setDicePhase('spin');
-      setShowVfx(true);
-      audio.sfx('dice');
+    if (!gameState.lastRoll) return;
 
-      let startTime = null;
-      const spinDuration = 1200;
+    // Start dice animation
+    setDicePhase('spin');
+    setShowVfx(true);
+    audio.sfx('dice');
 
-      const tick = (timestamp) => {
-        if (!startTime) startTime = timestamp;
-        const elapsed = timestamp - startTime;
-        const progress = Math.min(elapsed / spinDuration, 1);
-        const interval = 30 + progress * 200;
+    let cancelled = false;
+    let startTime = null;
+    const spinDuration = 1200;
+    const roll = gameState.lastRoll;
 
-        setDiceDisplay(Math.floor(Math.random() * 20) + 1);
+    const tick = (timestamp) => {
+      if (cancelled) return;
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / spinDuration, 1);
+      const interval = 30 + progress * 200;
 
-        if (progress < 1) {
-          diceFrameRef.current = setTimeout(() => requestAnimationFrame(tick), interval);
-        } else {
-          // Reveal actual result
-          setDiceDisplay(gameState.lastRoll.d20 || gameState.lastRoll.total);
-          setDicePhase('reveal');
-          setShowRoll(true);
+      setDiceDisplay(Math.floor(Math.random() * 20) + 1);
 
-          // Play appropriate SFX on reveal
-          if (gameState.lastRoll.d20 === 20) audio.sfx('crit');
-          else if (gameState.lastRoll.d20 === 1) audio.sfx('fail');
-          else audio.sfx('reveal');
+      if (progress < 1) {
+        diceFrameRef.current = setTimeout(() => requestAnimationFrame(tick), interval);
+      } else {
+        // Reveal actual result
+        setDiceDisplay(roll.d20 || roll.total);
+        setDicePhase('reveal');
+        setShowRoll(true);
 
-          // Hide VFX after a beat
-          setTimeout(() => setShowVfx(false), 2000);
-          // Auto-hide roll overlay
-          diceFrameRef.current = setTimeout(() => {
+        // Play appropriate SFX on reveal
+        if (roll.d20 === 20) audio.sfx('crit');
+        else if (roll.d20 === 1) audio.sfx('fail');
+        else audio.sfx('reveal');
+
+        // Hide VFX after a beat
+        setTimeout(() => { if (!cancelled) setShowVfx(false); }, 2000);
+        // Auto-hide roll overlay
+        diceFrameRef.current = setTimeout(() => {
+          if (!cancelled) {
             setShowRoll(false);
             setDicePhase(null);
-          }, 5000);
-        }
-      };
+          }
+        }, 5000);
+      }
+    };
 
-      requestAnimationFrame(tick);
+    requestAnimationFrame(tick);
 
-      return () => { if (diceFrameRef.current) clearTimeout(diceFrameRef.current); };
-    }
-  }, [gameState.lastRoll]);
+    return () => {
+      cancelled = true;
+      if (diceFrameRef.current) clearTimeout(diceFrameRef.current);
+    };
+  }, [lastRollId]);
 
   // Toast (quest complete)
   React.useEffect(() => {
@@ -718,8 +764,8 @@ function PlayerView() {
         </div>
       )}
 
-      {/* Active Puzzle Overlay */}
-      {gameState.activePuzzle && (() => {
+      {/* Active Puzzle Overlay (only for current scene) */}
+      {gameState.activePuzzle && gameState.activePuzzle.sceneId === gameState.currentSceneId && (() => {
         const puzzleDef = PUZZLES[gameState.activePuzzle.sceneId];
         if (!puzzleDef) return null;
         const PlayerComp = puzzleDef.PlayerComponent;
@@ -798,7 +844,8 @@ function PlayerView() {
                 )}
                 <img
                   src={portrait}
-                  alt={entity.name}
+                  alt={`${entity.name} portrait`}
+                  onError={handleImgError}
                   className={`w-32 h-32 rounded-full border-4 shadow-2xl transition-all object-cover ${
                     isActive ? (entity.isMonster ? 'border-red-400 ring-8 ring-red-400/20' : 'border-white ring-8 ring-white/20')
                     : (entity.isMonster ? 'border-red-700' : 'border-dnd-gold')
@@ -840,9 +887,11 @@ function App() {
   const mode = urlParams.get('mode');
 
   return (
-    <div className="App">
-      {mode === 'player' ? <PlayerView /> : <DMControl />}
-    </div>
+    <ErrorBoundary>
+      <div className="App">
+        {mode === 'player' ? <PlayerView /> : <DMControl />}
+      </div>
+    </ErrorBoundary>
   );
 }
 
