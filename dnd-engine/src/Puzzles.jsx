@@ -582,10 +582,14 @@ const SAFE_ROUTE = [1, 0, 2, 1];
 const ROUTE_EMOJIS = ['🌿', '🍂', '🌲'];
 const ROUTE_LABELS = ['Left', 'Middle', 'Right'];
 
-function SneakDM({ puzzle }) {
+function SneakDM({ puzzle, onUpdate }) {
   const currentCheckpoint = puzzle.currentCheckpoint ?? 0;
   const alerts = puzzle.alerts ?? 0;
   const success = puzzle.success ?? false;
+
+  const resetSneak = () => {
+    onUpdate({ ...puzzle, currentCheckpoint: 0, alerts: 0, success: false });
+  };
 
   return (
     <div className="space-y-2">
@@ -609,6 +613,9 @@ function SneakDM({ puzzle }) {
           {success ? '✓ Sneaked through!' : `Checkpoint ${currentCheckpoint + 1}/4`}
         </span>
         <span className="px-2 py-0.5 rounded bg-red-900/50 text-red-300">⚠ {alerts} alerts</span>
+        <button onClick={resetSneak} className="px-2 py-0.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded">
+          Reset
+        </button>
       </div>
     </div>
   );
@@ -1038,7 +1045,7 @@ function StarsPlayer({ puzzle, onUpdate }) {
         const isWrong = wrongStar === i;
         return (
           <button key={i} onClick={() => clickStar(i)}
-            className={`absolute w-16 h-16 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 transition-all duration-300 flex items-center justify-center text-2xl font-bold ${
+            className={`absolute w-20 h-20 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 transition-all duration-300 flex items-center justify-center text-3xl font-bold ${
               isConnected ? 'bg-yellow-500 border-yellow-300 shadow-[0_0_40px_rgba(234,179,8,0.6)] text-black' :
               isWrong ? 'bg-red-600 border-red-400 animate-pulse scale-125' :
               'bg-gray-700 border-gray-500 hover:border-yellow-400 hover:scale-110 cursor-pointer text-gray-300'
@@ -1079,9 +1086,13 @@ const TREASURE_PILES = [
   { id: 'keep', label: '🎒 Keep as Reward' },
 ];
 
-function HoardDM({ puzzle }) {
+function HoardDM({ puzzle, onUpdate }) {
   const sorted = puzzle.sorted || {};
   const correct = puzzle.correct || 0;
+
+  const resetHoard = () => {
+    onUpdate({ ...puzzle, sorted: {}, correct: 0, selected: null });
+  };
 
   return (
     <div className="space-y-2">
@@ -1102,7 +1113,12 @@ function HoardDM({ puzzle }) {
           </div>
         ))}
       </div>
-      <p className="text-xs text-dnd-gold font-bold">{correct}/{TREASURES.length} correct</p>
+      <div className="flex gap-2 text-xs items-center">
+        <p className="text-xs text-dnd-gold font-bold">{correct}/{TREASURES.length} correct</p>
+        <button onClick={resetHoard} className="px-2 py-0.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded ml-auto">
+          Reset
+        </button>
+      </div>
     </div>
   );
 }
