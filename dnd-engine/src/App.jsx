@@ -1,18 +1,55 @@
 import React from 'react';
 import { useCampaign } from './useCampaign';
 import { useAudio } from './useAudio';
-import SceneParticles, { ActionVfx } from './SceneEffects';
+import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } from './SceneEffects';
 import { PUZZLES } from './Puzzles';
-import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Hash, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle } from 'lucide-react';
+import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Hash, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon } from 'lucide-react';
+
+const PORTRAITS = [
+  { label: "Lily 1", url: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=400&q=80" },
+  { label: "Lily 2", url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" },
+  { label: "Thorne 1", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" },
+  { label: "Thorne 2", url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" },
+  { label: "Valerius 1", url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80" },
+  { label: "Valerius 2", url: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80" },
+  { label: "Wizard", url: "https://images.unsplash.com/photo-1514543250559-83867827ecce?auto=format&fit=crop&w=400&q=80" },
+  { label: "Elf", url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80" },
+];
+
+function PortraitGallery({ onSelect, onClose }) {
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-10">
+      <div className="bg-gray-900 border-2 border-dnd-gold rounded-2xl max-w-4xl w-full p-8 relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white"><X /></button>
+        <h2 className="text-2xl font-serif text-dnd-gold mb-6">Choose a Hero Portrait</h2>
+        <div className="grid grid-cols-4 gap-4 overflow-y-auto max-h-[60vh] p-2">
+          {PORTRAITS.map(p => (
+            <button 
+              key={p.url} 
+              onClick={() => onSelect(p.url)}
+              className="group relative rounded-xl overflow-hidden border-2 border-transparent hover:border-dnd-gold transition-all"
+            >
+              <img src={p.url} className="w-full aspect-square object-cover" alt="" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center">
+                <span className="text-xs font-bold text-white uppercase tracking-widest">Select</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ─── DM Console ─────────────────────────────────────────────── */
 
 function DMControl() {
   const {
     campaignData, gameState, sceneMonsters,
-    updateGameState, handleHpChange, setHp,
+    updateGameState, handleHpChange, setHp, setPortrait,
     rollDice, rollSkillCheck, rollSecret,
     nextTurn, awardLoot, setNarration,
+    helpAction, snackAction, setPing, setHandout, sendReaction,
     dismissOverlay, startPuzzle, updatePuzzle, endPuzzle, resetGame,
   } = useCampaign();
 
@@ -21,9 +58,8 @@ function DMControl() {
   const [skillLabel, setSkillLabel] = React.useState('');
   const [lastSecret, setLastSecret] = React.useState(null);
   const [showReset, setShowReset] = React.useState(false);
-  const [audioPlaying, setAudioPlaying] = React.useState(false);
+  const [showPortraits, setShowPortraits] = React.useState(null); // id or null
   const [audioVolume, setAudioVolume] = React.useState(0.7);
-  const [audioMood, setAudioMood] = React.useState('calm');
   const audio = useAudio();
 
   const activeScene = campaignData.scenes.find(s => s.id === gameState.currentSceneId);
@@ -44,11 +80,20 @@ function DMControl() {
     const hp = gameState.characterHp[entity.id] ?? 0;
     const maxHp = entity.maxHp ?? entity.hp;
     const isActive = gameState.activeTurnId === entity.id;
+    const portrait = gameState.characterPortraits[entity.id] || entity.image;
 
     return (
       <div data-testid={`card-${entity.id}`} className={`dnd-card transition-all ${isActive ? 'ring-2 ring-white scale-105 z-10' : 'opacity-80 hover:opacity-100'}`}>
         <div className="flex items-center gap-4 mb-4">
-          <img src={entity.image} alt={entity.name} className={`w-16 h-16 rounded-full border-2 shadow-lg ${isMonster ? 'border-red-500' : 'border-dnd-gold'}`} />
+          <div className="relative group/portrait">
+            <img src={portrait} alt={entity.name} className={`w-16 h-16 rounded-full border-2 shadow-lg object-cover ${isMonster ? 'border-red-500' : 'border-dnd-gold'}`} />
+            {!isMonster && (
+              <button 
+                onClick={() => setShowPortraits(entity.id)}
+                className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover/portrait:opacity-100 flex items-center justify-center text-[10px] font-bold text-white transition-opacity"
+              >CHANGE</button>
+            )}
+          </div>
           <div>
             <h3 className="font-bold text-xl text-dnd-gold">{entity.name}</h3>
             {entity.class && <p className="text-xs text-gray-400 italic tracking-widest">{entity.class.toUpperCase()}</p>}
@@ -87,7 +132,7 @@ function DMControl() {
 
         {/* Actions */}
         {entity.actions && (
-          <div className="space-y-2">
+          <div className="space-y-2 mb-4">
             {entity.actions.map(action => (
               <button
                 key={action.name}
@@ -98,6 +143,24 @@ function DMControl() {
                 <span className="text-dnd-gold">+{action.bonus} <span className="text-gray-500 ml-1">({action.damage})</span></span>
               </button>
             ))}
+          </div>
+        )}
+
+        {/* Heroic Actions */}
+        {!isMonster && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => helpAction(entity.name, activeTurnEntity?.name)}
+              className="flex-1 px-3 py-1.5 bg-blue-900/40 hover:bg-blue-800 border border-blue-600 rounded text-[10px] font-bold text-blue-300 flex items-center justify-center gap-1"
+            >
+              <Zap size={10} /> Help
+            </button>
+            <button
+              onClick={() => snackAction(entity.id, entity.name)}
+              className="flex-1 px-3 py-1.5 bg-green-900/40 hover:bg-green-800 border border-green-600 rounded text-[10px] font-bold text-green-300 flex items-center justify-center gap-1"
+            >
+              <Heart size={10} /> Snack
+            </button>
           </div>
         )}
       </div>
@@ -117,7 +180,7 @@ function DMControl() {
               key={scene.id}
               onClick={() => {
                 updateGameState({ currentSceneId: scene.id });
-                if (audioPlaying) audio.startAmbient(scene.id, audioMood);
+                if (gameState.audioPlaying) audio.startAmbient(scene.id, gameState.audioMood);
               }}
               className={`w-full text-left p-3 rounded transition-all text-sm ${
                 gameState.currentSceneId === scene.id ? 'bg-dnd-red text-white border-l-4 border-white' : 'hover:bg-gray-800 text-gray-400'
@@ -128,6 +191,7 @@ function DMControl() {
           ))}
         </div>
 
+
         <h2 className="text-dnd-gold font-bold flex items-center gap-2 mb-4">
           <FastForward size={20} /> Initiative
         </h2>
@@ -135,7 +199,7 @@ function DMControl() {
           <p className="text-xs text-gray-400 mb-2 uppercase tracking-widest">Active Turn</p>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-full border-2 border-dnd-gold bg-black flex items-center justify-center overflow-hidden">
-               <img src={activeTurnEntity?.image} alt="" className="w-8 h-8 rounded-full" />
+               <img src={gameState.characterPortraits[gameState.activeTurnId] || activeTurnEntity?.image} alt="" className="w-8 h-8 rounded-full object-cover" />
             </div>
             <span className="font-bold text-white truncate">{activeTurnEntity?.name}</span>
           </div>
@@ -208,7 +272,13 @@ function DMControl() {
 
         {/* Narration */}
         <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-3">
-          <p className="text-xs text-gray-400 mb-2 uppercase tracking-widest">Narration (TV)</p>
+          <p className="text-xs text-gray-400 mb-2 uppercase tracking-widest flex justify-between items-center">
+            <span>Narration (TV)</span>
+            <button 
+              onClick={() => setNarrationText("A scream rings out from the bakery! Mrs. Crumb (a halfling with flour on her nose) is waving a rolling pin... 'Oh no! My Sun-Cakes are gone! There's blue frosting everywhere!'")}
+              className="text-[10px] bg-dnd-gold/20 text-dnd-gold px-2 py-0.5 rounded border border-dnd-gold/30 hover:bg-dnd-gold/40"
+            >Intro Intro</button>
+          </p>
           <textarea
             rows={2}
             placeholder="The door creaks open..."
@@ -227,6 +297,22 @@ function DMControl() {
               onClick={() => { setNarration(null); setNarrationText(''); }}
               className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs border border-gray-500"
             >Clear</button>
+          </div>
+        </div>
+
+        {/* Reactions */}
+        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-3">
+          <p className="text-xs text-gray-400 mb-2 uppercase tracking-widest flex items-center gap-1">
+            <Zap size={12} /> Quick Reactions
+          </p>
+          <div className="flex justify-between">
+            {['🎉', '❤️', '🌟', '❓', '💀', '🔥', '👏', '😂'].map(emoji => (
+              <button 
+                key={emoji}
+                onClick={() => sendReaction(emoji)}
+                className="text-xl hover:scale-125 transition-transform"
+              >{emoji}</button>
+            ))}
           </div>
         </div>
 
@@ -286,23 +372,23 @@ function DMControl() {
           <div className="flex gap-2 mb-2">
             <button
               onClick={() => {
-                if (audioPlaying) {
+                if (gameState.audioPlaying) {
                   audio.stopAmbient();
-                  setAudioPlaying(false);
+                  updateGameState({ audioPlaying: false });
                 } else {
-                  audio.startAmbient(gameState.currentSceneId, audioMood);
+                  audio.startAmbient(gameState.currentSceneId, gameState.audioMood);
                   audio.setVolume(audioVolume);
-                  setAudioPlaying(true);
+                  updateGameState({ audioPlaying: true });
                 }
               }}
               className={`flex-1 px-3 py-1 rounded text-xs font-bold flex items-center justify-center gap-1 border transition-all ${
-                audioPlaying
+                gameState.audioPlaying
                   ? 'bg-green-800 border-green-500 text-green-300'
                   : 'bg-gray-800 border-gray-600 hover:border-dnd-gold'
               }`}
               data-testid="audio-toggle"
             >
-              {audioPlaying ? <><Pause size={12} /> Playing</> : <><Play size={12} /> Start</>}
+              {gameState.audioPlaying ? <><Pause size={12} /> Playing</> : <><Play size={12} /> Start</>}
             </button>
             <button
               onClick={() => {
@@ -326,12 +412,11 @@ function DMControl() {
               <button
                 key={mood}
                 onClick={() => {
-                  setAudioMood(mood);
-                  updateGameState({ mood });
-                  if (audioPlaying) audio.startAmbient(gameState.currentSceneId, mood);
+                  updateGameState({ audioMood: mood });
+                  if (gameState.audioPlaying) audio.startAmbient(gameState.currentSceneId, mood);
                 }}
                 className={`flex-1 px-2 py-1 rounded text-xs capitalize border transition-all ${
-                  audioMood === mood
+                  gameState.audioMood === mood
                     ? 'bg-dnd-red border-dnd-gold text-dnd-gold font-bold'
                     : 'bg-gray-800 border-gray-600 hover:border-gray-500'
                 }`}
@@ -374,6 +459,12 @@ function DMControl() {
 
       {/* ─── Main Panel ─── */}
       <div className="flex-1 p-8 overflow-y-auto">
+        {showPortraits && (
+          <PortraitGallery 
+            onClose={() => setShowPortraits(null)} 
+            onSelect={(url) => { setPortrait(showPortraits, url); setShowPortraits(null); }} 
+          />
+        )}
         <header className="mb-8 flex justify-between items-center">
           <h1 className="text-4xl font-serif text-dnd-gold italic tracking-tight">{campaignData.campaignName}</h1>
           <div className="bg-gray-800 px-4 py-2 rounded-full flex items-center gap-2 border border-gray-700">
@@ -404,12 +495,44 @@ function DMControl() {
         )}
 
         {/* Scene Context */}
-        <div className="parchment p-8 rounded-lg shadow-2xl relative overflow-hidden group mb-8">
+        <div className="parchment p-8 rounded-lg shadow-2xl relative overflow-hidden group mb-8 cursor-crosshair active:brightness-95 transition-all"
+          onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            setPing(x, y);
+          }}
+        >
           <div className="absolute top-0 right-0 p-4 opacity-10">
              <Scroll size={80} />
           </div>
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-40 transition-opacity flex items-center gap-1 text-[10px] text-gray-800 font-bold uppercase">
+             <Zap size={10} /> Click to Ping TV
+          </div>
           <h2 className="text-3xl font-serif font-bold mb-4 border-b-2 border-gray-300 pb-2 text-gray-800">{activeScene?.title}</h2>
           <p className="text-xl leading-relaxed text-gray-700 font-medium italic">"{activeScene?.description}"</p>
+        </div>
+
+        {/* Handouts */}
+        <h2 className="text-dnd-gold font-bold flex items-center gap-2 mb-4">
+          <Eye size={20} /> Handouts
+        </h2>
+        <div className="grid grid-cols-2 gap-2 mb-8">
+          {[
+            { title: "Sun-Cakes", image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80" },
+            { title: "Dragon Scale", image: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80" },
+            { title: "The Medal", image: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&w=800&q=80" },
+            { title: "Mrs. Crumb", image: "https://api.dicebear.com/7.x/adventurer/svg?seed=Crumb" }
+          ].map(h => (
+            <button
+              key={h.title}
+              onClick={() => setHandout(h)}
+              className="p-2 bg-gray-900 border border-gray-700 rounded text-[10px] hover:border-dnd-gold transition-all flex flex-col items-center gap-1 text-gray-400 hover:text-dnd-gold"
+            >
+               <img src={h.image} className="w-12 h-12 rounded object-cover border border-gray-800" alt="" />
+               {h.title}
+            </button>
+          ))}
         </div>
 
         {/* Combat Log */}
@@ -444,7 +567,7 @@ function DMControl() {
 /* ─── Player View (TV) ───────────────────────────────────────── */
 
 function PlayerView() {
-  const { campaignData, gameState, sceneMonsters, updatePuzzle } = useCampaign();
+  const { campaignData, gameState, sceneMonsters, updatePuzzle, dismissOverlay } = useCampaign();
   const activeScene = campaignData.scenes.find(s => s.id === gameState.currentSceneId);
   const [showRoll, setShowRoll] = React.useState(false);
   const [showToast, setShowToast] = React.useState(false);
@@ -459,20 +582,19 @@ function PlayerView() {
   const activeTurnEntity = campaignData.characters.find(c => c.id === gameState.activeTurnId) ||
                            campaignData.monsters.find(m => m.id === gameState.activeTurnId);
 
-  // Auto-start ambient on player view when mood is sent from DM
+  // Sync ambient with global state
   React.useEffect(() => {
-    if (gameState.mood) {
-      audio.startAmbient(gameState.currentSceneId, gameState.mood);
+    if (gameState.audioPlaying) {
+      audio.startAmbient(gameState.currentSceneId, gameState.audioMood);
+    } else {
+      audio.stopAmbient();
     }
-  }, [gameState.mood, gameState.currentSceneId]);
+  }, [gameState.audioPlaying, gameState.audioMood, gameState.currentSceneId]);
 
-  // Scene transition fade + ambient scene change
+  // Scene transition fade
   React.useEffect(() => {
     if (gameState.currentSceneId !== prevSceneId) {
       setSceneTransition(true);
-      if (gameState.mood) {
-        audio.startAmbient(gameState.currentSceneId, gameState.mood);
-      }
       const timer = setTimeout(() => {
         setPrevSceneId(gameState.currentSceneId);
         setSceneTransition(false);
@@ -555,6 +677,11 @@ function PlayerView() {
         style={{ backgroundImage: `url(${activeScene?.image})` }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-70" />
+
+      {/* Pings, Handouts & Reactions */}
+      <PingLayer ping={gameState.ping} />
+      <HandoutOverlay handout={gameState.activeHandout} onDismiss={dismissOverlay} />
+      <ReactionLayer reaction={gameState.reaction} />
 
       {/* Scene Particles */}
       <SceneParticles sceneId={gameState.currentSceneId} />
@@ -661,6 +788,7 @@ function PlayerView() {
           const hpRatio = maxHp > 0 ? hp / maxHp : 0;
           const isActive = gameState.activeTurnId === entity.id;
           const isBonked = hp <= 0;
+          const portrait = gameState.characterPortraits[entity.id] || entity.image;
 
           return (
             <div key={entity.id} data-testid={`hero-${entity.id}`} className="text-center group">
@@ -669,9 +797,9 @@ function PlayerView() {
                   <div className={`absolute -inset-4 rounded-full blur-2xl animate-pulse ${entity.isMonster ? 'bg-red-500/30' : 'bg-white/30'}`} />
                 )}
                 <img
-                  src={entity.image}
+                  src={portrait}
                   alt={entity.name}
-                  className={`w-32 h-32 rounded-full border-4 shadow-2xl transition-all ${
+                  className={`w-32 h-32 rounded-full border-4 shadow-2xl transition-all object-cover ${
                     isActive ? (entity.isMonster ? 'border-red-400 ring-8 ring-red-400/20' : 'border-white ring-8 ring-white/20')
                     : (entity.isMonster ? 'border-red-700' : 'border-dnd-gold')
                   }`}

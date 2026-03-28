@@ -34,7 +34,7 @@
       "hp": 12,
       "maxHp": 12,
       "bonus": 4,
-      "image": "https://api.dicebear.com/7.x/adventurer/svg?seed=Valerius",
+      "image": "https://api.dicebear.com/7.x/adventurer/svg?seed=Valerius-Paladin",
       "actions": [
         { "name": "Warhammer", "bonus": 4, "damage": "1d8+2" },
         { "name": "Divine Smite", "bonus": 4, "damage": "2d8" }
@@ -45,19 +45,19 @@
     {
       "id": "bakery",
       "title": "Mrs. Crumb's Bakery",
-      "description": "The smell of honey and cinnamon fills the air... but the Sun-Cakes are gone!",
+      "description": "The smell of honey and cinnamon fills the air... but the Sun-Cakes are gone! Mrs. Crumb (a stout halfling with flour on her nose) is distraught.",
       "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=80"
     },
     {
       "id": "woods",
       "title": "The Sparkle Woods",
-      "description": "The trees glow like emeralds and the wind whispers secrets.",
+      "description": "The trees glow like emeralds and the wind whispers secrets. Hoot the Riddle-Owl (wearing tiny spectacles) blocks your path.",
       "image": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
     },
     {
       "id": "peak",
       "title": "Whispering Peak",
-      "description": "The trail leads to a cozy cave at the very top. A blue dragon is licking frosting off his claws.",
+      "description": "The wind sounds like soft singing. Inside a cozy cave, you find Glint the Dragon licking frosting off his claws.",
       "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"
     }
   ],
@@ -66,20 +66,28 @@
       "id": "hoot",
       "name": "Hoot the Owl",
       "hp": 20,
-      "image": "https://api.dicebear.com/7.x/bottts/svg?seed=Hoot"
+      "maxHp": 20,
+      "image": "https://api.dicebear.com/7.x/bottts/svg?seed=Hoot",
+      "actions": [
+        { "name": "Wing Buffet", "bonus": 3, "damage": "1d4+1" }
+      ]
     },
     {
       "id": "glint",
       "name": "Glint the Dragon",
       "hp": 45,
       "maxHp": 45,
-      "image": "https://api.dicebear.com/7.x/identicon/svg?seed=Glint"
+      "image": "https://api.dicebear.com/7.x/identicon/svg?seed=Glint",
+      "actions": [
+        { "name": "Frosting Breath", "bonus": 5, "damage": "2d6" },
+        { "name": "Tail Swipe", "bonus": 4, "damage": "1d8+2" }
+      ]
     }
   ],
   "quests": [
     { "id": "bakery-clue", "title": "Find the Bakery Clue", "reward": "Golden Crumb" },
     { "id": "hoot-riddle", "title": "Solve Hoot's Riddle", "reward": "Owl's Blessing" },
     { "id": "river-cross", "title": "Cross the Glimmer Stream", "reward": "Hero's Badge" },
-    { "id": "sun-cakes", "title": "Recover the Sun-Cakes", "reward": "The Sun-Cakes!" }
+    { "id": "glint-friend", "title": "Make a New Friend", "reward": "Dragon-Scale Medal" }
   ]
 }

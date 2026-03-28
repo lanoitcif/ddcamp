@@ -10,14 +10,19 @@ function defaultState() {
       ...campaignData.characters.reduce((acc, c) => ({ ...acc, [c.id]: c.hp }), {}),
       ...campaignData.monsters.reduce((acc, m) => ({ ...acc, [m.id]: m.hp }), {}),
     },
+    characterPortraits: {}, // id -> imageUrl
     lastRoll: null,
     activeTurnId: campaignData.characters[0].id,
     completedQuests: [],
     toast: null,
     narration: null,
     rollLog: [],
-    mood: null,
-    activePuzzle: null,  // { puzzleId, sceneId, ...puzzleState }
+    audioMood: 'calm',
+    audioPlaying: false,
+    ping: null,
+    activeHandout: null,
+    reaction: null, // { emoji, id }
+    activePuzzle: null,
   };
 }
 
@@ -26,16 +31,12 @@ function loadState() {
     const saved = localStorage.getItem('dnd_game_state');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Merge with defaults so new fields are always present
       return { ...defaultState(), ...parsed };
     }
-  } catch {
-    // Corrupted localStorage — fall through to defaults
-  }
+  } catch { /* ok */ }
   return defaultState();
 }
 
-// Parse a damage string like "2d8+3" or "1d6" and roll it
 export function rollDamage(damageStr) {
   if (!damageStr) return null;
   const match = damageStr.match(/^(\d+)d(\d+)(?:\+(\d+))?$/);
@@ -92,6 +93,16 @@ export function useCampaign() {
     const clamped = Math.max(0, Math.min(maxHp, value));
     updateGameState({ characterHp: { ...gameState.characterHp, [id]: clamped } });
   }, [gameState.characterHp, getMaxHp, updateGameState]);
+
+  const setPortrait = useCallback((id, imageUrl) => {
+    updateGameState({ 
+      characterPortraits: { ...gameState.characterPortraits, [id]: imageUrl } 
+    });
+  }, [gameState.characterPortraits, updateGameState]);
+
+  const sendReaction = useCallback((emoji) => {
+    updateGameState({ reaction: { emoji, id: Date.now() } });
+  }, [updateGameState]);
 
   const addLogEntry = useCallback((entry) => {
     setGameState(prev => {
@@ -153,8 +164,46 @@ export function useCampaign() {
     updateGameState({ narration: text ? { text, id: Date.now() } : null });
   }, [updateGameState]);
 
+  const helpAction = useCallback((helperName, targetName) => {
+    addLogEntry({
+      id: Date.now(),
+      time: new Date().toLocaleTimeString(),
+      label: `✨ ${helperName} helps ${targetName}! (Advantage)`,
+      d20: 'HELP',
+      total: 'ADV',
+      bonus: 0
+    });
+    updateGameState({ toast: { title: "Help!", message: `${helperName} gives Advantage to ${targetName}!`, id: Date.now() } });
+  }, [addLogEntry, updateGameState]);
+
+  const snackAction = useCallback((id, name) => {
+    const current = gameState.characterHp[id] ?? 0;
+    const maxHp = getMaxHp(id);
+    const healed = Math.min(maxHp, current + 2);
+    updateGameState({ 
+      characterHp: { ...gameState.characterHp, [id]: healed },
+      toast: { title: "Yum!", message: `${name} ate a Sun-Cake snack and feels better! (+2 HP)`, id: Date.now() }
+    });
+    addLogEntry({
+      id: Date.now(),
+      time: new Date().toLocaleTimeString(),
+      label: `🍎 ${name} takes a snack break!`,
+      d20: 'HEAL',
+      total: '+2 HP',
+      bonus: 0
+    });
+  }, [gameState.characterHp, getMaxHp, updateGameState, addLogEntry]);
+
+  const setPing = useCallback((x, y) => {
+    updateGameState({ ping: { x, y, id: Date.now() } });
+  }, [updateGameState]);
+
+  const setHandout = useCallback((handout) => {
+    updateGameState({ activeHandout: handout ? { ...handout, id: Date.now() } : null });
+  }, [updateGameState]);
+
   const dismissOverlay = useCallback(() => {
-    updateGameState({ lastRoll: null, toast: null });
+    updateGameState({ lastRoll: null, toast: null, activeHandout: null });
   }, [updateGameState]);
 
   const startPuzzle = useCallback((puzzleId, sceneId, defaultPuzzleState) => {
@@ -183,12 +232,18 @@ export function useCampaign() {
     updateGameState,
     handleHpChange,
     setHp,
+    setPortrait,
+    sendReaction,
     rollDice,
     rollSkillCheck,
     rollSecret,
     nextTurn,
     awardLoot,
     setNarration,
+    helpAction,
+    snackAction,
+    setPing,
+    setHandout,
     dismissOverlay,
     startPuzzle,
     updatePuzzle,

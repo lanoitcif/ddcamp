@@ -1,26 +1,38 @@
-# D&D Engine Documentation (Updated)
+# D&D Engine Documentation (Developer Handoff)
 
-## ✅ Current Build Status
-
-- Core gameplay + DM tools complete
-- Immersive audio/visual layer complete
-- Interactive puzzle system complete (3 puzzles)
-- Automated full-campaign playtest complete (**0 issues found**)
-
-Recent validation:
-- `npx playwright test` (15 existing tests): pass
-- `npx playwright test playtest_campaign.spec.js`: pass
-- `npx vite build`: pass
+## 🚀 Overview
+The `dnd-engine` is a React-based Virtual Tabletop (VTT) specifically designed for a "Big Screen TV" experience. It uses a synchronized dual-view architecture where a **DM Console** controls a cinematic **Player View (TV)**.
 
 ---
 
-## 🌐 Runtime & Sync Architecture
+## ✅ Feature Set (v2.0)
+
+### 🎵 Minecraft-Style Audio Engine
+- **Approach:** Procedural additive synthesis using Web Audio API.
+- **Vibe:** Minimalist, melodic, and atmospheric.
+- **Features:** 
+    - **Bakery:** Warm major-9th pads.
+    - **Woods:** Ethereal Lydian shimmer.
+    - **Peak:** Airy singing wind + generative bell notes.
+    - **Dynamic Moods:** `calm`, `tense`, and `combat` variations per scene.
+    - **Global Sync:** Audio state (playing/mood/volume) is synchronized across all views.
+
+### 🎭 Interaction & Narrative Tools
+- **Reaction Bar:** DM can trigger floating emoji reactions (🎉, ❤️, 🌟, etc.) that appear on the TV.
+- **Ping System:** Click-to-ping functionality on the DM "Scene Context" parchment sends a pulsing golden ring to the TV coordinates.
+- **Digital Handouts:** Gallery of quest items (Sun-Cakes, Medals) that can be "pushed" to the TV as high-res overlays.
+- **Custom Portraits:** DM can change hero portraits on the fly using a curated gallery; updates are synced globally.
+- **Heroic Actions:** Dedicated "Help" (Advantage log) and "Snack" (+2 HP) buttons to reinforce the campaign's "kind-hearted" tone.
+
+---
+
+## 🌐 Technical Architecture
 
 ```mermaid
 graph TD
-    subgraph Host["DM Laptop (Vite :5173)"]
-        App[React SPA]
-        Hook[useCampaign state]
+    subgraph Host["DM Device (Vite :5173)"]
+        App[React App]
+        Hook[useCampaign custom hook]
         LS[(localStorage dnd_game_state)]
         BC[BroadcastChannel dnd_engine_sync]
         Audio[useAudio Web Audio Engine]
@@ -43,9 +55,12 @@ graph TD
     Puzzles --> DM
     Puzzles --> TV
 
-    DM -->|Actions + controls| Hook
-    TV -->|Stepping-stone clicks| Hook
+    DM -->|Actions / Pings / Reactions| Hook
+    TV -->|Interactive Puzzle Clicks| Hook
 ```
+
+### State Sync Detail
+The `useCampaign` hook acts as a local state manager that mirrors all changes to `localStorage` and broadcasts them via `BroadcastChannel`. This allows the DM Console and the TV View to stay in perfect sync without a backend server, provided they are running in the same browser context (or same origin on the same device).
 
 ---
 
@@ -55,100 +70,40 @@ graph TD
 sequenceDiagram
     participant DM as DM Console
     participant State as useCampaign
-    participant Sync as BroadcastChannel + localStorage
+    participant Sync as BroadcastChannel
     participant TV as Player View
     participant Audio as useAudio
 
-    DM->>State: Scene change / roll / HP / quest / narration
-    State->>Sync: Persist + broadcast
-    Sync-->>TV: Shared state update
-    TV->>TV: Render scene transition + overlays + hero bar
+    DM->>State: Narration / Reaction / Ping
+    State->>Sync: Broadcast Update
+    Sync-->>TV: Receive New State
+    TV->>TV: Render Overlay / Animation / Ping
 
-    DM->>Audio: Set mood (calm/tense/combat), volume, play/pause
-    Audio-->>TV: Ambient crossfade + SFX
+    DM->>Audio: Start Ambient (Peak, Calm)
+    Audio-->>TV: Crossfade to Airy Wind + Bells
 
-    DM->>State: Start scene puzzle
-    State-->>TV: Activate puzzle overlay
-    TV->>State: Player interaction (stepping stones)
-    State-->>DM: Puzzle progress mirrored in controls
+    DM->>State: Push Handout (Sun-Cake)
+    State-->>TV: Show High-Res Image Overlay
+    TV->>State: Player clicks 'Dismiss'
+    State-->>DM: Handout cleared
 ```
 
 ---
 
-## 🧩 Campaign UX Journey (Kids-first)
-
-```mermaid
-flowchart LR
-    A[Act 1: Bakery] --> A1[Spotlight Search Puzzle]
-    A1 --> A2[Find clues + Quest toast]
-    A2 --> B[Act 2: Sparkle Woods]
-    B --> B1[Hoot Riddle: Typewriter + Hints]
-    B1 --> B2[Combat vs Hoot]
-    B2 --> C[Act 3: Whispering Peak]
-    C --> C1[Stepping Stones Puzzle - Interactive]
-    C1 --> C2[Boss fight vs Glint]
-    C2 --> D[Final quest: Recover Sun-Cakes]
-    D --> E[Celebration toast + narration]
-```
+## 🧪 Playtest Strategy
+We use **Playwright** to run a "full-party simulation." 
+The `playtest_campaign.spec.js` script:
+1.  Launches a DM and Player page.
+2.  Assigns AI-like logic to simulate each act.
+3.  Tests the **Spotlight Search**, **Riddle**, and **Stepping Stones** puzzles.
+4.  Validates HP syncing, Reaction triggering, and Scene transitions.
+5.  Captures final screenshots (`playtest_dm_final.png`, `playtest_player_final.png`).
 
 ---
 
-## 🎮 User Experience Highlights
-
-### Player View (TV)
-- Cinematic scene transitions
-- Ambient music per scene + mood switching
-- Particle effects (bakery/woods/peak variants)
-- Dice tumble animation + critical hit/fail moments
-- Quest completion toasts
-- DM narration subtitles
-- Interactive puzzle overlays (especially stepping stones)
-
-### DM Console
-- Fast scene switching and turn control
-- Character + monster cards with HP controls and custom HP delta
-- Skill check + secret roll tools
-- Combat log with roll history
-- Audio control panel (play/pause, mood, volume)
-- Scene-specific puzzle launcher + live puzzle management
-
----
-
-## 🧪 Playtest Coverage & Outcome
-
-The automated multi-agent campaign playtest (`playtest_campaign.spec.js`) simulates:
-- DM orchestration across all three acts
-- Lily/Thorne/Valerius action flow
-- All three puzzles end-to-end
-- Quest completion flow
-- Combat + HP sync behavior
-- Overlay visibility
-- Persistence after page refresh
-
-```mermaid
-flowchart TD
-    T0[Playtest Start] --> T1[Act 1: Bakery + Spotlight]
-    T1 --> T2[Act 2: Riddle + Hoot Combat]
-    T2 --> T3[Act 3: Stones + Glint Combat]
-    T3 --> T4[Edge Cases]
-    T4 --> T5[Report]
-
-    T4 --> E1[HP floor/ceiling]
-    T4 --> E2[Secret roll hidden]
-    T4 --> E3[Quest button lockout]
-    T4 --> E4[State persistence]
-    T4 --> E5[Monster scene filtering]
-
-    T5 --> R0[Result: 0 issues]
-```
-
----
-
-## 🗂️ Source of Truth Files
-
-- Game UI: `dnd-engine/src/App.jsx`
-- State engine: `dnd-engine/src/useCampaign.js`
-- Audio engine: `dnd-engine/src/useAudio.js`
-- Puzzle system: `dnd-engine/src/Puzzles.jsx`
-- Campaign data: `dnd-engine/src/campaign_data.json`
-- Full playtest: `dnd-engine/playtest_campaign.spec.js`
+## 🗂️ Critical Files
+- **State Logic:** `dnd-engine/src/useCampaign.js`
+- **Audio Engine:** `dnd-engine/src/useAudio.js`
+- **Visual Effects:** `dnd-engine/src/SceneEffects.jsx` (Particles, Pings, Handouts, Reactions)
+- **UI Components:** `dnd-engine/src/App.jsx`
+- **Puzzle Definitions:** `dnd-engine/src/Puzzles.jsx`
