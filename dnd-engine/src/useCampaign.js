@@ -143,7 +143,7 @@ export function useCampaign() {
   }, [addLogEntry]);
 
   const sceneMonsters = campaignData.monsters.filter(m =>
-    gameState.currentSceneId === 'peak' || (m.id === 'hoot' && gameState.currentSceneId === 'woods')
+    m.sceneId === gameState.currentSceneId
   );
 
   const nextTurn = useCallback(() => {
