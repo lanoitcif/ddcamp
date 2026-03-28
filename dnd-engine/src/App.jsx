@@ -3,7 +3,9 @@ import { useCampaign } from './useCampaign';
 import { useAudio } from './useAudio';
 import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } from './SceneEffects';
 import { PUZZLES } from './Puzzles';
-import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Hash, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon } from 'lucide-react';
+import CampaignBuilder from './CampaignBuilder';
+import { XpBar, LevelUpOverlay, XpToast, DmXpPanel } from './LevelUpOverlay';
+import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Hash, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon, Wifi, WifiOff } from 'lucide-react';
 
 /* ─── Error Boundary ─────────────────────────────────────────── */
 
@@ -82,12 +84,13 @@ function PortraitGallery({ onSelect, onClose }) {
 
 function DMControl() {
   const {
-    campaignData, gameState, sceneMonsters,
+    campaignData, gameState, sceneMonsters, sync,
     updateGameState, handleHpChange, setHp, setPortrait,
     rollDice, rollSkillCheck, rollSecret,
     nextTurn, awardLoot, setNarration,
     helpAction, snackAction, setPing, setHandout, sendReaction,
     dismissOverlay, startPuzzle, updatePuzzle, endPuzzle, resetGame,
+    awardXpAction,
   } = useCampaign();
 
   const [hpInput, setHpInput] = React.useState({});
@@ -98,11 +101,38 @@ function DMControl() {
   const [showPortraits, setShowPortraits] = React.useState(null); // id or null
   const [audioVolume, setAudioVolume] = React.useState(0.7);
   const [sideQuestsOpen, setSideQuestsOpen] = React.useState(false);
+  const [showPrep, setShowPrep] = React.useState(true);
+  const [prepSceneId, setPrepSceneId] = React.useState(null);
   const audio = useAudio();
 
   const activeScene = campaignData.scenes.find(s => s.id === gameState.currentSceneId);
   const activeTurnEntity = campaignData.characters.find(c => c.id === gameState.activeTurnId) ||
                            campaignData.monsters.find(m => m.id === gameState.activeTurnId);
+
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      switch(e.key.toLowerCase()) {
+        case 'n': nextTurn(); break;
+        case 'd': case 'escape': dismissOverlay(); break;
+        case '1': updateGameState({ activeTurnId: campaignData.characters[0]?.id }); break;
+        case '2': updateGameState({ activeTurnId: campaignData.characters[1]?.id }); break;
+        case '3': updateGameState({ activeTurnId: campaignData.characters[2]?.id }); break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [nextTurn, dismissOverlay, updateGameState, campaignData.characters]);
+
+  // Scene Prep: auto-show on scene change, auto-collapse after 10s
+  React.useEffect(() => {
+    if (gameState.currentSceneId !== prepSceneId) {
+      setShowPrep(true);
+      setPrepSceneId(gameState.currentSceneId);
+      const timer = setTimeout(() => setShowPrep(false), 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [gameState.currentSceneId, prepSceneId]);
 
   const applyHpDelta = (id, maxHp) => {
     const raw = hpInput[id];
@@ -119,9 +149,10 @@ function DMControl() {
     const maxHp = entity.maxHp ?? entity.hp;
     const isActive = gameState.activeTurnId === entity.id;
     const portrait = gameState.characterPortraits[entity.id] || entity.image;
+    const isDead = isMonster && hp <= 0;
 
     return (
-      <div data-testid={`card-${entity.id}`} className={`dnd-card transition-all ${isActive ? 'ring-2 ring-white scale-105 z-10' : 'opacity-80 hover:opacity-100'}`}>
+      <div data-testid={`card-${entity.id}`} className={`dnd-card transition-all ${isDead ? 'opacity-40 grayscale scale-95' : ''} ${isActive ? 'ring-2 ring-white scale-105 z-10' : 'opacity-80 hover:opacity-100'}`}>
         <div className="flex items-center gap-4 mb-4">
           <div className="relative group/portrait">
             <img src={portrait} alt={entity.name} className={`w-16 h-16 rounded-full border-2 shadow-lg object-cover ${isMonster ? 'border-red-500' : 'border-dnd-gold'}`} onError={handleImgError} />
@@ -168,13 +199,31 @@ function DMControl() {
           >Apply</button>
         </div>
 
+        {isDead && (
+          <button
+            onClick={() => setHp(entity.id, entity.maxHp ?? entity.hp)}
+            className="w-full mb-4 px-3 py-2 bg-green-900/40 hover:bg-green-800 border border-green-600 rounded text-xs font-bold text-green-300 flex items-center justify-center gap-2"
+          >
+            <RotateCcw size={12} /> Revive ({entity.maxHp ?? entity.hp} HP)
+          </button>
+        )}
+
         {/* Actions */}
         {entity.actions && (
           <div className="space-y-2 mb-4">
             {entity.actions.map(action => (
               <button
                 key={action.name}
-                onClick={() => rollDice(action.bonus, `${entity.name}: ${action.name}`, action.damage)}
+                onClick={() => {
+                  let targetId = null;
+                  if (isMonster) {
+                    const activeChar = campaignData.characters.find(c => c.id === gameState.activeTurnId);
+                    targetId = activeChar?.id || campaignData.characters[0]?.id;
+                  } else {
+                    targetId = sceneMonsters.find(m => (gameState.characterHp[m.id] ?? m.hp) > 0)?.id;
+                  }
+                  rollDice(action.bonus, `${entity.name}: ${action.name}`, action.damage, targetId);
+                }}
                 className="w-full text-left p-2 bg-gray-800 hover:bg-black rounded text-xs border border-gray-700 hover:border-dnd-gold transition-all flex justify-between group"
               >
                 <span><Sword size={12} className="inline mr-2 text-gray-500 group-hover:text-dnd-gold" /> {action.name}</span>
@@ -199,6 +248,13 @@ function DMControl() {
             >
               <Heart size={10} /> Snack
             </button>
+          </div>
+        )}
+
+        {/* XP Bar (characters only) */}
+        {!isMonster && gameState.characterXp && (
+          <div className="mt-3 pt-3 border-t border-gray-700">
+            <XpBar xp={gameState.characterXp[entity.id] ?? 0} characterId={entity.id} />
           </div>
         )}
       </div>
@@ -248,11 +304,12 @@ function DMControl() {
             {[...campaignData.characters, ...sceneMonsters].map(ent => {
               const isActive = gameState.activeTurnId === ent.id;
               const isMon = campaignData.monsters.some(m => m.id === ent.id);
+              const isDead = isMon && (gameState.characterHp[ent.id] ?? 0) <= 0;
               const portrait = gameState.characterPortraits[ent.id] || ent.image;
               return (
                 <div key={ent.id} className={`flex items-center gap-2 px-2 py-1 rounded transition-all ${isActive ? 'bg-dnd-gold/20 border border-dnd-gold' : 'opacity-50'}`}>
                   <img src={portrait} alt={ent.name} className="w-6 h-6 rounded-full object-cover" onError={handleImgError} />
-                  <span className={`text-xs font-medium truncate ${isMon ? 'text-red-400' : 'text-white'}`}>{ent.name}</span>
+                  <span className={`text-xs font-medium truncate ${isDead ? 'line-through opacity-30' : ''} ${isMon ? 'text-red-400' : 'text-white'}`}>{ent.name}</span>
                   {isActive && <span className="ml-auto text-[10px] text-dnd-gold uppercase">Active</span>}
                 </div>
               );
@@ -264,6 +321,11 @@ function DMControl() {
           >
             Next Turn <FastForward size={16} />
           </button>
+          {gameState.hasAdvantage && (
+            <p className="text-blue-300 text-[10px] text-center mt-1 animate-pulse">
+              ✨ {campaignData.characters.find(c => c.id === gameState.hasAdvantage)?.name} has Advantage!
+            </p>
+          )}
         </div>
 
         <h2 className="text-dnd-gold font-bold flex items-center gap-2 mb-4">
@@ -364,10 +426,12 @@ function DMControl() {
         <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-3">
           <p className="text-xs text-gray-400 mb-2 uppercase tracking-widest flex justify-between items-center">
             <span>Narration (TV)</span>
-            <button 
-              onClick={() => setNarrationText("A scream rings out from the bakery! Mrs. Crumb (a halfling with flour on her nose) is waving a rolling pin... 'Oh no! My Sun-Cakes are gone! There's blue frosting everywhere!'")}
-              className="text-[10px] bg-dnd-gold/20 text-dnd-gold px-2 py-0.5 rounded border border-dnd-gold/30 hover:bg-dnd-gold/40"
-            >Intro Intro</button>
+            {activeScene?.introNarration && (
+              <button 
+                onClick={() => { setNarration(activeScene.introNarration, 20000); }}
+                className="text-[10px] bg-dnd-gold/20 text-dnd-gold px-2 py-0.5 rounded border border-dnd-gold/30 hover:bg-dnd-gold/40"
+              >📜 Scene Intro</button>
+            )}
           </p>
           <textarea
             rows={2}
@@ -378,7 +442,7 @@ function DMControl() {
           />
           <div className="flex gap-2">
             <button
-              onClick={() => { setNarration(narrationText); }}
+              onClick={() => { setNarration(narrationText, 15000); }}
               className="flex-1 px-3 py-1 bg-dnd-red hover:bg-red-700 rounded text-xs border border-dnd-gold font-bold flex items-center justify-center gap-1"
             >
               <Send size={12} /> Send
@@ -387,6 +451,17 @@ function DMControl() {
               onClick={() => { setNarration(null); setNarrationText(''); }}
               className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs border border-gray-500"
             >Clear</button>
+          </div>
+          <div className="flex gap-1 mt-2">
+            {[{label: '10s', ms: 10000}, {label: '30s', ms: 30000}, {label: '∞', ms: 0}].map(opt => (
+              <button
+                key={opt.label}
+                onClick={() => { setNarration(narrationText, opt.ms); }}
+                className="flex-1 px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded text-[10px] border border-gray-600 text-gray-400 hover:text-white"
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -519,8 +594,24 @@ function DMControl() {
           </div>
         </div>
 
+        {/* ─── XP Awards ─── */}
+        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-3">
+          <DmXpPanel characterXp={gameState.characterXp || {}} onAwardXp={awardXpAction} />
+        </div>
+
         {/* TV View + Reset */}
         <div className="mt-auto space-y-2 pt-4">
+          {/* Connection Status */}
+          {sync.mode === 'remote' && (
+            <div className={`flex items-center justify-center gap-2 px-3 py-1.5 rounded text-xs border ${
+              sync.isConnected 
+                ? 'bg-green-900/30 border-green-700 text-green-400' 
+                : 'bg-red-900/30 border-red-700 text-red-400'
+            }`}>
+              {sync.isConnected ? <Wifi size={12} /> : <WifiOff size={12} />}
+              {sync.isConnected ? `Connected (${sync.clientCount ?? '?'} clients)` : 'Disconnected — reconnecting...'}
+            </div>
+          )}
           <button
             onClick={() => window.open('/?mode=player', '_blank')}
             className="w-full bg-gray-800 hover:bg-gray-700 text-white p-3 rounded flex items-center justify-center gap-2 border border-gray-600 transition-all"
@@ -562,8 +653,48 @@ function DMControl() {
           <div className="bg-gray-800 px-4 py-2 rounded-full flex items-center gap-2 border border-gray-700">
              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
              <span className="text-sm font-bold tracking-widest text-gray-300">DM CONSOLE v2.0</span>
+             <p className="text-[10px] text-gray-500 mt-1 tracking-wider">
+               <kbd className="px-1 bg-gray-700 rounded text-gray-400 border border-gray-600">N</kbd> Next Turn
+               <span className="mx-1">·</span>
+               <kbd className="px-1 bg-gray-700 rounded text-gray-400 border border-gray-600">D</kbd> Dismiss
+               <span className="mx-1">·</span>
+               <kbd className="px-1 bg-gray-700 rounded text-gray-400 border border-gray-600">1-3</kbd> Select Hero
+             </p>
           </div>
         </header>
+
+        {/* Scene Prep Panel */}
+        {activeScene?.dmNotes && (
+          <div className={`mb-6 bg-gray-900 border border-amber-700/50 rounded-lg overflow-hidden transition-all ${showPrep ? '' : 'cursor-pointer'}`}>
+            <button
+              onClick={() => setShowPrep(p => !p)}
+              className="w-full px-4 py-2 flex justify-between items-center text-sm text-amber-400 hover:bg-gray-800"
+            >
+              <span className="flex items-center gap-2"><BookOpen size={14} /> Scene Prep: {activeScene.title}</span>
+              <span className="text-[10px]">{showPrep ? '▲ Collapse' : '▼ Expand'}</span>
+            </button>
+            {showPrep && (
+              <div className="px-4 pb-3 grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-gray-800 p-2 rounded">
+                  <p className="text-gray-500 uppercase tracking-widest mb-1">NPCs</p>
+                  <p className="text-gray-300">{activeScene.dmNotes.npcs}</p>
+                </div>
+                <div className="bg-gray-800 p-2 rounded">
+                  <p className="text-gray-500 uppercase tracking-widest mb-1">Tactics</p>
+                  <p className="text-gray-300">{activeScene.dmNotes.tactics}</p>
+                </div>
+                <div className="bg-gray-800 p-2 rounded">
+                  <p className="text-gray-500 uppercase tracking-widest mb-1">Quests Available</p>
+                  <p className="text-gray-300">{activeScene.dmNotes.questHints}</p>
+                </div>
+                <div className="bg-amber-900/30 p-2 rounded border border-amber-700/30">
+                  <p className="text-amber-400 uppercase tracking-widest mb-1">💡 DM Tip</p>
+                  <p className="text-amber-200">{activeScene.dmNotes.tip}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Character Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -648,6 +779,8 @@ function DMControl() {
                   {entry.bonus > 0 && `+${entry.bonus}`}
                   ={entry.total}
                   {entry.damage && <span className="text-red-400 ml-2">⚔ {entry.damage.total} dmg</span>}
+                  {entry.autoApplied && <span className="text-green-400 ml-1">→ applied</span>}
+                  {entry.usedAdvantage && <span className="text-blue-300 ml-1">★ ADV</span>}
                 </span>
               </div>
             ))}
@@ -658,10 +791,27 @@ function DMControl() {
   );
 }
 
+/* ─── Narration Auto-Dismiss Helper ──────────────────────────── */
+
+function NarrationAutoDismiss({ gameState, updateGameState }) {
+  React.useEffect(() => {
+    if (!gameState.narration) return;
+    const duration = gameState.narration.duration || 15000;
+    if (!duration) return; // duration of 0 means infinite
+    const timer = setTimeout(() => {
+      if (gameState.narration?.id) {
+        updateGameState({ narration: null });
+      }
+    }, duration);
+    return () => clearTimeout(timer);
+  }, [gameState.narration?.id]);
+  return null;
+}
+
 /* ─── Player View (TV) ───────────────────────────────────────── */
 
 function PlayerView() {
-  const { campaignData, gameState, sceneMonsters, updatePuzzle, dismissOverlay } = useCampaign();
+  const { campaignData, gameState, sceneMonsters, updatePuzzle, dismissOverlay, updateGameState } = useCampaign();
   const activeScene = campaignData.scenes.find(s => s.id === gameState.currentSceneId);
   const [showRoll, setShowRoll] = React.useState(false);
   const [showToast, setShowToast] = React.useState(false);
@@ -821,6 +971,9 @@ function PlayerView() {
         </div>
       )}
 
+      {/* Narration auto-dismiss */}
+      <NarrationAutoDismiss gameState={gameState} updateGameState={updateGameState} />
+
       {/* Active Puzzle Overlay (only for current scene) */}
       {gameState.activePuzzle && gameState.activePuzzle.sceneId === gameState.currentSceneId && (() => {
         const puzzleDef = PUZZLES[gameState.activePuzzle.sceneId];
@@ -877,10 +1030,26 @@ function PlayerView() {
                     <span className="text-xl text-gray-400 ml-3">({gameState.lastRoll.damage.str})</span>
                   </div>
                 )}
+                {gameState.lastRoll.usedAdvantage && (
+                  <div className="mt-4 text-2xl text-blue-300 font-bold uppercase tracking-wider">
+                    ✨ ADVANTAGE! ({gameState.lastRoll.advantageRolls[0]} / {gameState.lastRoll.advantageRolls[1]})
+                  </div>
+                )}
               </>
             )}
           </div>
         </div>
+      )}
+
+      {/* XP Overlays */}
+      {gameState.levelUp && (
+        <LevelUpOverlay
+          levelUp={gameState.levelUp}
+          onDismiss={() => updateGameState({ levelUp: null })}
+        />
+      )}
+      {gameState.xpGain && (
+        <XpToast xpGain={gameState.xpGain} />
       )}
 
       {/* Hero & Monster Bar */}
@@ -946,7 +1115,7 @@ function App() {
   return (
     <ErrorBoundary>
       <div className="App">
-        {mode === 'player' ? <PlayerView /> : <DMControl />}
+        {mode === 'player' ? <PlayerView /> : mode === 'builder' ? <CampaignBuilder /> : <DMControl />}
       </div>
     </ErrorBoundary>
   );
