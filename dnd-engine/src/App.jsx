@@ -97,6 +97,7 @@ function DMControl() {
   const [showReset, setShowReset] = React.useState(false);
   const [showPortraits, setShowPortraits] = React.useState(null); // id or null
   const [audioVolume, setAudioVolume] = React.useState(0.7);
+  const [sideQuestsOpen, setSideQuestsOpen] = React.useState(false);
   const audio = useAudio();
 
   const activeScene = campaignData.scenes.find(s => s.id === gameState.currentSceneId);
@@ -211,34 +212,51 @@ function DMControl() {
         <h2 className="text-dnd-gold font-bold flex items-center gap-2 mb-4">
           <Scroll size={20} /> Scenes
         </h2>
-        <div className="space-y-2 mb-8">
-          {campaignData.scenes.map(scene => (
-            <button
-              key={scene.id}
-              onClick={() => {
-                updateGameState({ currentSceneId: scene.id });
-                if (gameState.audioPlaying) audio.startAmbient(scene.id, gameState.audioMood);
-              }}
-              className={`w-full text-left p-3 rounded transition-all text-sm ${
-                gameState.currentSceneId === scene.id ? 'bg-dnd-red text-white border-l-4 border-white' : 'hover:bg-gray-800 text-gray-400'
-              }`}
-            >
-              {scene.title}
-            </button>
-          ))}
+        <div className="space-y-1 mb-8">
+          {campaignData.scenes.map((scene, i) => {
+            const prevChapter = i > 0 ? campaignData.scenes[i - 1].chapter : null;
+            const showChapter = scene.chapter && scene.chapter !== prevChapter;
+            return (
+              <React.Fragment key={scene.id}>
+                {showChapter && (
+                  <p className="text-[10px] text-gray-500 uppercase tracking-widest pt-3 pb-1 border-t border-gray-800 first:border-0 first:pt-0">
+                    {scene.chapter}
+                  </p>
+                )}
+                <button
+                  onClick={() => {
+                    updateGameState({ currentSceneId: scene.id });
+                    if (gameState.audioPlaying) audio.startAmbient(scene.id, gameState.audioMood);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded transition-all text-sm ${
+                    gameState.currentSceneId === scene.id ? 'bg-dnd-red text-white border-l-4 border-white' : 'hover:bg-gray-800 text-gray-400'
+                  }`}
+                >
+                  {scene.title}
+                </button>
+              </React.Fragment>
+            );
+          })}
         </div>
 
 
         <h2 className="text-dnd-gold font-bold flex items-center gap-2 mb-4">
           <FastForward size={20} /> Initiative
         </h2>
-        <div className="bg-gray-900 p-4 rounded-lg border border-gray-700 mb-8">
-          <p className="text-xs text-gray-400 mb-2 uppercase tracking-widest">Active Turn</p>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full border-2 border-dnd-gold bg-black flex items-center justify-center overflow-hidden">
-               <img src={gameState.characterPortraits[gameState.activeTurnId] || activeTurnEntity?.image} alt={activeTurnEntity?.name || 'Active turn'} className="w-8 h-8 rounded-full object-cover" onError={handleImgError} />
-            </div>
-            <span className="font-bold text-white truncate">{activeTurnEntity?.name}</span>
+        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-8">
+          <div className="space-y-1 mb-3">
+            {[...campaignData.characters, ...sceneMonsters].map(ent => {
+              const isActive = gameState.activeTurnId === ent.id;
+              const isMon = campaignData.monsters.some(m => m.id === ent.id);
+              const portrait = gameState.characterPortraits[ent.id] || ent.image;
+              return (
+                <div key={ent.id} className={`flex items-center gap-2 px-2 py-1 rounded transition-all ${isActive ? 'bg-dnd-gold/20 border border-dnd-gold' : 'opacity-50'}`}>
+                  <img src={portrait} alt={ent.name} className="w-6 h-6 rounded-full object-cover" onError={handleImgError} />
+                  <span className={`text-xs font-medium truncate ${isMon ? 'text-red-400' : 'text-white'}`}>{ent.name}</span>
+                  {isActive && <span className="ml-auto text-[10px] text-dnd-gold uppercase">Active</span>}
+                </div>
+              );
+            })}
           </div>
           <button
             onClick={nextTurn}
@@ -251,23 +269,58 @@ function DMControl() {
         <h2 className="text-dnd-gold font-bold flex items-center gap-2 mb-4">
           <Trophy size={20} /> Quest Log
         </h2>
-        <div className="space-y-2 mb-8">
-          {campaignData.quests.map(quest => (
+        <div className="space-y-1 mb-2">
+          {campaignData.quests.filter(q => q.type === 'main').map(quest => (
             <button
               key={quest.id}
               disabled={gameState.completedQuests.includes(quest.id)}
               onClick={() => awardLoot(quest.id)}
-              className={`w-full text-left p-3 rounded text-xs flex justify-between items-center transition-all ${
+              className={`w-full text-left px-3 py-2 rounded text-xs flex justify-between items-center transition-all ${
                 gameState.completedQuests.includes(quest.id)
                   ? 'bg-green-900/30 border border-green-500 text-green-400'
-                  : 'bg-gray-800 border border-gray-700 hover:border-dnd-gold'
+                  : 'bg-gray-800 border border-dnd-gold/40 hover:border-dnd-gold'
               }`}
             >
-              <span>{quest.title}</span>
+              <span>⭐ {quest.title}</span>
               {gameState.completedQuests.includes(quest.id) ? <CheckCircle size={14} /> : <Star size={14} className="text-dnd-gold" />}
             </button>
           ))}
         </div>
+        {/* Side Quests — collapsible */}
+        {(() => {
+          const sideQuests = campaignData.quests.filter(q => q.type === 'side');
+          const completedSide = sideQuests.filter(q => gameState.completedQuests.includes(q.id)).length;
+          return (
+            <div className="mb-8">
+              <button
+                onClick={() => setSideQuestsOpen(prev => !prev)}
+                className="w-full text-left px-3 py-2 text-xs text-gray-400 hover:text-gray-200 flex justify-between items-center"
+              >
+                <span>Side Quests ({completedSide}/{sideQuests.length})</span>
+                <span className="text-[10px]">{sideQuestsOpen ? '▲' : '▼'}</span>
+              </button>
+              {sideQuestsOpen && (
+                <div className="space-y-1 mt-1">
+                  {sideQuests.map(quest => (
+                    <button
+                      key={quest.id}
+                      disabled={gameState.completedQuests.includes(quest.id)}
+                      onClick={() => awardLoot(quest.id)}
+                      className={`w-full text-left px-3 py-2 rounded text-xs flex justify-between items-center transition-all ${
+                        gameState.completedQuests.includes(quest.id)
+                          ? 'bg-green-900/30 border border-green-500 text-green-400'
+                          : 'bg-gray-800 border border-gray-700 hover:border-dnd-gold'
+                      }`}
+                    >
+                      <span>{quest.title}</span>
+                      {gameState.completedQuests.includes(quest.id) ? <CheckCircle size={14} /> : <Star size={14} className="text-gray-500" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* ─── DM Tools ─── */}
         <h2 className="text-dnd-gold font-bold flex items-center gap-2 mb-4">
@@ -359,7 +412,9 @@ function DMControl() {
           const activePuzzle = gameState.activePuzzle;
           const isPuzzleActive = activePuzzle && activePuzzle.puzzleId === scenePuzzle?.id;
 
-          if (!scenePuzzle) return null;
+          if (!scenePuzzle) return (
+            <p className="text-xs text-gray-600 italic mb-3 px-1">🔓 No puzzle in this scene.</p>
+          );
 
           const PuzzleIcon = scenePuzzle.icon;
           const DMComp = scenePuzzle.DMComponent;
@@ -518,7 +573,7 @@ function DMControl() {
         </div>
 
         {/* Monster Cards (scene-relevant) */}
-        {sceneMonsters.length > 0 && (
+        {sceneMonsters.length > 0 ? (
           <>
             <h2 className="text-xl font-bold text-red-400 flex items-center gap-2 mb-4">
               <Skull size={20} /> Monsters in Scene
@@ -529,6 +584,8 @@ function DMControl() {
               ))}
             </div>
           </>
+        ) : (
+          <p className="text-sm text-gray-600 italic mb-8">🛡️ No monsters in this scene — safe for roleplay and exploration.</p>
         )}
 
         {/* Scene Context */}
@@ -759,7 +816,7 @@ function PlayerView() {
       {gameState.narration && (
         <div className="absolute bottom-60 left-0 right-0 flex justify-center px-20 z-30 pointer-events-none">
           <div className="bg-black/80 backdrop-blur-sm px-10 py-5 rounded-2xl border border-white/20 max-w-4xl">
-            <p className="text-3xl text-white font-serif italic text-center leading-relaxed">"{gameState.narration.text}"</p>
+            <p className="text-4xl text-white font-serif italic text-center leading-relaxed">"{gameState.narration.text}"</p>
           </div>
         </div>
       )}

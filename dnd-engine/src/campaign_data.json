@@ -10,8 +10,16 @@
       "bonus": 5,
       "image": "https://api.dicebear.com/7.x/adventurer/svg?seed=Lily",
       "actions": [
-        { "name": "Sneak Attack", "bonus": 5, "damage": "1d6+3" },
-        { "name": "Shortbow", "bonus": 5, "damage": "1d6+3" }
+        {
+          "name": "Sneak Attack",
+          "bonus": 5,
+          "damage": "1d6+3"
+        },
+        {
+          "name": "Shortbow",
+          "bonus": 5,
+          "damage": "1d6+3"
+        }
       ]
     },
     {
@@ -23,8 +31,16 @@
       "bonus": 5,
       "image": "https://api.dicebear.com/7.x/adventurer/svg?seed=Thorne",
       "actions": [
-        { "name": "Longsword", "bonus": 5, "damage": "1d8+3" },
-        { "name": "Handaxe", "bonus": 5, "damage": "1d6+3" }
+        {
+          "name": "Longsword",
+          "bonus": 5,
+          "damage": "1d8+3"
+        },
+        {
+          "name": "Handaxe",
+          "bonus": 5,
+          "damage": "1d6+3"
+        }
       ]
     },
     {
@@ -36,8 +52,16 @@
       "bonus": 4,
       "image": "https://api.dicebear.com/7.x/adventurer/svg?seed=Valerius-Paladin",
       "actions": [
-        { "name": "Warhammer", "bonus": 4, "damage": "1d8+2" },
-        { "name": "Divine Smite", "bonus": 4, "damage": "2d8" }
+        {
+          "name": "Warhammer",
+          "bonus": 4,
+          "damage": "1d8+2"
+        },
+        {
+          "name": "Divine Smite",
+          "bonus": 4,
+          "damage": "2d8"
+        }
       ]
     }
   ],
@@ -46,73 +70,85 @@
       "id": "bakery",
       "title": "Mrs. Crumb's Bakery",
       "description": "The smell of honey and cinnamon fills the air... but the Sun-Cakes are gone! Mrs. Crumb (a stout halfling with flour on her nose) is distraught.",
-      "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=80"
+      "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=80",
+      "chapter": "Ch 1 \u00b7 Oakhaven Village"
     },
     {
       "id": "market",
       "title": "Oakhaven Market Square",
-      "description": "The cobblestone square bustles with vendors selling enchanted trinkets, roasted chestnuts, and colorful festival banners. A frantic merchant waves you over — his delivery cart has been raided too!",
-      "image": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&w=1200&q=80"
+      "description": "The cobblestone square bustles with vendors selling enchanted trinkets, roasted chestnuts, and colorful festival banners. A frantic merchant waves you over \u2014 his delivery cart has been raided too!",
+      "image": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&w=1200&q=80",
+      "chapter": "Ch 1 \u00b7 Oakhaven Village"
     },
     {
       "id": "woods",
       "title": "The Sparkle Woods",
       "description": "The trees glow like emeralds and the wind whispers secrets. Hoot the Riddle-Owl (wearing tiny spectacles) blocks your path.",
-      "image": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
+      "image": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80",
+      "chapter": "Ch 2 \u00b7 The Sparkle Woods"
     },
     {
       "id": "glade",
       "title": "The Fairy Glade",
-      "description": "Sunbeams pierce the canopy like golden pillars. Tiny glowing lights dance between wildflowers — these are the Glade Fairies, and their firefly lanterns have escaped!",
-      "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80"
+      "description": "Sunbeams pierce the canopy like golden pillars. Tiny glowing lights dance between wildflowers \u2014 these are the Glade Fairies, and their firefly lanterns have escaped!",
+      "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
+      "chapter": "Ch 2 \u00b7 The Sparkle Woods"
     },
     {
       "id": "stream",
       "title": "The Glimmer Stream",
       "description": "A wide stream of liquid silver cuts through the forest. Smooth stones poke above the surface, glittering with embedded crystals. One wrong step means a splash!",
-      "image": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
+      "image": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
+      "chapter": "Ch 2 \u00b7 The Sparkle Woods"
     },
     {
       "id": "goblin_camp",
       "title": "Goblin Hollow",
-      "description": "Ramshackle tents and crooked lanterns fill a forest clearing. The goblins aren't evil — they're just hungry and scared. Their leader, Grumbletooth, sits on a barrel throne eating a stolen Sun-Cake.",
-      "image": "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&w=1200&q=80"
+      "description": "Ramshackle tents and crooked lanterns fill a forest clearing. The goblins aren't evil \u2014 they're just hungry and scared. Their leader, Grumbletooth, sits on a barrel throne eating a stolen Sun-Cake.",
+      "image": "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&w=1200&q=80",
+      "chapter": "Ch 2 \u00b7 The Sparkle Woods"
     },
     {
       "id": "caves",
       "title": "The Crystal Caverns",
       "description": "Thousands of crystals line the cave walls, each humming a faint musical note. Touching them in the right order reveals hidden passages. Crystal bats flutter between stalactites overhead.",
-      "image": "https://images.unsplash.com/photo-1504870712474-3d4eb38a0e56?auto=format&fit=crop&w=1200&q=80"
+      "image": "https://images.unsplash.com/photo-1504870712474-3d4eb38a0e56?auto=format&fit=crop&w=1200&q=80",
+      "chapter": "Ch 3 \u00b7 The Mountain Path"
     },
     {
       "id": "bridge",
       "title": "The Skythread Bridge",
       "description": "An ancient rope bridge stretches across a misty chasm. The planks creak and sway with every step. Strange wisps of shadow dance beneath it, whispering forgotten names.",
-      "image": "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=1200&q=80"
+      "image": "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=1200&q=80",
+      "chapter": "Ch 3 \u00b7 The Mountain Path"
     },
     {
       "id": "camp",
       "title": "Moonlit Campfire",
       "description": "A sheltered clearing beneath ancient pines. The fire crackles warmly as stars fill the sky above. This is a safe place to rest, tell stories, and gaze at the constellations.",
-      "image": "https://images.unsplash.com/photo-1504851149312-7a075b496cc7?auto=format&fit=crop&w=1200&q=80"
+      "image": "https://images.unsplash.com/photo-1504851149312-7a075b496cc7?auto=format&fit=crop&w=1200&q=80",
+      "chapter": "Ch 3 \u00b7 The Mountain Path"
     },
     {
       "id": "ruins",
       "title": "The Forgotten Shrine",
-      "description": "Moss-covered stone pillars form a circle around a cracked altar. Ancient runes glow faintly beneath the ivy. A massive Stone Guardian stands motionless — until someone approaches the altar.",
-      "image": "https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?auto=format&fit=crop&w=1200&q=80"
+      "description": "Moss-covered stone pillars form a circle around a cracked altar. Ancient runes glow faintly beneath the ivy. A massive Stone Guardian stands motionless \u2014 until someone approaches the altar.",
+      "image": "https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?auto=format&fit=crop&w=1200&q=80",
+      "chapter": "Ch 4 \u00b7 The Summit"
     },
     {
       "id": "peak",
       "title": "Whispering Peak",
-      "description": "The wind sounds like soft singing. Inside a cozy cave, you find Glint the Dragon licking frosting off his claws. He looks up with big golden eyes — scared, not scary.",
-      "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"
+      "description": "The wind sounds like soft singing. Inside a cozy cave, you find Glint the Dragon licking frosting off his claws. He looks up with big golden eyes \u2014 scared, not scary.",
+      "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+      "chapter": "Ch 4 \u00b7 The Summit"
     },
     {
       "id": "celebration",
       "title": "Festival of Heroes",
       "description": "Oakhaven glows with lanterns and streamers! Mrs. Crumb has baked a dragon-shaped cake. The whole village cheers as the heroes return. Glint sits happily beside the bakery, wearing a tiny chef hat.",
-      "image": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80"
+      "image": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80",
+      "chapter": "Ch 4 \u00b7 The Summit"
     }
   ],
   "monsters": [
@@ -124,7 +160,11 @@
       "maxHp": 20,
       "image": "https://api.dicebear.com/7.x/bottts/svg?seed=Hoot",
       "actions": [
-        { "name": "Wing Buffet", "bonus": 3, "damage": "1d4+1" }
+        {
+          "name": "Wing Buffet",
+          "bonus": 3,
+          "damage": "1d4+1"
+        }
       ]
     },
     {
@@ -135,8 +175,16 @@
       "maxHp": 14,
       "image": "https://api.dicebear.com/7.x/bottts/svg?seed=Silverfang",
       "actions": [
-        { "name": "Bite", "bonus": 4, "damage": "1d6+2" },
-        { "name": "Howl", "bonus": 3, "damage": "1d4+1" }
+        {
+          "name": "Bite",
+          "bonus": 4,
+          "damage": "1d6+2"
+        },
+        {
+          "name": "Howl",
+          "bonus": 3,
+          "damage": "1d4+1"
+        }
       ]
     },
     {
@@ -147,8 +195,16 @@
       "maxHp": 12,
       "image": "https://api.dicebear.com/7.x/bottts/svg?seed=Twinkle",
       "actions": [
-        { "name": "Pixie Dust", "bonus": 3, "damage": "1d4+1" },
-        { "name": "Giggle Zap", "bonus": 2, "damage": "1d6" }
+        {
+          "name": "Pixie Dust",
+          "bonus": 3,
+          "damage": "1d4+1"
+        },
+        {
+          "name": "Giggle Zap",
+          "bonus": 2,
+          "damage": "1d6"
+        }
       ]
     },
     {
@@ -159,8 +215,16 @@
       "maxHp": 10,
       "image": "https://api.dicebear.com/7.x/bottts/svg?seed=Sporecap",
       "actions": [
-        { "name": "Spore Puff", "bonus": 2, "damage": "1d4" },
-        { "name": "Cap Slam", "bonus": 3, "damage": "1d4+1" }
+        {
+          "name": "Spore Puff",
+          "bonus": 2,
+          "damage": "1d4"
+        },
+        {
+          "name": "Cap Slam",
+          "bonus": 3,
+          "damage": "1d4+1"
+        }
       ]
     },
     {
@@ -171,8 +235,16 @@
       "maxHp": 25,
       "image": "https://api.dicebear.com/7.x/bottts/svg?seed=Grumbletooth",
       "actions": [
-        { "name": "Rusty Sword", "bonus": 4, "damage": "1d6+2" },
-        { "name": "Thrown Rock", "bonus": 3, "damage": "1d4+2" }
+        {
+          "name": "Rusty Sword",
+          "bonus": 4,
+          "damage": "1d6+2"
+        },
+        {
+          "name": "Thrown Rock",
+          "bonus": 3,
+          "damage": "1d4+2"
+        }
       ]
     },
     {
@@ -183,8 +255,16 @@
       "maxHp": 8,
       "image": "https://api.dicebear.com/7.x/bottts/svg?seed=Snick",
       "actions": [
-        { "name": "Dagger Jab", "bonus": 3, "damage": "1d4+1" },
-        { "name": "Trip", "bonus": 2, "damage": "1d4" }
+        {
+          "name": "Dagger Jab",
+          "bonus": 3,
+          "damage": "1d4+1"
+        },
+        {
+          "name": "Trip",
+          "bonus": 2,
+          "damage": "1d4"
+        }
       ]
     },
     {
@@ -195,8 +275,16 @@
       "maxHp": 18,
       "image": "https://api.dicebear.com/7.x/bottts/svg?seed=CrystalBat",
       "actions": [
-        { "name": "Sonic Squeak", "bonus": 3, "damage": "1d6+1" },
-        { "name": "Wing Slash", "bonus": 2, "damage": "1d4+1" }
+        {
+          "name": "Sonic Squeak",
+          "bonus": 3,
+          "damage": "1d6+1"
+        },
+        {
+          "name": "Wing Slash",
+          "bonus": 2,
+          "damage": "1d4+1"
+        }
       ]
     },
     {
@@ -207,8 +295,16 @@
       "maxHp": 15,
       "image": "https://api.dicebear.com/7.x/bottts/svg?seed=ShadowWisp",
       "actions": [
-        { "name": "Cold Touch", "bonus": 3, "damage": "1d6+1" },
-        { "name": "Vanish Strike", "bonus": 4, "damage": "1d4+2" }
+        {
+          "name": "Cold Touch",
+          "bonus": 3,
+          "damage": "1d6+1"
+        },
+        {
+          "name": "Vanish Strike",
+          "bonus": 4,
+          "damage": "1d4+2"
+        }
       ]
     },
     {
@@ -219,8 +315,16 @@
       "maxHp": 35,
       "image": "https://api.dicebear.com/7.x/bottts/svg?seed=StoneGuardian",
       "actions": [
-        { "name": "Stone Fist", "bonus": 5, "damage": "1d8+3" },
-        { "name": "Ground Slam", "bonus": 4, "damage": "1d6+2" }
+        {
+          "name": "Stone Fist",
+          "bonus": 5,
+          "damage": "1d8+3"
+        },
+        {
+          "name": "Ground Slam",
+          "bonus": 4,
+          "damage": "1d6+2"
+        }
       ]
     },
     {
@@ -231,28 +335,121 @@
       "maxHp": 45,
       "image": "https://api.dicebear.com/7.x/identicon/svg?seed=Glint",
       "actions": [
-        { "name": "Frosting Breath", "bonus": 5, "damage": "2d6" },
-        { "name": "Tail Swipe", "bonus": 4, "damage": "1d8+2" }
+        {
+          "name": "Frosting Breath",
+          "bonus": 5,
+          "damage": "2d6"
+        },
+        {
+          "name": "Tail Swipe",
+          "bonus": 4,
+          "damage": "1d8+2"
+        }
       ]
     }
   ],
   "quests": [
-    { "id": "bakery-clue", "title": "Find the Bakery Clue", "reward": "Golden Crumb", "type": "main" },
-    { "id": "merchants-parcel", "title": "Deliver the Merchant's Parcel", "reward": "Pouch of Silver", "type": "side" },
-    { "id": "lost-kitten", "title": "Find Whiskers the Kitten", "reward": "Lucky Cat Charm", "type": "side" },
-    { "id": "ingredient-hunt", "title": "Mrs. Crumb's Secret Recipe", "reward": "Golden Rolling Pin", "type": "side" },
-    { "id": "hoot-riddle", "title": "Solve Hoot's Riddle", "reward": "Owl's Blessing", "type": "main" },
-    { "id": "wolf-friend", "title": "Tame Silverfang", "reward": "Wolf Fang Necklace", "type": "side" },
-    { "id": "fairy-lights", "title": "Catch the Escaped Fireflies", "reward": "Fairy Lantern", "type": "side" },
-    { "id": "mushroom-map", "title": "Follow the Mushroom Trail", "reward": "Woodland Map", "type": "side" },
-    { "id": "river-cross", "title": "Cross the Glimmer Stream", "reward": "Hero's Badge", "type": "main" },
-    { "id": "goblin-truce", "title": "Negotiate the Goblin Truce", "reward": "Peace Treaty Scroll", "type": "side" },
-    { "id": "crystal-song", "title": "Learn the Crystal Melody", "reward": "Singing Crystal", "type": "side" },
-    { "id": "lost-traveler", "title": "Find the Lost Traveler", "reward": "Traveler's Compass", "type": "side" },
-    { "id": "bridge-mend", "title": "Repair the Skythread Bridge", "reward": "Builder's Medal", "type": "side" },
-    { "id": "campfire-tales", "title": "Share a Hero's Tale", "reward": "Story Token", "type": "side" },
-    { "id": "star-watcher", "title": "Name a Constellation", "reward": "Star Map", "type": "side" },
-    { "id": "restore-shrine", "title": "Restore the Forgotten Shrine", "reward": "Ancient Blessing", "type": "main" },
-    { "id": "glint-friend", "title": "Make a New Friend", "reward": "Dragon-Scale Medal", "type": "main" }
+    {
+      "id": "bakery-clue",
+      "title": "Find the Bakery Clue",
+      "reward": "Golden Crumb",
+      "type": "main"
+    },
+    {
+      "id": "merchants-parcel",
+      "title": "Deliver the Merchant's Parcel",
+      "reward": "Pouch of Silver",
+      "type": "side"
+    },
+    {
+      "id": "lost-kitten",
+      "title": "Find Whiskers the Kitten",
+      "reward": "Lucky Cat Charm",
+      "type": "side"
+    },
+    {
+      "id": "ingredient-hunt",
+      "title": "Mrs. Crumb's Secret Recipe",
+      "reward": "Golden Rolling Pin",
+      "type": "side"
+    },
+    {
+      "id": "hoot-riddle",
+      "title": "Solve Hoot's Riddle",
+      "reward": "Owl's Blessing",
+      "type": "main"
+    },
+    {
+      "id": "wolf-friend",
+      "title": "Tame Silverfang",
+      "reward": "Wolf Fang Necklace",
+      "type": "side"
+    },
+    {
+      "id": "fairy-lights",
+      "title": "Catch the Escaped Fireflies",
+      "reward": "Fairy Lantern",
+      "type": "side"
+    },
+    {
+      "id": "mushroom-map",
+      "title": "Follow the Mushroom Trail",
+      "reward": "Woodland Map",
+      "type": "side"
+    },
+    {
+      "id": "river-cross",
+      "title": "Cross the Glimmer Stream",
+      "reward": "Hero's Badge",
+      "type": "main"
+    },
+    {
+      "id": "goblin-truce",
+      "title": "Negotiate the Goblin Truce",
+      "reward": "Peace Treaty Scroll",
+      "type": "side"
+    },
+    {
+      "id": "crystal-song",
+      "title": "Learn the Crystal Melody",
+      "reward": "Singing Crystal",
+      "type": "side"
+    },
+    {
+      "id": "lost-traveler",
+      "title": "Find the Lost Traveler",
+      "reward": "Traveler's Compass",
+      "type": "side"
+    },
+    {
+      "id": "bridge-mend",
+      "title": "Repair the Skythread Bridge",
+      "reward": "Builder's Medal",
+      "type": "side"
+    },
+    {
+      "id": "campfire-tales",
+      "title": "Share a Hero's Tale",
+      "reward": "Story Token",
+      "type": "side"
+    },
+    {
+      "id": "star-watcher",
+      "title": "Name a Constellation",
+      "reward": "Star Map",
+      "type": "side"
+    },
+    {
+      "id": "restore-shrine",
+      "title": "Restore the Forgotten Shrine",
+      "reward": "Ancient Blessing",
+      "type": "main"
+    },
+    {
+      "id": "glint-friend",
+      "title": "Make a New Friend",
+      "reward": "Dragon-Scale Medal",
+      "type": "main"
+    }
   ]
 }
