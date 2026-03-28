@@ -1,4 +1,5 @@
 import React from 'react';
+import { X, Sparkles } from 'lucide-react';
 
 // ─── Scene Particle Configurations ──────────────────────────────
 
@@ -134,6 +135,90 @@ export default function SceneParticles({ sceneId }) {
           <Particle key={`${sceneId}-${li}-${i}`} config={layer} index={i} total={layer.count} />
         ))
       )}
+    </div>
+  );
+}
+
+// ─── Ping Component (Owl Rodeo Style) ───────────────────────────
+
+export function PingLayer({ ping }) {
+  const [visible, setVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!ping) return;
+    setVisible(true);
+    const timer = setTimeout(() => setVisible(false), 3000);
+    return () => clearTimeout(timer);
+  }, [ping]);
+
+  if (!ping || !visible) return null;
+
+  return (
+    <div 
+      className="absolute pointer-events-none z-50 flex items-center justify-center"
+      style={{ left: `${ping.x}%`, top: `${ping.y}%` }}
+    >
+      <div className="relative w-12 h-12 flex items-center justify-center">
+        <div className="absolute w-full h-full rounded-full border-4 border-dnd-gold animate-ping opacity-75" />
+        <div className="absolute w-1/2 h-1/2 rounded-full bg-dnd-gold shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Reaction Component ─────────────────────────────────────────
+
+export function ReactionLayer({ reaction }) {
+  const [visible, setVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!reaction) return;
+    setVisible(true);
+    const timer = setTimeout(() => setVisible(false), 4000);
+    return () => clearTimeout(timer);
+  }, [reaction]);
+
+  if (!reaction || !visible) return null;
+
+  return (
+    <div className="absolute inset-0 pointer-events-none z-[110] flex items-center justify-center">
+      <div className="text-[15rem] animate-bounce-slow drop-shadow-2xl opacity-90 transition-all duration-[3000ms] ease-out transform translate-y-[-100px] scale-110">
+        {reaction.emoji}
+      </div>
+    </div>
+  );
+}
+
+// ─── Handout Overlay ───────────────────────────────────────────
+
+export function HandoutOverlay({ handout, onDismiss }) {
+  if (!handout) return null;
+
+  return (
+    <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-20 animate-in fade-in duration-500">
+      <div className="relative max-w-4xl w-full bg-gray-900 border-4 border-dnd-gold rounded-[2rem] overflow-hidden shadow-[0_0_100px_rgba(212,175,55,0.3)]">
+        <div className="p-8 border-b border-gray-800 flex justify-between items-center bg-black/40">
+          <h3 className="text-4xl font-serif text-dnd-gold flex items-center gap-3">
+             <Sparkles size={32} /> {handout.title}
+          </h3>
+          <button 
+            onClick={onDismiss}
+            className="p-2 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-full transition-colors"
+          >
+            <X size={32} />
+          </button>
+        </div>
+        <div className="p-12 flex justify-center bg-gradient-to-b from-gray-900 to-black">
+          <img 
+            src={handout.image} 
+            alt={handout.title}
+            className="max-h-[60vh] rounded-lg shadow-2xl border border-white/10 object-contain"
+          />
+        </div>
+        <div className="p-6 text-center bg-black/60">
+           <p className="text-gray-400 italic text-xl uppercase tracking-widest">A New Discovery!</p>
+        </div>
+      </div>
     </div>
   );
 }

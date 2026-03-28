@@ -1,84 +1,50 @@
 # 🐉 DM Quick Sheet: Dragon of Whispering Peak
-*Welcome, Dungeon Master! Whether this is your first time behind the screen or your first time in years, remember: the goal is to tell a great story together. You’ve got this!*
+*Welcome, Dungeon Master! Use this sheet to master the DM Console v2.0 while you tell your story.*
 
 ---
 
-## 🎲 The Core Mechanic
-When a player wants to do something (climb a tree, search for crumbs, or talk to an owl), follow these three steps:
-1. **The Roll:** Ask the player to roll a **1d20**.
-2. **The Bonus:** Add their relevant **Skill or Ability Bonus** (found on their sheet).
-3. **The Result:** Compare the total to a **Difficulty Class (DC)**.
+## 🎲 The Console Tools
 
-### How hard is it? (Difficulty Classes)
-*   **DC 10 (Easy):** Jumping over the Glimmer Stream.
-*   **DC 15 (Moderate):** Finding the tiny blue scale in Mrs. Crumb’s bakery.
-*   **DC 20 (Hard):** Convincing Hoot the Owl to give you a second hint.
+### 🎛️ Ambience & Audio
+- **Start/Playing:** Toggle the Minecraft-style procedural engine.
+- **Moods:** `calm` (exploration), `tense` (investigating), `combat` (action).
+- **Volume:** Use the slider to keep it atmospheric but not distracting.
 
----
+### 🎭 Reactions & Pings
+- **Quick Reactions:** Click an emoji (🎉, ❤️, 🌟) to send it floating across the TV. Great for rewarding "Rule of Cool" ideas from the kids.
+- **Digital Ping:** Click anywhere on the **Scene Context** parchment (middle of the screen) to pulse a golden ring on the TV view.
 
-## ⚔️ Combat Basics
-When the action gets intense, time slows down into **Rounds** and **Turns**.
+### ⚔️ HP & Turn Control
+- **Initiative:** Click **Next Turn** to cycle who is "Active." The TV will show a banner for that player.
+- **HP Delta:** Type a number (like `-5` or `+2`) into the character's HP box and hit **Apply**.
+- **Heroic Actions:** Use the **Help** button to log Advantage, or **Snack** to heal a kid for 2 HP.
 
-1. **Initiative:** Everyone rolls **1d20 + Dexterity**. Go in order from highest to lowest.
-2. **On a Turn:** A player can **Move** (up to their speed) and take **one Action**.
-
-### Common Actions:
-*   **Attack:** Roll 1d20 + Bonus vs. the target's Armor Class (AC).
-*   **Cast a Spell:** Follow the spell's description (Valerius might use *Divine Smite*!).
-*   **Hide:** Roll Stealth vs. the enemy's Perception (Lily is great at this!).
-*   **Help:** Give a friend **Advantage** (they roll two d20s and take the higher).
-*   **Move:** Walk, climb, or swim up to your Speed.
+### 🔦 Puzzle Management
+Each scene has a unique interactive puzzle:
+1.  **Bakery:** `Search for Clues` (Spotlight puzzle). Drag your mouse in the DM box to find clues, then click **Reveal**.
+2.  **Woods:** `Hoot's Riddle`. Use **Reveal More** to typewriter the text, then **Hint** if they get stuck.
+3.  **Peak:** `Glimmer Stream`. Players click stones on the TV; you monitor the "Splashes" and can **Reset** if needed.
 
 ---
 
-## ❤️ Health & Resting
-*   **Hit Points (HP):** When HP hits 0, the hero is "Bonked" or "Tired."
-*   **Death Saves:** If 0 HP, roll a d20 each turn. 10+ is a success; 3 successes and they are stable. 3 failures and they need a serious nap (or a *Lay on Hands* from Valerius!).
-*   **Short Rest (1 Hour):** The heroes stop for a snack. They can spend "Hit Dice" to regain HP.
-*   **Long Rest (8 Hours):** A full night's sleep. All HP and abilities are fully restored.
+## 🌟 Narrative Reference
+
+### Act 1: Mrs. Crumb's Bakery
+- **The Hook:** Mrs. Crumb lost her Sun-Cakes! 
+- **The Clues:** Blue scales (Glint) and golden crumbs leading to the woods.
+- **Intro Intro:** Click the button in the Narration box to pre-fill her dramatic opening lines.
+
+### Act 2: Sparkle Woods
+- **Hoot the Owl:** Wise but grumpy. Needs the "River" riddle answer.
+- **Glimmer Stream:** Liquid silver. Requires jumping or clever magic to cross.
+
+### Act 3: Whispering Peak
+- **Glint the Dragon:** He's not mean, just a lonely teenager with a sweet tooth!
+- **Resolution:** Can they convince Glint to be Oakhaven's guest of honor?
 
 ---
 
-## 🧒 Tips for DMing for Kids
-*   **"Yes, and...":** If a kid has a wild idea (like trying to share a Sun-Cake with Glint the Dragon), let them try! Say "Yes, and roll a Persuasion check!"
-*   **The Rule of Cool:** If an idea is awesome, let it work (or make the DC lower). Fun beats rules every time.
-*   **Keep it Fast:** If you can't remember a rule, just make a fair guess and keep the story moving.
-*   **Simple Descriptions:** Use smells (cinnamon cakes!), sounds (the whispering wind), and colors (sparkly blue scales) to bring Oakhaven to life.
-
----
-
-## 🌟 Quick Reference: NPCs
-*   **Mrs. Crumb:** The friendly baker. Needs her Sun-Cakes back! (Tone: Warm, motherly).
-*   **Hoot:** The giant riddle-owl. (Tone: Wise, slightly grumpy but kind).
-*   **Glint:** The "teenage" dragon. He’s not mean, just lonely and hungry! (Tone: Shy, nervous).
-
-**DM Secret:** You aren't playing *against* the kids; you're the narrator of their legend. Have fun!
-
----
-
-## 🧩 In-App Puzzle Control Quick Guide
-
-Each scene now has a matching puzzle in the DM sidebar (`Puzzle Controls`):
-
-- **Bakery:** `Search the Bakery` (Spotlight puzzle)
-  - Drag spotlight in DM panel
-  - Click `Reveal` when clues are found
-- **Woods:** `Hoot's Riddle`
-  - Use `Reveal More`, `Show All`, `Hint`, then mark solved
-- **Peak:** `Glimmer Stream`
-  - Kids click stones on Player View
-  - DM monitors progress and can `Reset`
-
-Use `End Puzzle` to close any puzzle overlay instantly.
-
----
-
-## 🎵 Audio + Mood Quick Guide
-
-The DM sidebar now includes `Ambience` controls:
-
-- `Start/Playing` button: toggle ambient audio
-- Volume slider + mute toggle
-- Mood buttons: `calm`, `tense`, `combat`
-
-Mood changes update the Player View soundscape in real time.
+## 🧒 DM Tips for Kids
+- **The Rule of Cool:** If a kid wants to share their real-life snack with Glint, click the **❤️ Reaction** and say "He loves it! Roll with Advantage!"
+- **Everything is a d20:** If they have a wild idea, just ask for a d20 roll. 10+ usually works!
+- **Handouts:** When they find something, click the item in the **Handouts** section to show them exactly what it looks like on the big screen.

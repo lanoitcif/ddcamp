@@ -4,14 +4,12 @@ import { Search, Lightbulb, Footprints, Trophy, Droplets } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════
 // PUZZLE 1: Bakery Spotlight Search
-// DM drags a spotlight circle; players see it on the TV.
-// When spotlight lands on the hidden clue zone, it glows and reveals.
 // ═══════════════════════════════════════════════════════════════════
 
 const CLUE_ZONES = [
-  { id: 'flour-trail', x: 22, y: 65, r: 8, label: '🐾 Flour Paw Prints!', hint: 'Look near the flour sacks...' },
-  { id: 'crumb-note', x: 72, y: 40, r: 7, label: '📜 A Crumpled Note!', hint: 'Check the counter top...' },
-  { id: 'frosting-smear', x: 50, y: 78, r: 9, label: '🐉 Blue Frosting Smear!', hint: 'Something sticky on the floor...' },
+  { id: 'blue-scale', x: 22, y: 65, r: 8, label: '✨ Blue Sparkly Scale!', hint: 'Look near the window frame...' },
+  { id: 'golden-crumbs', x: 72, y: 40, r: 7, label: '🥖 Golden Crumb Trail!', hint: 'Follow the windowsill...' },
+  { id: 'halfling-footprint', x: 50, y: 78, r: 9, label: '👣 Mrs. Crumb\'s Footprint!', hint: 'Something near the flour sacks...' },
 ];
 
 function SpotlightDM({ puzzle, onUpdate }) {
@@ -46,7 +44,6 @@ function SpotlightDM({ puzzle, onUpdate }) {
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
       >
-        {/* Clue zones (visible to DM only) */}
         {CLUE_ZONES.map(z => (
           <div key={z.id} className={`absolute rounded-full border-2 border-dashed ${
             found.includes(z.id) ? 'border-green-500 bg-green-900/30' : 'border-yellow-600/40'
@@ -59,7 +56,6 @@ function SpotlightDM({ puzzle, onUpdate }) {
             </span>
           </div>
         ))}
-        {/* Spotlight indicator */}
         <div className="absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-yellow-400/60 border-2 border-yellow-300 shadow-[0_0_20px_rgba(250,204,21,0.5)]"
           style={{ left: `${puzzle.spotX ?? 50}%`, top: `${puzzle.spotY ?? 50}%` }}
         />
@@ -91,15 +87,12 @@ function SpotlightPlayer({ puzzle }) {
 
   return (
     <div className="absolute inset-0 z-40 pointer-events-none">
-      {/* Darkness overlay with spotlight cutout */}
       <div className="absolute inset-0" style={{
         background: `radial-gradient(circle 180px at ${spotX}% ${spotY}%, transparent 0%, rgba(0,0,0,0.92) 100%)`,
       }} />
-      {/* Spotlight glow ring */}
       <div className="absolute w-[360px] h-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-yellow-400/30"
         style={{ left: `${spotX}%`, top: `${spotY}%` }}
       />
-      {/* Found clue labels */}
       {found.map((id) => {
         const z = CLUE_ZONES.find(c => c.id === id);
         if (!z) return null;
@@ -112,11 +105,10 @@ function SpotlightPlayer({ puzzle }) {
           </div>
         );
       })}
-      {/* Search prompt */}
       <div className="absolute top-8 left-0 right-0 flex justify-center">
         <div className="bg-black/80 border border-dnd-gold px-8 py-4 rounded-xl">
           <p className="text-3xl font-serif text-dnd-gold flex items-center gap-3">
-            <Search size={32} /> Search the Bakery! ({found.length}/{CLUE_ZONES.length} clues)
+            <Search size={32} /> Search for the thief's trail! ({found.length}/{CLUE_ZONES.length} clues)
           </p>
         </div>
       </div>
@@ -126,17 +118,16 @@ function SpotlightPlayer({ puzzle }) {
 
 
 // ═══════════════════════════════════════════════════════════════════
-// PUZZLE 2: Hoot's Riddle
-// Typewriter-style text reveal with DM-controlled hints.
+// PUZZLE 2: Hoot's Riddle (Act 2)
 // ═══════════════════════════════════════════════════════════════════
 
 const RIDDLE = {
-  text: "I have cities, but no houses live there.\nI have mountains, but no trees grow there.\nI have water, but no fish swim there.\nWhat am I?",
-  answer: "A Map",
+  text: "I have a heart that doesn't beat,\nI have a bed but never sleep,\nI can run but have no legs.\nWhat am I?",
+  answer: "A River",
   hints: [
-    "🦉 Hoot tilts his head... 'Think about what shows you the world without being the world...'",
-    "🦉 Hoot ruffles his feathers... 'You carry it in your pack, adventurer!'",
-    "🦉 Hoot hoots softly... 'It guides your journey but is made of paper...'",
+    "🦉 Hoot tilts his head... 'I am very wet!'",
+    "🦉 Hoot ruffles his feathers... 'I flow through the valley below...'",
+    "🦉 Hoot hoots softly... 'Water is my lifeblood...'",
   ],
 };
 
@@ -200,19 +191,11 @@ function RiddlePlayer({ puzzle }) {
   const solved = puzzle.solved ?? false;
   const [displayLen, setDisplayLen] = React.useState(0);
 
-  // Typewriter effect: animate up to revealedChars
   React.useEffect(() => {
     if (displayLen >= revealedChars) return;
     const timer = setTimeout(() => setDisplayLen(prev => Math.min(prev + 1, revealedChars)), 40);
     return () => clearTimeout(timer);
   }, [displayLen, revealedChars]);
-
-  // Jump forward if DM reveals a big chunk
-  React.useEffect(() => {
-    if (revealedChars > displayLen + 20) {
-      setDisplayLen(revealedChars - 8);
-    }
-  }, [revealedChars, displayLen]);
 
   const visibleText = RIDDLE.text.slice(0, displayLen);
   const lines = visibleText.split('\n');
@@ -220,13 +203,10 @@ function RiddlePlayer({ puzzle }) {
   return (
     <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none">
       <div className="bg-black/90 backdrop-blur-lg p-16 rounded-[3rem] border-4 border-purple-500 shadow-[0_0_100px_rgba(168,85,247,0.3)] max-w-4xl">
-        {/* Hoot avatar */}
         <div className="flex items-center justify-center gap-4 mb-8">
           <span className="text-8xl">🦉</span>
-          <h2 className="text-5xl font-serif text-purple-300 italic">Hoot speaks...</h2>
+          <h2 className="text-5xl font-serif text-purple-300 italic">Hoot's Ancient Riddle...</h2>
         </div>
-
-        {/* Riddle text with typewriter */}
         <div className="space-y-4 mb-8">
           {lines.map((line, i) => (
             <p key={i} className="text-4xl font-serif text-white leading-relaxed text-center">
@@ -237,8 +217,6 @@ function RiddlePlayer({ puzzle }) {
             </p>
           ))}
         </div>
-
-        {/* Hints */}
         {hintsGiven > 0 && (
           <div className="space-y-3 mt-8 border-t border-purple-500/30 pt-6">
             {RIDDLE.hints.slice(0, hintsGiven).map((hint, i) => (
@@ -246,13 +224,11 @@ function RiddlePlayer({ puzzle }) {
             ))}
           </div>
         )}
-
-        {/* Solved state */}
         {solved && (
           <div className="mt-10 text-center animate-bounce">
             <div className="inline-block bg-green-900/80 border-4 border-green-400 px-12 py-6 rounded-2xl shadow-[0_0_60px_rgba(74,222,128,0.4)]">
-              <p className="text-6xl font-bold text-green-300">🗺️ {RIDDLE.answer}!</p>
-              <p className="text-2xl text-green-400 mt-2">The owl nods wisely!</p>
+              <p className="text-6xl font-bold text-green-300">🌊 {RIDDLE.answer}!</p>
+              <p className="text-2xl text-green-400 mt-2">The owl hoots and lets you pass!</p>
             </div>
           </div>
         )}
@@ -263,16 +239,14 @@ function RiddlePlayer({ puzzle }) {
 
 
 // ═══════════════════════════════════════════════════════════════════
-// PUZZLE 3: Glimmer Stream Stepping Stones
-// Timed challenge: pick the right stones to cross.
-// Wrong stone = splash animation. Right path = safe crossing.
+// PUZZLE 3: Glimmer Stream Stepping Stones (Act 2)
 // ═══════════════════════════════════════════════════════════════════
 
 const STONE_ROWS = [
-  { stones: ['🌸', '🍄', '⭐'], safe: 2 },  // row 0 (near side): star is safe
-  { stones: ['🌿', '💎', '🔥'], safe: 1 },  // row 1: gem is safe
-  { stones: ['🌙', '🦋', '☀️'], safe: 0 },  // row 2: moon is safe
-  { stones: ['🪨', '🐸', '🌊'], safe: 0 },  // row 3 (far side): rock is safe
+  { stones: ['🌸', '🍄', '⭐'], safe: 2 },
+  { stones: ['🌿', '💎', '🔥'], safe: 1 },
+  { stones: ['🌙', '🦋', '☀️'], safe: 0 },
+  { stones: ['🪨', '🐸', '🌊'], safe: 0 },
 ];
 
 function StonesDM({ puzzle, onUpdate }) {
@@ -287,7 +261,7 @@ function StonesDM({ puzzle, onUpdate }) {
   return (
     <div className="space-y-2">
       <p className="text-xs text-gray-400 uppercase tracking-widest">
-        Players choose stones on the TV!
+        Athletics Check (10+) to jump safely!
       </p>
       <div className="space-y-1">
         {STONE_ROWS.map((row, ri) => (
@@ -328,20 +302,12 @@ function StonesPlayer({ puzzle, onUpdate }) {
 
   const handlePick = (rowIdx, stoneIdx) => {
     if (crossed || rowIdx !== currentRow) return;
-
     const row = STONE_ROWS[rowIdx];
     if (stoneIdx === row.safe) {
-      // Correct!
       setCorrectAnim({ row: rowIdx, stone: stoneIdx });
       setTimeout(() => setCorrectAnim(null), 800);
-
-      if (rowIdx >= STONE_ROWS.length - 1) {
-        onUpdate({ ...puzzle, currentRow: rowIdx + 1, crossed: true, selectedStones: [...(puzzle.selectedStones || []), [rowIdx, stoneIdx]] });
-      } else {
-        onUpdate({ ...puzzle, currentRow: rowIdx + 1, selectedStones: [...(puzzle.selectedStones || []), [rowIdx, stoneIdx]] });
-      }
+      onUpdate({ ...puzzle, currentRow: rowIdx + 1, crossed: rowIdx >= STONE_ROWS.length - 1, selectedStones: [...(puzzle.selectedStones || []), [rowIdx, stoneIdx]] });
     } else {
-      // Splash!
       setSplashAnim({ row: rowIdx, stone: stoneIdx });
       setTimeout(() => setSplashAnim(null), 1200);
       onUpdate({ ...puzzle, splashes: [...splashes, [rowIdx, stoneIdx]] });
@@ -350,17 +316,14 @@ function StonesPlayer({ puzzle, onUpdate }) {
 
   return (
     <div className="absolute inset-0 z-40 flex flex-col items-center justify-center">
-      {/* Title */}
       <div className="mb-8">
         <div className="bg-black/80 border-2 border-blue-400 px-10 py-5 rounded-2xl shadow-[0_0_60px_rgba(96,165,250,0.3)]">
           <h2 className="text-5xl font-serif text-blue-300 flex items-center gap-4">
             <Footprints size={40} /> Cross the Glimmer Stream!
           </h2>
-          {!crossed && <p className="text-2xl text-blue-400 mt-2 text-center">Pick the safe stone in each row</p>}
+          {!crossed && <p className="text-2xl text-blue-400 mt-2 text-center">Jump across the liquid silver stones</p>}
         </div>
       </div>
-
-      {/* Stone grid */}
       <div className="space-y-6 w-[700px]">
         {STONE_ROWS.map((row, ri) => (
           <div key={ri} className={`flex gap-6 justify-center transition-all duration-500 ${
@@ -371,58 +334,37 @@ function StonesPlayer({ puzzle, onUpdate }) {
               const wasSplash = splashes.some(s => s[0] === ri && s[1] === si);
               const isSplashing = splashAnim?.row === ri && splashAnim?.stone === si;
               const isCorrectAnim = correctAnim?.row === ri && correctAnim?.stone === si;
-
               return (
-                <button
-                  key={si}
-                  onClick={() => handlePick(ri, si)}
-                  disabled={ri !== currentRow || crossed}
+                <button key={si} onClick={() => handlePick(ri, si)} disabled={ri !== currentRow || crossed}
                   className={`w-36 h-36 rounded-2xl text-6xl flex items-center justify-center transition-all duration-300 border-4 ${
                     isChosen ? 'bg-green-900/80 border-green-400 shadow-[0_0_30px_rgba(74,222,128,0.5)] scale-105' :
                     isSplashing ? 'bg-blue-600/80 border-blue-300 animate-bounce scale-125' :
                     wasSplash ? 'bg-blue-900/40 border-blue-800 opacity-50' :
                     ri === currentRow && !crossed ? 'bg-gray-800/90 border-gray-500 hover:border-white hover:scale-110 cursor-pointer hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]' :
                     'bg-gray-900/60 border-gray-700'
-                  } ${isCorrectAnim ? 'ring-4 ring-green-400 scale-125' : ''}`}
-                >
+                  } ${isCorrectAnim ? 'ring-4 ring-green-400 scale-125' : ''}`}>
                   {isSplashing ? '💦' : stone}
                 </button>
               );
             })}
           </div>
-        )).reverse() /* Reverse so far side is at top, near side at bottom */}
+        )).reverse()}
       </div>
-
-      {/* Splash effect overlay */}
-      {splashAnim && (
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-50">
-          <div className="text-[10rem] animate-ping opacity-50">💦</div>
-        </div>
-      )}
-
-      {/* Victory */}
-      {crossed && (
-        <div className="mt-8 animate-bounce">
-          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-2xl shadow-[0_0_80px_rgba(74,222,128,0.5)]">
-            <p className="text-6xl font-bold text-green-300 flex items-center gap-4">
-              <Trophy size={48} /> Safe Across!
-            </p>
-          </div>
-        </div>
-      )}
+      {splashAnim && <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-50"><div className="text-[10rem] animate-ping opacity-50">💦</div></div>}
+      {crossed && <div className="mt-8 animate-bounce"><div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-2xl shadow-[0_0_80px_rgba(74,222,128,0.5)]"><p className="text-6xl font-bold text-green-300 flex items-center gap-4"><Trophy size={48} /> Safe Across!</p></div></div>}
     </div>
   );
 }
 
 
 // ═══════════════════════════════════════════════════════════════════
-// Puzzle Registry & Exports
+// Puzzle Registry
 // ═══════════════════════════════════════════════════════════════════
 
 export const PUZZLES = {
   bakery: {
     id: 'spotlight',
-    title: 'Search the Bakery',
+    title: 'Search for Clues',
     icon: Search,
     DMComponent: SpotlightDM,
     PlayerComponent: SpotlightPlayer,
@@ -443,6 +385,6 @@ export const PUZZLES = {
     DMComponent: StonesDM,
     PlayerComponent: StonesPlayer,
     defaultState: { currentRow: 0, splashes: [], crossed: false, selectedStones: [] },
-    interactive: true, // Player can click
-  },
+    interactive: true,
+  }
 };

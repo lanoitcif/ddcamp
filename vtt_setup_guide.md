@@ -1,56 +1,40 @@
-# 🐉 Owlbear Rodeo: TV Setup Guide
-*A step-by-step guide to setting up "The Dragon of Whispering Peak" on your big screen.*
+# 📺 D&D Engine: TV Setup Guide
+*A guide to running "The Dragon of Whispering Peak" on your big screen using the custom VTT app.*
 
 ---
 
 ## 🖥️ 1. Setup the "Big Screen" (TV)
-To have a clean, player-only view on your TV while you keep your DM notes on your laptop:
+The `dnd-engine` is designed for a dual-screen experience:
 
-1.  **Launch Owlbear:** Go to [Owlbear.Rodeo](https://www.owlbear.rodeo/) on your laptop and create a "Room."
-2.  **Open Player View:** Click the **Extras** (three dots) in the bottom left corner and select **"Player View."**
-3.  **Cast/Cable:**
-    *   **HDMI:** Drag the new "Player View" tab/window to your second screen (the TV).
-    *   **Casting:** Cast only that specific "Player View" tab to your TV using Chrome/Edge casting features.
-4.  **Full Screen:** Press `F11` on the "Player View" window to make it look like a professional game.
+1.  **Laptop (DM Console):** Open `http://localhost:5173/` in your browser. This is your control center.
+2.  **TV (Player View):** Open `http://localhost:5173/?mode=player` in a second tab or window.
+3.  **Drag & Fullscreen:** Drag the **Player View** window to your TV screen (via HDMI or Casting) and press `F11` for a borderless cinematic experience.
 
 ---
 
-## 🎨 2. Customizing for the Kids
-Make the game visual and interactive with these extensions.
+## 🎮 2. Interactive Features for Players
+The TV view isn't just a static image; it's an interactive portal.
 
-### A. Enable Digital Dice (Visible on TV!)
-1.  On your DM screen, click **Extras** (three dots) > **Extensions**.
-2.  Browse or search for the **"Dice"** extension and click **Install**.
-3.  Now, when anyone rolls (using the dice icon on the left), 3D dice will tumble across the TV screen!
+### ✨ Digital Pings (The "Magic Pointer")
+In the DM Console, click anywhere on the **Scene Context** parchment. A pulsing golden ring will appear on the TV at that exact spot. Use this to point out clues like "Blue Scales" or "Crumb Trails."
 
-### B. Add Character Tokens & Maps
-1.  **Tokens:** Use the **Asset Manager** (the `+` icon in the bottom dock) to upload images for:
-    *   **Lily** (Thief)
-    *   **Thorne** (Fighter)
-    *   **Valerius** (Paladin)
-    *   **Hoot** (Owl NPC)
-    *   **Glint** (The Dragon!)
-2.  **Maps:** Upload your map images (Sparkle Woods, etc.) and set them to the "Map" layer. Owlbear will automatically scale them.
+### 📜 Quest Handouts
+When the players find an item, click it in the **Handouts** gallery in the DM sidebar. A high-resolution image of the item (like a Sun-Cake or Dragon Medal) will fade in on the TV view with a magical sparkle effect.
 
-### C. HP Tracking (Stat Bubbles)
-1.  Install the **"Stat Bubbles"** or **"HP Tracker"** extension from the Extension store.
-2.  This allows you to see a little red bar or number over Lily, Thorne, and Valerius so the kids know how "tired" their heroes are.
+### 🎉 Quick Reactions
+Use the emoji bar in the DM Console to send floating reactions (🎉, ❤️, 🌟) to the TV. It’s a great way to reward kids for funny or heroic ideas without saying a word.
 
 ---
 
-## 📜 3. Integrated Character Sheets (The "Magic" Link)
-If you want to click a token on the TV/Laptop and see their full sheet:
-
-1.  **Create Sheets:** Use [D&D Beyond](https://www.dndbeyond.com/) to create the three characters (it’s free).
-2.  **Install Extension:** In Owlbear, install the **"Sheet from Beyond"** extension.
-3.  **Link Them:**
-    *   Copy the URL of the D&D Beyond character sheet (e.g., `https://www.dndbeyond.com/characters/12345`).
-    *   In Owlbear, select a character token, click its **pencil icon** (Edit), and paste the URL into the extension field.
-4.  **Usage:** Now, clicking the token on your laptop will open their sheet in a small window, keeping the map visible!
+## 🎨 3. Character Customization
+At the start of your session, let the kids choose their look:
+1.  In the DM Console, hover over a character's portrait.
+2.  Click the **CHANGE** button.
+3.  Choose from the high-quality **Portrait Gallery**. The TV view will update instantly!
 
 ---
 
 ## 💡 DM Pro-Tips for TV Play
-*   **Fog of War:** Use the "Fog" tool to hide the Dragon's cave until the kids actually reach the top of Whispering Peak.
-*   **Narrative Graphics:** Instead of a map, sometimes just upload a high-quality picture of a "Sun-Cake" or "Sparkle Woods" to the TV to set the mood.
-*   **Pointer Tool:** Use the `Ping` (hold left click) to draw the kids' attention to specific parts of the screen.
+- **Minecraft Moods:** Use the `Ambience` controls to switch from `calm` (exploration) to `tense` (finding a clue) to `combat` (boss fight). The Minecraft-style procedural music will crossfade automatically.
+- **Narrative Subtitles:** Type dialogue into the **Narration** box and hit **Send**. It appears as large, readable text on the TV, perfect for Mrs. Crumb's dramatic lines.
+- **Auto-Sync:** If you refresh either page, the game state is saved in `localStorage`. Your HP, Quests, and Scene will stay exactly where you left them.
