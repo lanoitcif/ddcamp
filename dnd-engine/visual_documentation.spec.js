@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 
-const SCREENSHOT_DIR = '/home/lanoitcif/ddcamp/screenshots';
+const SCREENSHOT_DIR = '/app/screenshots';
 
 test.describe('Visual Documentation Suite', () => {
   let dmPage;
