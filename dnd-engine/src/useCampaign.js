@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import campaignData from './campaign_data.json';
-
-const SYNC_CHANNEL = 'dnd_engine_sync';
+import { useSync } from './useSync';
+import { awardXp as computeXpAward, defaultXpState } from './xpSystem';
 
 function defaultState() {
   return {
@@ -23,6 +23,11 @@ function defaultState() {
     activeHandout: null,
     reaction: null, // { emoji, id }
     activePuzzle: null,
+    hasAdvantage: null,
+    lastCombatAction: null,
+    characterXp: defaultXpState(campaignData.characters),
+    levelUp: null,
+    xpGain: null,
   };
 }
 
@@ -52,31 +57,21 @@ export function rollDamage(damageStr) {
 
 export function useCampaign() {
   const [gameState, setGameState] = useState(loadState);
-  const channelRef = useRef(null);
+
+  const sync = useSync((incoming) => {
+    if (incoming && typeof incoming === 'object') {
+      setGameState(incoming);
+    }
+  });
 
   const updateGameState = useCallback((updates) => {
     setGameState(prev => {
       const newState = { ...prev, ...updates };
       localStorage.setItem('dnd_game_state', JSON.stringify(newState));
-      channelRef.current?.postMessage(newState);
+      sync.send(newState);
       return newState;
     });
-  }, []);
-
-  useEffect(() => {
-    const ch = new BroadcastChannel(SYNC_CHANNEL);
-    channelRef.current = ch;
-    const handleMessage = (event) => {
-      if (event.data && typeof event.data === 'object') {
-        setGameState(event.data);
-      }
-    };
-    ch.addEventListener('message', handleMessage);
-    return () => {
-      ch.removeEventListener('message', handleMessage);
-      ch.close();
-    };
-  }, []);
+  }, [sync]);
 
   const getMaxHp = useCallback((id) => {
     const char = campaignData.characters.find(c => c.id === id);
@@ -114,19 +109,57 @@ export function useCampaign() {
       const log = [entry, ...(prev.rollLog || [])].slice(0, 50);
       const newState = { ...prev, rollLog: log };
       localStorage.setItem('dnd_game_state', JSON.stringify(newState));
-      channelRef.current?.postMessage(newState);
+      sync.send(newState);
       return newState;
     });
-  }, []);
+  }, [sync]);
 
-  const rollDice = useCallback((bonus, label, damageStr) => {
-    const d20 = Math.floor(Math.random() * 20) + 1;
+  const rollDice = useCallback((bonus, label, damageStr, targetId) => {
+    let d20, advantageRolls = null, usedAdvantage = false;
+
+    // Check if the rolling entity has advantage
+    const rollingEntityId = [...campaignData.characters, ...campaignData.monsters]
+      .find(e => label.startsWith(e.name + ':'))?.id;
+
+    if (gameState.hasAdvantage && rollingEntityId === gameState.hasAdvantage) {
+      const roll1 = Math.floor(Math.random() * 20) + 1;
+      const roll2 = Math.floor(Math.random() * 20) + 1;
+      d20 = Math.max(roll1, roll2);
+      advantageRolls = [roll1, roll2];
+      usedAdvantage = true;
+    } else {
+      d20 = Math.floor(Math.random() * 20) + 1;
+    }
+
     const total = d20 + bonus;
     const damage = rollDamage(damageStr);
-    const roll = { d20, bonus, total, label, damage, id: Date.now() };
-    updateGameState({ lastRoll: roll });
+    const roll = { d20, bonus, total, label, damage, id: Date.now(), advantageRolls, usedAdvantage };
+
+    const updates = { lastRoll: roll };
+    if (usedAdvantage) {
+      updates.hasAdvantage = null;
+    }
+
+    if (targetId && damage) {
+      const targetEntity = campaignData.characters.find(c => c.id === targetId) ||
+                           campaignData.monsters.find(m => m.id === targetId);
+      const targetName = targetEntity?.name || targetId;
+      handleHpChange(targetId, -damage.total);
+      roll.targetId = targetId;
+      roll.targetName = targetName;
+      roll.autoApplied = true;
+      roll.label = `${label} → ${targetName}`;
+
+      // Auto-combat mood
+      updates.lastCombatAction = Date.now();
+      if (gameState.audioPlaying && gameState.audioMood !== 'combat') {
+        updates.audioMood = 'combat';
+      }
+    }
+
+    updateGameState(updates);
     addLogEntry({ ...roll, time: new Date().toLocaleTimeString() });
-  }, [updateGameState, addLogEntry]);
+  }, [updateGameState, addLogEntry, handleHpChange, gameState.hasAdvantage, gameState.audioPlaying, gameState.audioMood]);
 
   const rollSkillCheck = useCallback((label) => {
     const d20 = Math.floor(Math.random() * 20) + 1;
@@ -151,10 +184,17 @@ export function useCampaign() {
       ...campaignData.characters.map(c => c.id),
       ...sceneMonsters.map(m => m.id),
     ];
-    const currentIndex = allIds.indexOf(gameState.activeTurnId);
-    const nextIndex = (currentIndex + 1) % allIds.length;
-    updateGameState({ activeTurnId: allIds[nextIndex] });
-  }, [gameState.activeTurnId, sceneMonsters, updateGameState]);
+    // Filter out dead monsters (HP <= 0), keep all characters
+    const aliveIds = allIds.filter(id => {
+      const isMonster = campaignData.monsters.some(m => m.id === id);
+      if (!isMonster) return true;
+      return (gameState.characterHp[id] ?? 0) > 0;
+    });
+    if (aliveIds.length === 0) return;
+    const currentIndex = aliveIds.indexOf(gameState.activeTurnId);
+    const nextIndex = (currentIndex + 1) % aliveIds.length;
+    updateGameState({ activeTurnId: aliveIds[nextIndex] });
+  }, [gameState.activeTurnId, gameState.characterHp, sceneMonsters, updateGameState]);
 
   const awardLoot = useCallback((questId) => {
     if (gameState.completedQuests.includes(questId)) return;
@@ -165,11 +205,12 @@ export function useCampaign() {
     });
   }, [gameState.completedQuests, updateGameState]);
 
-  const setNarration = useCallback((text) => {
-    updateGameState({ narration: text ? { text, id: Date.now() } : null });
+  const setNarration = useCallback((text, duration) => {
+    updateGameState({ narration: text ? { text, id: Date.now(), duration: duration || 15000 } : null });
   }, [updateGameState]);
 
   const helpAction = useCallback((helperName, targetName) => {
+    const targetChar = campaignData.characters.find(c => c.name === targetName);
     addLogEntry({
       id: Date.now(),
       time: new Date().toLocaleTimeString(),
@@ -178,7 +219,10 @@ export function useCampaign() {
       total: 'ADV',
       bonus: 0
     });
-    updateGameState({ toast: { title: "Help!", message: `${helperName} gives Advantage to ${targetName}!`, id: Date.now() } });
+    updateGameState({
+      toast: { title: "Help!", message: `${helperName} gives Advantage to ${targetName}!`, id: Date.now() },
+      hasAdvantage: targetChar?.id || null,
+    });
   }, [addLogEntry, updateGameState]);
 
   const snackAction = useCallback((id, name) => {
@@ -227,13 +271,52 @@ export function useCampaign() {
     const fresh = defaultState();
     localStorage.removeItem('dnd_game_state');
     setGameState(fresh);
-    channelRef.current?.postMessage(fresh);
-  }, []);
+    sync.send(fresh);
+  }, [sync]);
+
+  const awardXpAction = useCallback((characterId, amount, reason) => {
+    const result = computeXpAward(gameState.characterXp || {}, characterId, amount);
+    const charName = campaignData.characters.find(c => c.id === characterId)?.name || characterId;
+    const updates = {
+      characterXp: result.updatedXp,
+      xpGain: { amount, reason, characterId, characterName: charName, id: Date.now() },
+    };
+    if (result.levelUp) {
+      updates.levelUp = { ...result.levelUp, characterName: charName, id: Date.now() };
+      // Apply HP bonus from level-up
+      if (result.levelUp.hpBonus) {
+        const maxHp = (campaignData.characters.find(c => c.id === characterId)?.maxHp || 0) + result.levelUp.hpBonus;
+        updates.characterHp = { ...gameState.characterHp, [characterId]: Math.min(maxHp, (gameState.characterHp[characterId] ?? 0) + result.levelUp.hpBonus) };
+      }
+    }
+    updateGameState(updates);
+    addLogEntry({
+      id: Date.now(), time: new Date().toLocaleTimeString(),
+      label: `⭐ ${charName} gains ${amount} XP${reason ? ` (${reason})` : ''}${result.levelUp ? ` — LEVEL UP to ${result.levelUp.newLevel}!` : ''}`,
+      d20: 'XP', total: `+${amount}`, bonus: 0,
+    });
+  }, [gameState.characterXp, gameState.characterHp, updateGameState, addLogEntry]);
+
+  // Auto-combat mood: fade back after 30s idle
+  useEffect(() => {
+    if (!gameState.lastCombatAction || !gameState.audioPlaying || gameState.audioMood !== 'combat') return;
+    const timer = setTimeout(() => {
+      const elapsed = Date.now() - gameState.lastCombatAction;
+      if (elapsed >= 30000) {
+        updateGameState({ audioMood: 'tense' });
+        setTimeout(() => {
+          updateGameState({ audioMood: 'calm' });
+        }, 15000);
+      }
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [gameState.lastCombatAction, gameState.audioPlaying, gameState.audioMood, updateGameState]);
 
   return {
     campaignData,
     gameState,
     sceneMonsters,
+    sync,
     updateGameState,
     handleHpChange,
     setHp,
@@ -254,5 +337,6 @@ export function useCampaign() {
     updatePuzzle,
     endPuzzle,
     resetGame,
+    awardXpAction,
   };
 }

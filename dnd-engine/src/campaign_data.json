@@ -71,84 +71,108 @@
       "title": "Mrs. Crumb's Bakery",
       "description": "The smell of honey and cinnamon fills the air... but the Sun-Cakes are gone! Mrs. Crumb (a stout halfling with flour on her nose) is distraught.",
       "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=80",
-      "chapter": "Ch 1 \u00b7 Oakhaven Village"
+      "chapter": "Ch 1 · Oakhaven Village",
+      "introNarration": "A scream rings out from the bakery! Mrs. Crumb is waving a rolling pin... 'Oh no! My Sun-Cakes are gone! There's blue frosting everywhere!'",
+      "dmNotes": { "npcs": "Mrs. Crumb (halfling baker)", "tactics": "No combat — investigation scene", "questHints": "Bakery Clue (main), Whiskers the Kitten (side)", "tip": "Let kids search behind counter and under tables" }
     },
     {
       "id": "market",
       "title": "Oakhaven Market Square",
-      "description": "The cobblestone square bustles with vendors selling enchanted trinkets, roasted chestnuts, and colorful festival banners. A frantic merchant waves you over \u2014 his delivery cart has been raided too!",
+      "description": "The cobblestone square bustles with vendors selling enchanted trinkets, roasted chestnuts, and colorful festival banners. A frantic merchant waves you over — his delivery cart has been raided too!",
       "image": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&w=1200&q=80",
-      "chapter": "Ch 1 \u00b7 Oakhaven Village"
+      "chapter": "Ch 1 · Oakhaven Village",
+      "introNarration": "The cobblestone square bustles with vendors and festival banners. A frantic merchant waves you over — his delivery cart has been raided!",
+      "dmNotes": { "npcs": "Gareth the Merchant", "tactics": "No combat — social/puzzle scene", "questHints": "Merchant's Parcel (side), Secret Recipe (side)", "tip": "Encourage bartering and trading with vendors" }
     },
     {
       "id": "woods",
       "title": "The Sparkle Woods",
       "description": "The trees glow like emeralds and the wind whispers secrets. Hoot the Riddle-Owl (wearing tiny spectacles) blocks your path.",
       "image": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80",
-      "chapter": "Ch 2 \u00b7 The Sparkle Woods"
+      "chapter": "Ch 2 · The Sparkle Woods",
+      "introNarration": "The trees glow like emeralds. A large owl wearing tiny spectacles blocks the path and hoots: 'Answer my riddle, or no passage!'",
+      "dmNotes": { "npcs": "Hoot the Riddle-Owl", "tactics": "Hoot: Wing Buffet if annoyed. Silverfang: Bite first, then Howl", "questHints": "Hoot's Riddle (main), Tame Silverfang (side)", "tip": "Make Hoot silly and theatrical — kids love funny voices" }
     },
     {
       "id": "glade",
       "title": "The Fairy Glade",
-      "description": "Sunbeams pierce the canopy like golden pillars. Tiny glowing lights dance between wildflowers \u2014 these are the Glade Fairies, and their firefly lanterns have escaped!",
+      "description": "Sunbeams pierce the canopy like golden pillars. Tiny glowing lights dance between wildflowers — these are the Glade Fairies, and their firefly lanterns have escaped!",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
-      "chapter": "Ch 2 \u00b7 The Sparkle Woods"
+      "chapter": "Ch 2 · The Sparkle Woods",
+      "introNarration": "Sunbeams pierce the canopy like golden pillars. Tiny glowing lights dance between wildflowers — the firefly lanterns have escaped!",
+      "dmNotes": { "npcs": "Twinkle the Pixie Queen", "tactics": "Pixie Dust is harmless annoyance, Giggle Zap tickles", "questHints": "Firefly Catch (side), Mushroom Trail (side)", "tip": "Describe the fairies as tiny and giggly, not threatening" }
     },
     {
       "id": "stream",
       "title": "The Glimmer Stream",
       "description": "A wide stream of liquid silver cuts through the forest. Smooth stones poke above the surface, glittering with embedded crystals. One wrong step means a splash!",
       "image": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
-      "chapter": "Ch 2 \u00b7 The Sparkle Woods"
+      "chapter": "Ch 2 · The Sparkle Woods",
+      "introNarration": "A wide stream of liquid silver blocks your path. Smooth stones glitter above the surface. One wrong step means a splash!",
+      "dmNotes": { "npcs": "None — environmental challenge", "tactics": "No combat — puzzle crossing", "questHints": "Cross the Glimmer Stream (main)", "tip": "Let creative solutions work (throwing rope, using logs)" }
     },
     {
       "id": "goblin_camp",
       "title": "Goblin Hollow",
-      "description": "Ramshackle tents and crooked lanterns fill a forest clearing. The goblins aren't evil \u2014 they're just hungry and scared. Their leader, Grumbletooth, sits on a barrel throne eating a stolen Sun-Cake.",
+      "description": "Ramshackle tents and crooked lanterns fill a forest clearing. The goblins aren't evil — they're just hungry and scared. Their leader, Grumbletooth, sits on a barrel throne eating a stolen Sun-Cake.",
       "image": "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&w=1200&q=80",
-      "chapter": "Ch 2 \u00b7 The Sparkle Woods"
+      "chapter": "Ch 2 · The Sparkle Woods",
+      "introNarration": "Ramshackle tents fill the clearing. These goblins aren't evil — just hungry and scared. Their leader sits on a barrel throne eating a stolen Sun-Cake.",
+      "dmNotes": { "npcs": "Grumbletooth, Snick the Scout", "tactics": "Grumbletooth: Rusty Sword + Thrown Rock. Snick: sneaky flanker", "questHints": "Goblin Truce (side)", "tip": "Reward diplomacy! Goblins can become allies if treated kindly" }
     },
     {
       "id": "caves",
       "title": "The Crystal Caverns",
       "description": "Thousands of crystals line the cave walls, each humming a faint musical note. Touching them in the right order reveals hidden passages. Crystal bats flutter between stalactites overhead.",
       "image": "https://images.unsplash.com/photo-1504870712474-3d4eb38a0e56?auto=format&fit=crop&w=1200&q=80",
-      "chapter": "Ch 3 \u00b7 The Mountain Path"
+      "chapter": "Ch 3 · The Mountain Path",
+      "introNarration": "Thousands of crystals hum faint musical notes. Crystal bats flutter between stalactites overhead. Touch the crystals in the right order...",
+      "dmNotes": { "npcs": "Crystal Bat Swarm", "tactics": "Sonic Squeak first (area), then Wing Slash on closest", "questHints": "Crystal Melody (side), Lost Traveler (side)", "tip": "Describe crystals humming different notes as players touch them" }
     },
     {
       "id": "bridge",
       "title": "The Skythread Bridge",
       "description": "An ancient rope bridge stretches across a misty chasm. The planks creak and sway with every step. Strange wisps of shadow dance beneath it, whispering forgotten names.",
       "image": "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=1200&q=80",
-      "chapter": "Ch 3 \u00b7 The Mountain Path"
+      "chapter": "Ch 3 · The Mountain Path",
+      "introNarration": "An ancient rope bridge stretches across a misty chasm. The planks creak and sway. Strange wisps of shadow dance beneath it...",
+      "dmNotes": { "npcs": "Shadow Wisp", "tactics": "Cold Touch from range, Vanish Strike if flanked", "questHints": "Bridge Repair (side)", "tip": "Build tension with swaying bridge + whispering shadows" }
     },
     {
       "id": "camp",
       "title": "Moonlit Campfire",
       "description": "A sheltered clearing beneath ancient pines. The fire crackles warmly as stars fill the sky above. This is a safe place to rest, tell stories, and gaze at the constellations.",
       "image": "https://images.unsplash.com/photo-1504851149312-7a075b496cc7?auto=format&fit=crop&w=1200&q=80",
-      "chapter": "Ch 3 \u00b7 The Mountain Path"
+      "chapter": "Ch 3 · The Mountain Path",
+      "introNarration": "The fire crackles warmly as stars fill the sky. This is a safe place to rest, tell stories, and gaze at the constellations above.",
+      "dmNotes": { "npcs": "Safe rest area — no enemies", "tactics": "No combat — rest and roleplay", "questHints": "Campfire Tales (side), Star Naming (side)", "tip": "Ask each player to share their hero's backstory" }
     },
     {
       "id": "ruins",
       "title": "The Forgotten Shrine",
-      "description": "Moss-covered stone pillars form a circle around a cracked altar. Ancient runes glow faintly beneath the ivy. A massive Stone Guardian stands motionless \u2014 until someone approaches the altar.",
+      "description": "Moss-covered stone pillars form a circle around a cracked altar. Ancient runes glow faintly beneath the ivy. A massive Stone Guardian stands motionless — until someone approaches the altar.",
       "image": "https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?auto=format&fit=crop&w=1200&q=80",
-      "chapter": "Ch 4 \u00b7 The Summit"
+      "chapter": "Ch 4 · The Summit",
+      "introNarration": "Moss-covered stone pillars form a circle around a cracked altar. Ancient runes glow faintly. A massive Stone Guardian stands motionless... waiting.",
+      "dmNotes": { "npcs": "The Stone Guardian (MINI-BOSS, 35 HP)", "tactics": "Stone Fist on melee targets, Ground Slam if surrounded", "questHints": "Restore Shrine (main)", "tip": "Guardian can be pacified by solving the Rune puzzle first" }
     },
     {
       "id": "peak",
       "title": "Whispering Peak",
-      "description": "The wind sounds like soft singing. Inside a cozy cave, you find Glint the Dragon licking frosting off his claws. He looks up with big golden eyes \u2014 scared, not scary.",
+      "description": "The wind sounds like soft singing. Inside a cozy cave, you find Glint the Dragon licking frosting off his claws. He looks up with big golden eyes — scared, not scary.",
       "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
-      "chapter": "Ch 4 \u00b7 The Summit"
+      "chapter": "Ch 4 · The Summit",
+      "introNarration": "The wind sounds like soft singing. Inside a cozy cave, Glint the Dragon licks frosting off his claws. He looks up with big golden eyes — scared, not scary.",
+      "dmNotes": { "npcs": "Glint the Dragon (BOSS, 45 HP)", "tactics": "Frosting Breath (area), Tail Swipe on closest. Glint is scared!", "questHints": "Make a New Friend (main)", "tip": "Glint can be befriended — he just wants to bake cakes!" }
     },
     {
       "id": "celebration",
       "title": "Festival of Heroes",
       "description": "Oakhaven glows with lanterns and streamers! Mrs. Crumb has baked a dragon-shaped cake. The whole village cheers as the heroes return. Glint sits happily beside the bakery, wearing a tiny chef hat.",
       "image": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80",
-      "chapter": "Ch 4 \u00b7 The Summit"
+      "chapter": "Ch 4 · The Summit",
+      "introNarration": "Oakhaven glows with lanterns and streamers! Mrs. Crumb has baked a dragon-shaped cake! The whole village cheers as the heroes return!",
+      "dmNotes": { "npcs": "All NPCs return for the party", "tactics": "No combat — celebration!", "questHints": "Award any remaining quests here", "tip": "Let each player describe their hero's victory pose" }
     }
   ],
   "monsters": [
