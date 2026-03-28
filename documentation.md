@@ -8,7 +8,7 @@ The `dnd-engine` is a React-based Virtual Tabletop (VTT) specifically designed f
 ## ✅ Feature Set (v2.0)
 
 ### 🎵 Minecraft-Style Audio Engine
-- **Approach:** Procedural additive synthesis using Web Audio API.
+- **Approach:** Procedural additive synthesis using Web Audio API (wrapped in try-catch for unsupported browsers).
 - **Vibe:** Minimalist, melodic, and atmospheric.
 - **Features:** 
     - **Bakery:** Warm major-9th pads.
@@ -16,13 +16,20 @@ The `dnd-engine` is a React-based Virtual Tabletop (VTT) specifically designed f
     - **Peak:** Airy singing wind + generative bell notes.
     - **Dynamic Moods:** `calm`, `tense`, and `combat` variations per scene.
     - **Global Sync:** Audio state (playing/mood/volume) is synchronized across all views.
+    - **Clean Teardown:** Oscillators and audio nodes are properly stopped and disconnected on scene switch to prevent CPU leaks.
 
 ### 🎭 Interaction & Narrative Tools
-- **Reaction Bar:** DM can trigger floating emoji reactions (🎉, ❤️, 🌟, etc.) that appear on the TV.
+- **Reaction Bar:** DM can trigger floating emoji reactions (🎉, ❤️, 🌟, ❓, 💀, 🔥, 👏, 😂) that appear on the TV.
 - **Ping System:** Click-to-ping functionality on the DM "Scene Context" parchment sends a pulsing golden ring to the TV coordinates.
-- **Digital Handouts:** Gallery of quest items (Sun-Cakes, Medals) that can be "pushed" to the TV as high-res overlays.
-- **Custom Portraits:** DM can change hero portraits on the fly using a curated gallery; updates are synced globally.
+- **Digital Handouts:** Gallery of quest items (Sun-Cakes, Dragon Scale, Medal, Mrs. Crumb) that can be "pushed" to the TV as high-res overlays.
+- **Custom Portraits:** DM can change hero portraits on the fly using a curated gallery (8 options); updates are synced globally.
 - **Heroic Actions:** Dedicated "Help" (Advantage log) and "Snack" (+2 HP) buttons to reinforce the campaign's "kind-hearted" tone.
+
+### 🛡️ Stability & Resilience
+- **Error Boundary:** Kid-friendly crash recovery screen ("The Dragon Sneezed!") with one-click restart. Prevents blank screens on component errors.
+- **Image Fallbacks:** All external images (Unsplash, DiceBear) have `onError` handlers that swap in SVG placeholders for offline or broken-URL scenarios.
+- **Validated Sync:** BroadcastChannel messages are type-checked before being applied to state, preventing corruption from malformed data.
+- **Particle Budgeting:** Scene particle animations run for ~2 minutes instead of infinitely, reducing CPU/battery drain on older devices.
 
 ---
 
@@ -32,6 +39,7 @@ The `dnd-engine` is a React-based Virtual Tabletop (VTT) specifically designed f
 graph TD
     subgraph Host["DM Device (Vite :5173)"]
         App[React App]
+        EB[ErrorBoundary]
         Hook[useCampaign custom hook]
         LS[(localStorage dnd_game_state)]
         BC[BroadcastChannel dnd_engine_sync]
@@ -47,7 +55,10 @@ graph TD
 
     Data --> Hook
     Hook <--> LS
-    Hook <--> BC
+    Hook <-->|Validated messages| BC
+    App --> EB
+    EB --> DM
+    EB --> TV
     Hook --> DM
     Hook --> TV
     Audio --> DM
@@ -60,7 +71,9 @@ graph TD
 ```
 
 ### State Sync Detail
-The `useCampaign` hook acts as a local state manager that mirrors all changes to `localStorage` and broadcasts them via `BroadcastChannel`. This allows the DM Console and the TV View to stay in perfect sync without a backend server, provided they are running in the same browser context (or same origin on the same device).
+The `useCampaign` hook acts as a local state manager that mirrors all changes to `localStorage` and broadcasts them via `BroadcastChannel`. Incoming messages are validated (`typeof === 'object'` guard) before being applied to state. This allows the DM Console and the TV View to stay in perfect sync without a backend server, provided they are running in the same browser context (or same origin on the same device).
+
+Puzzle rendering on the Player View is scoped to the current scene — if the DM switches scenes while a puzzle is active, the puzzle overlay hides automatically (state is preserved if they switch back).
 
 ---
 
@@ -76,7 +89,7 @@ sequenceDiagram
 
     DM->>State: Narration / Reaction / Ping
     State->>Sync: Broadcast Update
-    Sync-->>TV: Receive New State
+    Sync-->>TV: Validate & Receive New State
     TV->>TV: Render Overlay / Animation / Ping
 
     DM->>Audio: Start Ambient (Peak, Calm)
@@ -86,24 +99,38 @@ sequenceDiagram
     State-->>TV: Show High-Res Image Overlay
     TV->>State: Player clicks 'Dismiss'
     State-->>DM: Handout cleared
+
+    Note over TV: On error → ErrorBoundary shows recovery UI
+    Note over TV: On broken image → SVG fallback placeholder
 ```
 
 ---
 
 ## 🧪 Playtest Strategy
-We use **Playwright** to run a "full-party simulation." 
-The `playtest_campaign.spec.js` script:
-1.  Launches a DM and Player page.
-2.  Assigns AI-like logic to simulate each act.
-3.  Tests the **Spotlight Search**, **Riddle**, and **Stepping Stones** puzzles.
-4.  Validates HP syncing, Reaction triggering, and Scene transitions.
-5.  Captures final screenshots (`playtest_dm_final.png`, `playtest_player_final.png`).
+We use **Playwright** to run a "full-party simulation" and stability testing.
+
+### Test Suites
+| File | Purpose |
+|------|---------|
+| `playtest_campaign.spec.js` | Full campaign simulation: AI-like DM logic across all 3 acts, puzzle testing, HP sync, reactions, scene transitions. Captures final screenshots. |
+| `ui_gameplay_test.spec.js` | Exhaustive UI/gameplay assertions: critical hits, HP bars, localStorage persistence, overlay timing. |
+| `extra_edge_cases.spec.js` | Stability stress tests: rapid button spam (20x Next Turn, 10x Sneak Attack), long narration (500 chars), HP boundary clamping, puzzle bounds checking. |
+| `visual_documentation.spec.js` | Screenshot-based visual regression (saves to `screenshots/`). |
+| `simulate_campaign.spec.js` | DM→Player sync and scene transitions. |
 
 ---
 
 ## 🗂️ Critical Files
-- **State Logic:** `dnd-engine/src/useCampaign.js`
-- **Audio Engine:** `dnd-engine/src/useAudio.js`
-- **Visual Effects:** `dnd-engine/src/SceneEffects.jsx` (Particles, Pings, Handouts, Reactions)
-- **UI Components:** `dnd-engine/src/App.jsx`
-- **Puzzle Definitions:** `dnd-engine/src/Puzzles.jsx`
+- **State Logic:** `dnd-engine/src/useCampaign.js` — All game state, BroadcastChannel sync, HP clamping, roll logic
+- **Audio Engine:** `dnd-engine/src/useAudio.js` — Procedural synthesis, ambient pads, SFX, try-catch AudioContext guard
+- **Visual Effects:** `dnd-engine/src/SceneEffects.jsx` — Particles (CPU-budgeted), Pings, Handouts (with image fallback), Reactions, Dice animation
+- **UI Components:** `dnd-engine/src/App.jsx` — DM Console, Player View, ErrorBoundary, Portrait Gallery (with image fallbacks)
+- **Puzzle Definitions:** `dnd-engine/src/Puzzles.jsx` — Spotlight, Riddle, Stepping Stones (scene-scoped rendering)
+- **Campaign Data:** `dnd-engine/src/campaign_data.json` — Characters, scenes, monsters, quests (swap file for new campaigns)
+
+### Known Limitations (v2.0)
+- **AC / Initiative** values from character sheets are not enforced by the engine (reference only).
+- **Second Wind** (Thorne) and **Lay on Hands** (Valerius) are tabletop-only abilities — DM tracks manually via ±HP input.
+- **Advantage** from Help action is logged but not mechanically enforced on the next roll.
+- **External images** (Unsplash, DiceBear) require internet; SVG placeholders shown when offline.
+- **BroadcastChannel** requires same-origin — true multi-device sync would need WebSocket/server.
