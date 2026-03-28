@@ -56,7 +56,12 @@ test.describe('Extra Edge Cases and Stability', () => {
     const applyBtn = lilyCard.locator('button:has-text("Apply")');
     const hpDisplay = lilyCard.locator('[data-testid="hp-lily"]');
 
-    // Lily starts at 9. Subtract 15
+    // Reset Lily to full HP before boundary testing
+    await hpInput.fill('999');
+    await applyBtn.click();
+    await expect(hpDisplay).toHaveText('9'); // clamped to maxHp
+
+    // Subtract 15 (should clamp to 0)
     await hpInput.fill('-15');
     await applyBtn.click();
     await expect(hpDisplay).toHaveText('0');
