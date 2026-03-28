@@ -101,7 +101,8 @@ function buildAmbientPad(ctx, config, masterGain) {
     },
     stop() {
       clearInterval(interval);
-      nodes.forEach(n => { try { n.stop(); } catch {} });
+      nodes.forEach(n => { try { n.stop(); n.disconnect(); } catch { /* already stopped */ } });
+      try { padGain.disconnect(); delayGain.disconnect(); delay.disconnect(); filter.disconnect(); } catch { /* ok */ }
     },
   };
 }
@@ -205,22 +206,28 @@ export function useAudio() {
   const volumeRef = useRef(0.7);
 
   const ensureContext = useCallback(() => {
-    if (!ctxRef.current) {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      ctxRef.current = ctx;
-      const master = ctx.createGain();
-      master.gain.value = volumeRef.current;
-      master.connect(ctx.destination);
-      masterGainRef.current = master;
+    try {
+      if (!ctxRef.current) {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        ctxRef.current = ctx;
+        const master = ctx.createGain();
+        master.gain.value = volumeRef.current;
+        master.connect(ctx.destination);
+        masterGainRef.current = master;
+      }
+      if (ctxRef.current.state === 'suspended') {
+        ctxRef.current.resume();
+      }
+      return ctxRef.current;
+    } catch (e) {
+      console.warn('Web Audio not available:', e.message);
+      return null;
     }
-    if (ctxRef.current.state === 'suspended') {
-      ctxRef.current.resume();
-    }
-    return ctxRef.current;
   }, []);
 
   const startAmbient = useCallback((sceneId, mood) => {
     const ctx = ensureContext();
+    if (!ctx) return;
     const config = getAmbientConfig(sceneId, mood || currentMoodRef.current);
 
     if (padRef.current) {
@@ -254,6 +261,7 @@ export function useAudio() {
 
   const sfx = useCallback((type) => {
     const ctx = ensureContext();
+    if (!ctx) return;
     const master = masterGainRef.current;
     switch (type) {
       case 'dice': playDiceRoll(ctx, master); break;

@@ -19,11 +19,11 @@ Simplified Character Sheets for the *Dragon of Whispering Peak* campaign.
 | 8 (-1) | 16 (+3) | 13 (+1) | 14 (+2) | 12 (+1) | 10 (+0) |
 
 - **HP:** 9
-- **AC:** 14
-- **Initiative:** +3
+- **AC:** 14 *(reference only — not enforced by the VTT)*
+- **Initiative:** +3 *(reference only)*
 
-**Actions:**
-- **Shortsword (Sneak Attack):** Roll d20+5 to hit. Damage: **1d6 + 3** (plus an extra **1d6** if a friend is nearby!).
+**Actions (in VTT):**
+- **Sneak Attack:** Roll d20+5 to hit. Damage: **1d6 + 3** (plus an extra **1d6** if a friend is nearby!).
 - **Shortbow:** Roll d20+5 to hit. Damage: **1d6 + 3** (Range 80 ft).
 
 ---
@@ -36,12 +36,15 @@ Simplified Character Sheets for the *Dragon of Whispering Peak* campaign.
 | 16 (+3) | 12 (+1) | 15 (+2) | 10 (+0) | 13 (+1) | 8 (-1) |
 
 - **HP:** 12
-- **AC:** 16
-- **Initiative:** +1
+- **AC:** 16 *(reference only — not enforced by the VTT)*
+- **Initiative:** +1 *(reference only)*
 
-**Actions:**
+**Actions (in VTT):**
 - **Longsword:** Roll d20+5 to hit. Damage: **1d8 + 3**.
-- **Second Wind:** Once per game, heal **1d10 + 1** HP as a bonus action.
+- **Handaxe:** Roll d20+5 to hit. Damage: **1d6 + 3** (can be thrown!).
+
+**Tabletop-Only Ability:**
+- **Second Wind:** Once per game, heal **1d10 + 1** HP as a bonus action. *(DM rolls manually and uses the ±HP input to apply.)*
 
 ---
 
@@ -53,10 +56,12 @@ Simplified Character Sheets for the *Dragon of Whispering Peak* campaign.
 | 15 (+2) | 10 (+0) | 14 (+2) | 8 (-1) | 12 (+1) | 14 (+2) |
 
 - **HP:** 12
-- **AC:** 18
-- **Initiative:** +0
+- **AC:** 18 *(reference only — not enforced by the VTT)*
+- **Initiative:** +0 *(reference only)*
 
-**Actions:**
+**Actions (in VTT):**
 - **Warhammer:** Roll d20+4 to hit. Damage: **1d8 + 2**.
-- **Divine Smite:** Once per game, add **2d8** extra "Light" damage when you hit with your hammer!
-- **Lay on Hands:** You have **5 points** of healing you can share with friends.
+- **Divine Smite:** Roll d20+4 to hit. Damage: **2d8** extra "Light" damage!
+
+**Tabletop-Only Ability:**
+- **Lay on Hands:** You have **5 points** of healing you can share with friends. *(DM tracks remaining points and uses the ±HP input to apply.)*
