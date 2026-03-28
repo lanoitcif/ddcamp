@@ -14,8 +14,16 @@
 - **Quick Reactions:** Click an emoji (🎉, ❤️, 🌟, ❓, 💀, 🔥, 👏, 😂) to send it floating across the TV. Great for rewarding creativity.
 - **Digital Ping:** Click anywhere on the **Scene Context** parchment to pulse a golden ring on the TV.
 
+### 🗺️ Scene Navigation
+- **Chapter-Grouped Sidebar:** Scenes are organized under chapter headers (Ch 1 · Oakhaven Village, Ch 2 · The Sparkle Woods, etc.) so you can quickly find where you are in the story.
+- **Empty-State Messages:** Scenes with no monsters show "🛡️ No monsters in this scene — safe for roleplay and exploration"; scenes with no puzzle show "🔓 No puzzle in this scene."
+
+### 📋 Quest Log
+- **Main Quests:** Always visible at the top with a gold border and ⭐ prefix — these drive the story forward.
+- **Side Quests:** Collapsed by default with a count badge (e.g., "Side Quests (3)"). Expand to see details.
+
 ### ⚔️ HP & Turn Control
-- **Initiative:** Click **Next Turn** to cycle the active character. The TV shows a "YOUR TURN" banner.
+- **Initiative:** The tracker shows the **full turn order** with the active character highlighted. Click **Next Turn** to advance. The TV shows a "YOUR TURN" banner.
 - **HP Delta:** Type a number (like `-5` or `+2`) and hit **Apply**. Clamped to 0–max.
 - **HP +/- Buttons:** Quick single-point adjustments.
 - **Heroic Actions:** **Help** logs Advantage, **Snack** heals 2 HP.
@@ -24,10 +32,11 @@
 - Click any item in the **Handouts** gallery to show it full-screen on the TV. Click **Dismiss Overlay** to clear.
 
 ### 🔦 Puzzle Management
-1. Navigate to scene using the **Scenes** sidebar.
+1. Navigate to scene using the chapter-grouped **Scenes** sidebar.
 2. Click **Launch Puzzle** in the purple Puzzle Controls section.
 3. Use DM controls to guide the puzzle.
 4. Click **End Puzzle** when done.
+- **Reset Buttons:** The Sneak Path and Dragon's Hoard DM panels have a **Reset** button to restart the puzzle without ending it.
 
 ### 🗑️ Overlay & Reset
 - **Dismiss Overlay:** Clears any active dice roll, toast, or handout overlay on the TV.

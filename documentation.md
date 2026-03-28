@@ -21,7 +21,15 @@ The `dnd-engine` is a React-based Virtual Tabletop (VTT) specifically designed f
 - **Digital Handouts:** Gallery of quest items (Sun-Cakes, Dragon Scale, Medal, Mrs. Crumb) that can be "pushed" to the TV as high-res overlays.
 - **Custom Portraits:** DM can change hero portraits on the fly using a curated gallery (8 options); updates are synced globally.
 - **Heroic Actions:** Dedicated "Help" (Advantage log) and "Snack" (+2 HP) buttons to reinforce the campaign's "kind-hearted" tone.
-- **10 Interactive Puzzles:** Scene-specific puzzles including spotlight search, riddles, stepping stones, Simon Says melody, memory match, star constellation, treasure sorting, firefly catching, sneak path, and ingredient hunt.
+- **10 Interactive Puzzles:** Scene-specific puzzles including spotlight search, riddles, stepping stones, Simon Says melody, memory match, star constellation, treasure sorting, firefly catching, sneak path, and ingredient hunt. Sneak Path and Dragon's Hoard DM panels include a Reset button for mid-puzzle restarts.
+
+### 🧭 DM Console UX
+- **Chapter-Grouped Scenes:** The scene sidebar organizes all 12 scenes under chapter headers (Ch 1 · Oakhaven Village, Ch 2 · The Sparkle Woods, etc.) for quick navigation.
+- **Quest Log Split:** Main quests (gold border, ⭐ prefix) are always visible; side quests are collapsible with a count badge.
+- **Full Initiative Display:** The initiative tracker shows the complete turn order with the active character highlighted, not just a single "current turn" indicator.
+- **Empty-State Guidance:** Scenes with no monsters or no puzzle display friendly helper messages instead of blank space.
+- **TV-Optimized Narration:** Player View narration subtitles use larger text (text-4xl) for readability on big screens.
+- **Touch-Friendly Puzzles:** Star Connect puzzle buttons are enlarged for easier interaction on touch devices and TVs.
 
 ### 🛡️ Stability & Resilience
 - **Error Boundary:** Kid-friendly crash recovery screen ("The Dragon Sneezed!") with one-click restart. Prevents blank screens on component errors.
@@ -124,7 +132,7 @@ We use **Playwright** to run a "full-party simulation" and stability testing.
 - **Visual Effects:** `dnd-engine/src/SceneEffects.jsx` — Particles (CPU-budgeted), Pings, Handouts (with image fallback), Reactions, Dice animation
 - **UI Components:** `dnd-engine/src/App.jsx` — DM Console, Player View, ErrorBoundary, Portrait Gallery (with image fallbacks)
 - **Puzzle Definitions:** `dnd-engine/src/Puzzles.jsx` — 10 interactive puzzles: Spotlight, Riddle, Stepping Stones, Ingredient Hunt, Firefly Catch, Sneak Path, Crystal Melody, Rune Match, Star Connect, Dragon's Hoard (scene-scoped rendering)
-- **Campaign Data:** `dnd-engine/src/campaign_data.json` — 3 characters, 12 scenes, 10 monsters (with `sceneId` field), 17 quests (with `type` field). Swap file for new campaigns.
+- **Campaign Data:** `dnd-engine/src/campaign_data.json` — 3 characters, 12 scenes (with `chapter` field for sidebar grouping), 10 monsters (with `sceneId` field), 17 quests (with `type` field). Swap file for new campaigns.
 
 ### Known Limitations (v2.0)
 - **AC / Initiative** values from character sheets are not enforced by the engine (reference only).

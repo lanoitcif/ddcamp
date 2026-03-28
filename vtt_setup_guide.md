@@ -46,8 +46,10 @@ At the start of your session, let the kids choose their look:
 ---
 
 ## 💡 DM Pro-Tips for TV Play
+- **Chapter Navigation:** The scene sidebar groups all 12 scenes under chapter headers (Ch 1 · Oakhaven Village, Ch 2 · The Sparkle Woods, etc.) — no more scrolling through a flat list.
+- **Quest Log at a Glance:** Main quests (⭐) are always visible with a gold border. Side quests collapse with a count badge so the sidebar stays clean.
 - **Minecraft Moods:** Use the `Ambience` controls to switch from `calm` (exploration) to `tense` (finding a clue) to `combat` (boss fight). The Minecraft-style procedural music will crossfade automatically.
-- **Narrative Subtitles:** Type dialogue into the **Narration** box and hit **Send**. It appears as large, readable text on the TV, perfect for Mrs. Crumb's dramatic lines.
+- **Narrative Subtitles:** Type dialogue into the **Narration** box and hit **Send**. It appears as extra-large, readable text on the TV, perfect for Mrs. Crumb's dramatic lines.
 - **Auto-Sync:** If you refresh either page, the game state is saved in `localStorage`. Your HP, Quests, and Scene will stay exactly where you left them.
 
 ---
