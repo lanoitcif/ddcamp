@@ -10,18 +10,71 @@ const SCENE_AMBIENTS = {
     tense: { notes: [261.6, 311.1, 392.0, 466.2], type: 'sine', detune: 4, filterFreq: 600, gain: 0.10, sparkle: false },
     combat: { notes: [220.0, 261.6, 329.6, 392.0], type: 'triangle', detune: 8, filterFreq: 1000, gain: 0.08, sparkle: false },
   },
+  market: {
+    // Bright, bustling village (D Major add9)
+    calm: { notes: [293.7, 370.0, 440.0, 554.4, 587.3], type: 'sine', detune: 3, filterFreq: 900, gain: 0.11, sparkle: true },
+    tense: { notes: [293.7, 349.2, 440.0, 523.3], type: 'sine', detune: 5, filterFreq: 700, gain: 0.09, sparkle: false },
+    combat: { notes: [246.9, 293.7, 370.0, 440.0], type: 'triangle', detune: 8, filterFreq: 1000, gain: 0.08, sparkle: false },
+  },
   woods: {
     // Shimmering, emerald Lydian (F Major #11)
     calm: { notes: [349.2, 440.0, 523.3, 659.3, 739.9], type: 'sine', detune: 6, filterFreq: 1200, gain: 0.10, sparkle: true },
     tense: { notes: [349.2, 415.3, 493.9, 587.3], type: 'sine', detune: 10, filterFreq: 800, gain: 0.10, sparkle: true },
     combat: { notes: [293.7, 349.2, 440.0, 523.3], type: 'triangle', detune: 15, filterFreq: 1100, gain: 0.08, sparkle: false },
   },
+  glade: {
+    // Magical, sparkling, high shimmer (A Major add9)
+    calm: { notes: [440.0, 554.4, 659.3, 880.0, 987.8], type: 'sine', detune: 4, filterFreq: 1600, gain: 0.11, sparkle: true },
+    tense: { notes: [440.0, 523.3, 659.3, 784.0], type: 'sine', detune: 7, filterFreq: 1100, gain: 0.09, sparkle: true },
+    combat: { notes: [370.0, 440.0, 554.4, 659.3], type: 'triangle', detune: 10, filterFreq: 1200, gain: 0.08, sparkle: false },
+  },
+  stream: {
+    // Flowing, watery, cool (Eb Major 7)
+    calm: { notes: [311.1, 392.0, 466.2, 587.3, 622.3], type: 'sine', detune: 5, filterFreq: 1100, gain: 0.10, sparkle: true },
+    tense: { notes: [311.1, 370.0, 466.2, 554.4], type: 'sine', detune: 8, filterFreq: 800, gain: 0.09, sparkle: false },
+    combat: { notes: [261.6, 311.1, 392.0, 466.2], type: 'triangle', detune: 12, filterFreq: 1000, gain: 0.08, sparkle: false },
+  },
+  goblin_camp: {
+    // Mischievous, tense, minor (D minor 7)
+    calm: { notes: [293.7, 349.2, 440.0, 523.3, 261.6], type: 'sine', detune: 8, filterFreq: 700, gain: 0.08, sparkle: false },
+    tense: { notes: [293.7, 349.2, 415.3, 523.3], type: 'sine', detune: 12, filterFreq: 600, gain: 0.10, sparkle: false },
+    combat: { notes: [246.9, 293.7, 370.0, 440.0], type: 'triangle', detune: 18, filterFreq: 900, gain: 0.09, sparkle: false },
+  },
+  caves: {
+    // Echoey, crystalline, ethereal (B Phrygian)
+    calm: { notes: [246.9, 261.6, 329.6, 370.0, 493.9], type: 'sine', detune: 2, filterFreq: 1800, gain: 0.13, sparkle: true },
+    tense: { notes: [246.9, 293.7, 370.0, 440.0], type: 'sine', detune: 4, filterFreq: 1200, gain: 0.11, sparkle: true },
+    combat: { notes: [220.0, 246.9, 329.6, 392.0], type: 'triangle', detune: 10, filterFreq: 1400, gain: 0.09, sparkle: false },
+  },
+  bridge: {
+    // Windy, exposed, suspended (F# minor)
+    calm: { notes: [370.0, 440.0, 554.4, 659.3, 739.9], type: 'sine', detune: 6, filterFreq: 1300, gain: 0.12, sparkle: true },
+    tense: { notes: [370.0, 440.0, 523.3, 622.3], type: 'sine', detune: 10, filterFreq: 900, gain: 0.11, sparkle: false },
+    combat: { notes: [311.1, 370.0, 466.2, 554.4], type: 'triangle', detune: 14, filterFreq: 1100, gain: 0.09, sparkle: false },
+  },
+  camp: {
+    // Warm, safe, nighttime lullaby (Bb Major 9)
+    calm: { notes: [233.1, 293.7, 349.2, 440.0, 466.2], type: 'sine', detune: 2, filterFreq: 600, gain: 0.13, sparkle: true },
+    tense: { notes: [233.1, 277.2, 349.2, 415.3], type: 'sine', detune: 4, filterFreq: 500, gain: 0.10, sparkle: false },
+    combat: { notes: [207.7, 233.1, 293.7, 349.2], type: 'triangle', detune: 8, filterFreq: 800, gain: 0.08, sparkle: false },
+  },
+  ruins: {
+    // Ancient, mysterious, reverent (E Dorian)
+    calm: { notes: [164.8, 185.0, 220.0, 246.9, 329.6], type: 'sine', detune: 3, filterFreq: 900, gain: 0.11, sparkle: true },
+    tense: { notes: [164.8, 196.0, 246.9, 293.7], type: 'sine', detune: 6, filterFreq: 700, gain: 0.10, sparkle: false },
+    combat: { notes: [146.8, 164.8, 220.0, 261.6], type: 'triangle', detune: 14, filterFreq: 1000, gain: 0.09, sparkle: false },
+  },
   peak: {
     // Airy, singing wind, soft bells (G Major / Lydian)
-    // "The wind sounds like soft singing"
     calm: { notes: [392.0, 493.9, 587.3, 784.0, 987.8], type: 'sine', detune: 3, filterFreq: 1500, gain: 0.14, sparkle: true },
     tense: { notes: [392.0, 466.2, 587.3, 698.5], type: 'sine', detune: 5, filterFreq: 1000, gain: 0.12, sparkle: true },
     combat: { notes: [330.0, 392.0, 493.9, 587.3], type: 'triangle', detune: 12, filterFreq: 1300, gain: 0.10, sparkle: false },
+  },
+  celebration: {
+    // Bright, joyful, festive (C Major with shimmer)
+    calm: { notes: [261.6, 329.6, 392.0, 523.3, 659.3], type: 'sine', detune: 2, filterFreq: 1400, gain: 0.14, sparkle: true },
+    tense: { notes: [261.6, 329.6, 392.0, 493.9], type: 'sine', detune: 3, filterFreq: 1000, gain: 0.12, sparkle: true },
+    combat: { notes: [261.6, 329.6, 392.0, 523.3], type: 'sine', detune: 4, filterFreq: 1200, gain: 0.12, sparkle: true },
   },
 };
 

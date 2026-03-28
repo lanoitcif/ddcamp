@@ -10,13 +10,10 @@ The `dnd-engine` is a React-based Virtual Tabletop (VTT) specifically designed f
 ### 🎵 Minecraft-Style Audio Engine
 - **Approach:** Procedural additive synthesis using Web Audio API (wrapped in try-catch for unsupported browsers).
 - **Vibe:** Minimalist, melodic, and atmospheric.
-- **Features:** 
-    - **Bakery:** Warm major-9th pads.
-    - **Woods:** Ethereal Lydian shimmer.
-    - **Peak:** Airy singing wind + generative bell notes.
-    - **Dynamic Moods:** `calm`, `tense`, and `combat` variations per scene.
-    - **Global Sync:** Audio state (playing/mood/volume) is synchronized across all views.
-    - **Clean Teardown:** Oscillators and audio nodes are properly stopped and disconnected on scene switch to prevent CPU leaks.
+- **12 Scene Profiles:** bakery (warm C Maj9), market (bright D Maj), woods (Lydian shimmer), glade (sparkly A Maj), stream (flowing Eb Maj7), goblin\_camp (tense D min), caves (crystalline B Phrygian), bridge (windy F# min), camp (lullaby Bb Maj9), ruins (mysterious E Dorian), peak (singing wind G Maj), celebration (festive C Maj).
+- **Dynamic Moods:** `calm`, `tense`, and `combat` variations per scene.
+- **Global Sync:** Audio state (playing/mood/volume) is synchronized across all views.
+- **Clean Teardown:** Oscillators and audio nodes are properly stopped and disconnected on scene switch to prevent CPU leaks.
 
 ### 🎭 Interaction & Narrative Tools
 - **Reaction Bar:** DM can trigger floating emoji reactions (🎉, ❤️, 🌟, ❓, 💀, 🔥, 👏, 😂) that appear on the TV.
@@ -24,6 +21,7 @@ The `dnd-engine` is a React-based Virtual Tabletop (VTT) specifically designed f
 - **Digital Handouts:** Gallery of quest items (Sun-Cakes, Dragon Scale, Medal, Mrs. Crumb) that can be "pushed" to the TV as high-res overlays.
 - **Custom Portraits:** DM can change hero portraits on the fly using a curated gallery (8 options); updates are synced globally.
 - **Heroic Actions:** Dedicated "Help" (Advantage log) and "Snack" (+2 HP) buttons to reinforce the campaign's "kind-hearted" tone.
+- **10 Interactive Puzzles:** Scene-specific puzzles including spotlight search, riddles, stepping stones, Simon Says melody, memory match, star constellation, treasure sorting, firefly catching, sneak path, and ingredient hunt.
 
 ### 🛡️ Stability & Resilience
 - **Error Boundary:** Kid-friendly crash recovery screen ("The Dragon Sneezed!") with one-click restart. Prevents blank screens on component errors.
@@ -71,7 +69,7 @@ graph TD
 ```
 
 ### State Sync Detail
-The `useCampaign` hook acts as a local state manager that mirrors all changes to `localStorage` and broadcasts them via `BroadcastChannel`. Incoming messages are validated (`typeof === 'object'` guard) before being applied to state. This allows the DM Console and the TV View to stay in perfect sync without a backend server, provided they are running in the same browser context (or same origin on the same device).
+The `useCampaign` hook acts as a local state manager that mirrors all changes to `localStorage` and broadcasts them via `BroadcastChannel`. Incoming messages are validated (`typeof === 'object'` guard) before being applied to state. Monsters are dynamically filtered by their `sceneId` field to match `currentSceneId`, so only scene-relevant monsters appear in the initiative tracker and on the Player View. This allows the DM Console and the TV View to stay in perfect sync without a backend server, provided they are running in the same browser context (or same origin on the same device).
 
 Puzzle rendering on the Player View is scoped to the current scene — if the DM switches scenes while a puzzle is active, the puzzle overlay hides automatically (state is preserved if they switch back).
 
@@ -125,8 +123,8 @@ We use **Playwright** to run a "full-party simulation" and stability testing.
 - **Audio Engine:** `dnd-engine/src/useAudio.js` — Procedural synthesis, ambient pads, SFX, try-catch AudioContext guard
 - **Visual Effects:** `dnd-engine/src/SceneEffects.jsx` — Particles (CPU-budgeted), Pings, Handouts (with image fallback), Reactions, Dice animation
 - **UI Components:** `dnd-engine/src/App.jsx` — DM Console, Player View, ErrorBoundary, Portrait Gallery (with image fallbacks)
-- **Puzzle Definitions:** `dnd-engine/src/Puzzles.jsx` — Spotlight, Riddle, Stepping Stones (scene-scoped rendering)
-- **Campaign Data:** `dnd-engine/src/campaign_data.json` — Characters, scenes, monsters, quests (swap file for new campaigns)
+- **Puzzle Definitions:** `dnd-engine/src/Puzzles.jsx` — 10 interactive puzzles: Spotlight, Riddle, Stepping Stones, Ingredient Hunt, Firefly Catch, Sneak Path, Crystal Melody, Rune Match, Star Connect, Dragon's Hoard (scene-scoped rendering)
+- **Campaign Data:** `dnd-engine/src/campaign_data.json` — 3 characters, 12 scenes, 10 monsters (with `sceneId` field), 17 quests (with `type` field). Swap file for new campaigns.
 
 ### Known Limitations (v2.0)
 - **AC / Initiative** values from character sheets are not enforced by the engine (reference only).
@@ -134,3 +132,4 @@ We use **Playwright** to run a "full-party simulation" and stability testing.
 - **Advantage** from Help action is logged but not mechanically enforced on the next roll.
 - **External images** (Unsplash, DiceBear) require internet; SVG placeholders shown when offline.
 - **BroadcastChannel** requires same-origin — true multi-device sync would need WebSocket/server.
+- **Campaign content** (12 scenes, 10 monsters, 17 quests) is data-driven via `campaign_data.json` — swap the file for a different adventure.

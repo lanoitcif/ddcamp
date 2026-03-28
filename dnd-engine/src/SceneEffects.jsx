@@ -11,13 +11,50 @@ const SCENE_PARTICLES = {
     { type: 'sparkle', count: 18, color: '#d4af37', size: [3, 7], speed: [15, 30], opacity: [0.3, 0.7] },
     { type: 'rise', count: 10, color: '#ffffff', size: [4, 10], speed: [10, 20], opacity: [0.1, 0.3] },
   ],
+  market: [
+    { type: 'sparkle', count: 14, color: '#fbbf24', size: [2, 5], speed: [12, 25], opacity: [0.2, 0.5] },
+    { type: 'rise', count: 8, color: '#f59e0b', size: [3, 8], speed: [8, 16], opacity: [0.1, 0.3] },
+  ],
   woods: [
     { type: 'firefly', count: 22, color: '#aaff77', size: [3, 6], speed: [8, 18], opacity: [0.2, 0.8] },
     { type: 'fall', count: 14, color: '#22c55e', size: [5, 12], speed: [12, 25], opacity: [0.15, 0.4] },
   ],
+  glade: [
+    { type: 'firefly', count: 30, color: '#facc15', size: [3, 7], speed: [6, 14], opacity: [0.4, 0.9] },
+    { type: 'sparkle', count: 16, color: '#a78bfa', size: [2, 5], speed: [10, 22], opacity: [0.2, 0.6] },
+  ],
+  stream: [
+    { type: 'rise', count: 20, color: '#93c5fd', size: [3, 8], speed: [6, 14], opacity: [0.15, 0.4] },
+    { type: 'sparkle', count: 12, color: '#c4b5fd', size: [2, 5], speed: [10, 20], opacity: [0.2, 0.5] },
+  ],
+  goblin_camp: [
+    { type: 'ember', count: 16, color: '#f97316', size: [2, 5], speed: [12, 28], opacity: [0.3, 0.6] },
+    { type: 'rise', count: 8, color: '#6b7280', size: [4, 10], speed: [6, 12], opacity: [0.05, 0.15] },
+  ],
+  caves: [
+    { type: 'sparkle', count: 24, color: '#818cf8', size: [2, 6], speed: [8, 18], opacity: [0.3, 0.8] },
+    { type: 'firefly', count: 10, color: '#c084fc', size: [3, 6], speed: [5, 12], opacity: [0.2, 0.6] },
+  ],
+  bridge: [
+    { type: 'snow', count: 18, color: '#e2e8f0', size: [2, 5], speed: [12, 30], opacity: [0.1, 0.3] },
+    { type: 'fall', count: 10, color: '#94a3b8', size: [3, 8], speed: [15, 35], opacity: [0.05, 0.2] },
+  ],
+  camp: [
+    { type: 'ember', count: 20, color: '#fb923c', size: [2, 4], speed: [15, 30], opacity: [0.3, 0.7] },
+    { type: 'sparkle', count: 12, color: '#fef3c7', size: [1, 3], speed: [5, 10], opacity: [0.2, 0.6] },
+  ],
+  ruins: [
+    { type: 'firefly', count: 14, color: '#34d399', size: [3, 6], speed: [4, 10], opacity: [0.2, 0.5] },
+    { type: 'sparkle', count: 10, color: '#6ee7b7', size: [2, 5], speed: [8, 16], opacity: [0.15, 0.4] },
+  ],
   peak: [
     { type: 'snow', count: 30, color: '#ffffff', size: [2, 5], speed: [10, 25], opacity: [0.2, 0.5] },
     { type: 'ember', count: 12, color: '#f97316', size: [2, 5], speed: [15, 35], opacity: [0.3, 0.7] },
+  ],
+  celebration: [
+    { type: 'sparkle', count: 35, color: '#fbbf24', size: [3, 8], speed: [15, 35], opacity: [0.4, 0.9] },
+    { type: 'firefly', count: 20, color: '#f472b6', size: [3, 6], speed: [10, 22], opacity: [0.3, 0.7] },
+    { type: 'rise', count: 15, color: '#a78bfa', size: [4, 10], speed: [12, 25], opacity: [0.2, 0.5] },
   ],
 };
 
