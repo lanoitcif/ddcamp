@@ -112,6 +112,11 @@ export function validateScene(scene) {
   if (!isNonEmptyString(scene.chapter)) errors.push('chapter: must be a non-empty string');
   if (!isNonEmptyString(scene.introNarration)) errors.push('introNarration: must be a non-empty string');
 
+  // Optional AI
+  if (scene.aiNarratorVoiceId !== undefined && typeof scene.aiNarratorVoiceId !== 'string') {
+    errors.push('aiNarratorVoiceId: must be a string if defined');
+  }
+
   if (!scene.dmNotes || typeof scene.dmNotes !== 'object') {
     errors.push('dmNotes: must be an object');
   } else {
@@ -141,6 +146,14 @@ export function validateMonster(monster) {
     errors.push('hp: must not exceed maxHp');
   }
   if (!isNonEmptyString(monster.image)) errors.push('image: must be a non-empty string');
+
+  // Optional AI
+  if (monster.aiPrompt !== undefined && typeof monster.aiPrompt !== 'string') {
+    errors.push('aiPrompt: must be a string if defined');
+  }
+  if (monster.aiVoiceId !== undefined && typeof monster.aiVoiceId !== 'string') {
+    errors.push('aiVoiceId: must be a string if defined');
+  }
 
   if (!Array.isArray(monster.actions) || monster.actions.length === 0) {
     errors.push('actions: must be a non-empty array');
@@ -279,6 +292,8 @@ export function createMonster(sceneId = '') {
     hp: 10,
     maxHp: 10,
     image: `https://api.dicebear.com/7.x/bottts/svg?seed=${id}`,
+    aiPrompt: 'You are a generic monster guarding the area. Be brief and menacing.',
+    aiVoiceId: 'gruff_dwarf',
     actions: [createAction()],
   };
 }
@@ -292,6 +307,7 @@ export function createScene() {
     image: DEFAULT_IMAGES.scene,
     chapter: 'Chapter 1',
     introNarration: 'The adventure continues…',
+    aiNarratorVoiceId: 'narrator_deep',
     dmNotes: {
       npcs: 'None',
       tactics: 'None',
