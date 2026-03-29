@@ -429,8 +429,8 @@ function SceneCard({ scene, index, total, onChange, onDelete, onMove }) {
             placeholder="https://..." className="mb-3" />
 
           <div className="border-t border-gray-700 pt-3 mt-3">
-            <span className="text-xs text-dnd-gold uppercase tracking-wide font-semibold block mb-2">DM Notes</span>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <span className="text-xs text-dnd-gold uppercase tracking-wide font-semibold block mb-2">DM Notes & AI Options</span>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
               <TextInput label="NPCs" value={scene.dmNotes?.npcs} onChange={v => updateNote('npcs', v)}
                 placeholder="Key NPCs in this scene" />
               <TextInput label="Tactics" value={scene.dmNotes?.tactics} onChange={v => updateNote('tactics', v)}
@@ -439,6 +439,10 @@ function SceneCard({ scene, index, total, onChange, onDelete, onMove }) {
                 placeholder="Related quests" />
               <TextInput label="DM Tip" value={scene.dmNotes?.tip} onChange={v => updateNote('tip', v)}
                 placeholder="Gameplay tips" />
+            </div>
+            <div className="bg-gray-800 p-3 rounded border border-gray-700">
+              <TextInput label="AI Narrator Voice ID" value={scene.aiNarratorVoiceId} onChange={v => update('aiNarratorVoiceId', v)}
+                placeholder="e.g., narrator_deep (Optional)" />
             </div>
           </div>
         </>
@@ -562,9 +566,17 @@ function MonsterCard({ monster, scenes, onChange, onDelete }) {
             <SelectInput label="Scene" value={monster.sceneId} onChange={v => update('sceneId', v)} options={sceneOptions} />
             <TextInput label="Image URL" value={monster.image} onChange={v => update('image', v)} placeholder="https://..." />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 mb-3">
             <NumberInput label="HP" value={monster.hp} onChange={v => update('hp', v)} />
             <NumberInput label="Max HP" value={monster.maxHp} onChange={v => update('maxHp', v)} />
+          </div>
+          <div className="bg-gray-800 p-3 rounded border border-gray-700 mb-3">
+            <span className="text-xs text-dnd-gold uppercase tracking-wide font-semibold block mb-2">AI Persona (Optional)</span>
+            <div className="mb-2">
+              <TextInput label="AI Voice ID" value={monster.aiVoiceId} onChange={v => update('aiVoiceId', v)} placeholder="e.g., gruff_dwarf" />
+            </div>
+            <TextArea label="AI Prompt" value={monster.aiPrompt} onChange={v => update('aiPrompt', v)}
+              placeholder="System prompt for how this monster behaves..." rows={2} />
           </div>
           <ActionListEditor
             actions={monster.actions || []}

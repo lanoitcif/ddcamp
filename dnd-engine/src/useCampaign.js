@@ -205,8 +205,8 @@ export function useCampaign() {
     });
   }, [gameState.completedQuests, updateGameState]);
 
-  const setNarration = useCallback((text, duration) => {
-    updateGameState({ narration: text ? { text, id: Date.now(), duration: duration || 15000 } : null });
+  const setNarration = useCallback((text, duration, voiceId) => {
+    updateGameState({ narration: text ? { text, id: Date.now(), duration: duration || 15000, voiceId } : null });
   }, [updateGameState]);
 
   const helpAction = useCallback((helperName, targetName) => {

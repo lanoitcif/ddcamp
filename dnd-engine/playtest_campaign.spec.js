@@ -112,9 +112,19 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
 
   // DM Agent: Set the mood
   await safeClick(dmPage, 'button:has-text("Intro Intro")', 'Intro Button');
-  await safeClick(dmPage, 'button:has-text("Send")', 'Send Narration');
+  await safeClick(dmPage, 'button:has-text("Text Only")', 'Send Narration (Text Only)');
   noteAction('dm', 'Narrated opening bakery mystery using Intro button');
   await waitForSync(800);
+
+  // Verify new split narration buttons
+  console.log('  🔊 DM: Verifying split narration buttons...');
+  try {
+    await expect(dmPage.locator('button:has-text("Text Only")')).toBeVisible({ timeout: 3000 });
+    await expect(dmPage.locator('button:has-text("Send & Speak")')).toBeVisible({ timeout: 3000 });
+    console.log('  ✓ Split narration buttons (Text Only / Send & Speak) present');
+  } catch (e) {
+    logIssue('HIGH', 'UI', 'Split narration buttons not found', e.message?.slice(0, 100));
+  }
 
   // DM Agent: Handout Mrs. Crumb
   console.log('  🎲 DM: Showing Mrs. Crumb Handout...');
@@ -210,6 +220,27 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   await safeClick(dmPage, 'button:has-text("The Sparkle Woods")', 'Navigate to Woods');
   await waitForSync(2000);
 
+  // DM Agent: Test AI prompt on monster card
+  console.log('  🤖 DM: Testing AI prompt on monster card...');
+  const aiInput = dmPage.locator('input[placeholder="Ask AI via Player Action..."]').first();
+  try {
+    await expect(aiInput).toBeVisible({ timeout: 3000 });
+    await aiInput.fill('Who dares disturb my tree?');
+    const aiButton = dmPage.locator('button[title="Generate AI Response"]').first();
+    await aiButton.click();
+    noteAction('dm', 'Triggered AI prompt on monster (graceful fail expected without Ollama)');
+    await waitForSync(2000);
+    // AI response will fail since no Ollama server, but narration textarea should update
+    const narrationText = await dmPage.locator('textarea').inputValue();
+    if (narrationText.includes('Failed') || narrationText.includes('Generating')) {
+      console.log('  🤖 AI: Graceful failure (no Ollama server) — narration text updated ✓');
+    } else if (narrationText.length > 0) {
+      console.log('  🤖 AI: Got response: ' + narrationText.slice(0, 80));
+    }
+  } catch (e) {
+    logIssue('HIGH', 'AI', 'Monster AI prompt input not visible or not functional', e.message?.slice(0, 100));
+  }
+
   // Start Riddle
   console.log('\n  🦉 DM: "Hoot has a riddle for you! Launching puzzle..."');
   await safeClick(dmPage, '[data-testid="start-puzzle"]', 'Start Riddle Puzzle');
@@ -300,8 +331,20 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   console.log('\n  🐉 BOSS BATTLE... or Friendship?');
   const narrationInput = dmPage.locator('textarea');
   await narrationInput.fill('Glint looks up, his claws covered in blue frosting. "I just wanted to taste sunlight," he whimpers.');
-  await safeClick(dmPage, 'button:has-text("Send")', 'Send Narration');
+  await safeClick(dmPage, 'button:has-text("Send & Speak")', 'Send TTS Narration');
   await waitForSync(1500);
+
+  // Verify TTS narration includes voiceId in game state
+  try {
+    const state = await dmPage.evaluate(() => JSON.parse(localStorage.getItem('dnd_game_state')));
+    if (!state.narration?.voiceId) {
+      logIssue('HIGH', 'TTS', 'Narration voiceId missing from game state after Send & Speak');
+    } else {
+      console.log('  🔊 TTS: voiceId "' + state.narration.voiceId + '" stored in state ✓');
+    }
+  } catch (e) {
+    logIssue('MEDIUM', 'TTS', 'Could not verify voiceId in state', e.message?.slice(0, 100));
+  }
 
   // Lily helps Valerius speak
   console.log('  🗡️ Lily: "You talk to him, Valerius. I\'ll help!"');

@@ -1,11 +1,12 @@
 import React from 'react';
 import { useCampaign } from './useCampaign';
 import { useAudio } from './useAudio';
+import { useOllama } from './useOllama';
 import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } from './SceneEffects';
 import { PUZZLES } from './Puzzles';
 import CampaignBuilder from './CampaignBuilder';
 import { XpBar, LevelUpOverlay, XpToast, DmXpPanel } from './LevelUpOverlay';
-import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Hash, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon, Wifi, WifiOff } from 'lucide-react';
+import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Hash, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon, Wifi, WifiOff, Brain } from 'lucide-react';
 
 /* ─── Error Boundary ─────────────────────────────────────────── */
 
@@ -126,11 +127,23 @@ function DMControl() {
   const [sideQuestsOpen, setSideQuestsOpen] = React.useState(false);
   const [showPrep, setShowPrep] = React.useState(true);
   const [prepSceneId, setPrepSceneId] = React.useState(null);
+  const [aiPromptInput, setAiPromptInput] = React.useState({});
+  
   const audio = useAudio();
+  const { generateResponse, isGenerating } = useOllama();
 
   const activeScene = campaignData.scenes.find(s => s.id === gameState.currentSceneId);
   const activeTurnEntity = campaignData.characters.find(c => c.id === gameState.activeTurnId) ||
                            campaignData.monsters.find(m => m.id === gameState.activeTurnId);
+
+  const handleAiGenerate = React.useCallback(async (entity) => {
+    const actionStr = aiPromptInput[entity.id];
+    if (!actionStr) return;
+    setNarrationText("Generating AI response... (Wait)");
+    const response = await generateResponse(entity, activeScene, actionStr);
+    setNarrationText(response || "Failed to generate response. Check AI server.");
+    setAiPromptInput(prev => ({ ...prev, [entity.id]: '' }));
+  }, [aiPromptInput, activeScene, generateResponse]);
 
   React.useEffect(() => {
     const handleKeyDown = (e) => {
@@ -257,7 +270,7 @@ function DMControl() {
         )}
 
         {/* Heroic Actions */}
-        {!isMonster && (
+        {!isMonster ? (
           <div className="flex gap-2">
             <button
               onClick={() => helpAction(entity.name, activeTurnEntity?.name)}
@@ -271,6 +284,28 @@ function DMControl() {
             >
               <Heart size={10} /> Snack
             </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-gray-700">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Ask AI via Player Action..."
+                value={aiPromptInput[entity.id] || ''}
+                onChange={e => setAiPromptInput(prev => ({ ...prev, [entity.id]: e.target.value }))}
+                onKeyDown={e => { if (e.key === 'Enter') handleAiGenerate(entity); }}
+                className="flex-1 bg-gray-900 border border-purple-900/50 focus:border-purple-500 rounded px-2 py-1.5 text-[10px] text-purple-200 placeholder-purple-800"
+                disabled={isGenerating}
+              />
+              <button
+                onClick={() => handleAiGenerate(entity)}
+                disabled={isGenerating}
+                className="px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800 border border-purple-600 rounded text-[10px] font-bold text-purple-300 flex items-center justify-center gap-1 disabled:opacity-50"
+                title="Generate AI Response"
+              >
+                <Brain size={12} className={isGenerating ? "animate-pulse" : ""} /> AI
+              </button>
+            </div>
           </div>
         )}
 
@@ -466,9 +501,15 @@ function DMControl() {
           <div className="flex gap-2">
             <button
               onClick={() => { setNarration(narrationText, 15000); }}
-              className="flex-1 px-3 py-1 bg-dnd-red hover:bg-red-700 rounded text-xs border border-dnd-gold font-bold flex items-center justify-center gap-1"
+              className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs border border-gray-500 font-bold flex items-center justify-center gap-1"
             >
-              <Send size={12} /> Send
+              <Send size={12} /> Text Only
+            </button>
+            <button
+              onClick={() => { setNarration(narrationText, 15000, activeScene?.aiNarratorVoiceId || 'onyx'); }}
+              className="flex-1 px-3 py-1 bg-dnd-red hover:bg-red-700 rounded text-xs border border-dnd-gold font-bold flex items-center justify-center gap-2"
+            >
+              <Brain size={12} /> Send & Speak (TTS)
             </button>
             <button
               onClick={() => { setNarration(null); setNarrationText(''); }}
@@ -827,7 +868,7 @@ function NarrationAutoDismiss({ gameState, updateGameState }) {
       }
     }, duration);
     return () => clearTimeout(timer);
-  }, [gameState.narration?.id]);
+  }, [gameState.narration?.id, gameState.narration?.duration, updateGameState]);
   return null;
 }
 
@@ -856,6 +897,7 @@ function PlayerView() {
     } else {
       audio.stopAmbient();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState.audioPlaying, gameState.audioMood, gameState.currentSceneId]);
 
   // Scene transition fade
@@ -872,8 +914,9 @@ function PlayerView() {
 
   // Dice roll: animated spin then reveal (keyed by roll ID to prevent duplicate triggers)
   const lastRollId = gameState.lastRoll?.id;
+  const lastRoll = gameState.lastRoll;
   React.useEffect(() => {
-    if (!gameState.lastRoll) return;
+    if (!lastRoll) return;
 
     // Start dice animation
     setDicePhase('spin');
@@ -925,6 +968,7 @@ function PlayerView() {
       cancelled = true;
       if (diceFrameRef.current) clearTimeout(diceFrameRef.current);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastRollId]);
 
   // Toast (quest complete)
@@ -935,7 +979,48 @@ function PlayerView() {
       const timer = setTimeout(() => setShowToast(false), 6000);
       return () => clearTimeout(timer);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState.toast]);
+
+  // TTS Voice Playback
+  React.useEffect(() => {
+    if (!gameState.narration?.text || !gameState.narration?.voiceId) return;
+
+    let audioEl = null;
+    let objectUrl = null;
+    let cancelled = false;
+
+    const url = `http://localhost:5000/v1/audio/speech`;
+    const playTTS = async () => {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'tts-1',
+            input: gameState.narration.text,
+            voice: gameState.narration.voiceId
+          })
+        });
+        if (res.ok && !cancelled) {
+          const blob = await res.blob();
+          objectUrl = URL.createObjectURL(blob);
+          audioEl = new Audio(objectUrl);
+          audioEl.volume = 0.9;
+          audioEl.play().catch(e => console.warn("TTS Playback failed:", e));
+        }
+      } catch (err) {
+        console.warn('TTS Backend not reachable:', err);
+      }
+    };
+    playTTS();
+
+    return () => {
+      cancelled = true;
+      if (audioEl) { audioEl.pause(); audioEl.src = ''; }
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [gameState.narration?.id]);
 
   const isNat20 = gameState.lastRoll?.d20 === 20;
   const isNat1 = gameState.lastRoll?.d20 === 1;

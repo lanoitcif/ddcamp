@@ -36,9 +36,9 @@ test.describe('D&D Engine Exhaustive UI and Gameplay Tests', () => {
   test('UI Responsiveness - DM View', async () => {
     // Sidebar Scenes
     await expect(dmPage.locator('h2:has-text("Scenes")')).toBeVisible();
-    await expect(dmPage.locator('button:has-text("Mrs. Crumb\'s Bakery")')).toBeVisible();
-    await expect(dmPage.locator('button:has-text("The Sparkle Woods")')).toBeVisible();
-    await expect(dmPage.locator('button:has-text("Whispering Peak")')).toBeVisible();
+    await expect(dmPage.locator('button:has-text("Mrs. Crumb\'s Bakery")').first()).toBeVisible();
+    await expect(dmPage.locator('button:has-text("The Sparkle Woods")').first()).toBeVisible();
+    await expect(dmPage.locator('button:has-text("Whispering Peak")').first()).toBeVisible();
     
     // Character Cards
     await expect(dmPage.locator('.dnd-card')).toHaveCount(3);
@@ -62,8 +62,8 @@ test.describe('D&D Engine Exhaustive UI and Gameplay Tests', () => {
     
     // Lily's Sneak Attack has +5 bonus. 
     // Math.random() = 0.99 -> floor(0.99 * 20) + 1 = 20.
-    // 20 + 5 = 25
-    await expect(overlay.locator('.font-bold').first()).toContainText('25');
+    // Total: 20 + 5 = 25
+    await expect(overlay.locator('[data-testid="dice-display"]')).toContainText('25', { timeout: 5000 });
     
     // Check Critical Hit!
     await expect(overlay.locator('text=Critical Hit!')).toBeVisible();
@@ -176,5 +176,63 @@ test.describe('D&D Engine Exhaustive UI and Gameplay Tests', () => {
     // Thorne should still be 0
     const thorneCard = dmPage.locator('[data-testid="card-thorne"]');
     await expect(thorneCard.locator('[data-testid="hp-thorne"]')).toHaveText('0');
+  });
+
+  test('Split Narration Buttons - Text Only and TTS', async () => {
+    // Verify both narration buttons exist
+    await expect(dmPage.locator('button:has-text("Text Only")')).toBeVisible();
+    await expect(dmPage.locator('button:has-text("Send & Speak")')).toBeVisible();
+
+    // Test Text Only sends narration without voiceId
+    const narrationInput = dmPage.locator('textarea');
+    await narrationInput.fill('Testing text-only narration');
+    await dmPage.locator('button:has-text("Text Only")').click();
+
+    // Verify narration appears on Player View
+    await expect(playerPage.locator('text=Testing text-only narration')).toBeVisible({ timeout: 3000 });
+
+    // Verify no voiceId in state
+    const state = await dmPage.evaluate(() => JSON.parse(localStorage.getItem('dnd_game_state')));
+    expect(state.narration.voiceId).toBeUndefined();
+
+    // Clear narration
+    await dmPage.locator('button:has-text("Clear")').click();
+  });
+
+  test('TTS Narration includes voiceId in game state', async () => {
+    const narrationInput = dmPage.locator('textarea');
+    await narrationInput.fill('Testing TTS narration');
+    await dmPage.locator('button:has-text("Send & Speak")').click();
+
+    // Verify narration appears on Player View
+    await expect(playerPage.locator('text=Testing TTS narration')).toBeVisible({ timeout: 3000 });
+
+    // Verify voiceId is set in state
+    const state = await dmPage.evaluate(() => JSON.parse(localStorage.getItem('dnd_game_state')));
+    expect(state.narration.voiceId).toBeTruthy();
+
+    // Clear narration
+    await dmPage.locator('button:has-text("Clear")').click();
+  });
+
+  test('Monster AI Prompt Input visible on monster cards', async () => {
+    // Navigate to Whispering Peak which has monsters
+    await dmPage.locator('button:has-text("Whispering Peak")').click();
+    await new Promise(r => setTimeout(r, 1500));
+
+    // Verify monster section exists
+    await expect(dmPage.locator('text=Monsters in Scene')).toBeVisible();
+
+    // Verify AI prompt input is visible on monster cards
+    const aiInput = dmPage.locator('input[placeholder="Ask AI via Player Action..."]').first();
+    await expect(aiInput).toBeVisible();
+
+    // Verify AI button is visible
+    const aiButton = dmPage.locator('button[title="Generate AI Response"]').first();
+    await expect(aiButton).toBeVisible();
+
+    // Type in the AI prompt
+    await aiInput.fill('I approach the dragon cautiously');
+    await expect(aiInput).toHaveValue('I approach the dragon cautiously');
   });
 });
