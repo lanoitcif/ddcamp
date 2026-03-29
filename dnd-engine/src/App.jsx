@@ -45,34 +45,57 @@ function handleImgError(e) {
 }
 
 const PORTRAITS = [
-  { label: "Lily 1", url: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=400&q=80" },
-  { label: "Lily 2", url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" },
-  { label: "Thorne 1", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" },
-  { label: "Thorne 2", url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" },
-  { label: "Valerius 1", url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80" },
-  { label: "Valerius 2", url: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80" },
-  { label: "Wizard", url: "https://images.unsplash.com/photo-1514543250559-83867827ecce?auto=format&fit=crop&w=400&q=80" },
-  { label: "Elf", url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80" },
+  // Lily the Silent — Rogue / Thief options
+  { label: "Shadow Dancer", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=ShadowDancer&backgroundColor=1a1a2e", group: "Rogue" },
+  { label: "Nightblade", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=Nightblade&backgroundColor=1a1a2e", group: "Rogue" },
+  { label: "Whisper", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=WhisperThief&backgroundColor=2d1b69", group: "Rogue" },
+  { label: "Raven", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=RavenRogue&backgroundColor=1a1a2e", group: "Rogue" },
+  { label: "Phantom", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=PhantomStep&backgroundColor=2d1b69", group: "Rogue" },
+  { label: "Moonthief", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=MoonThief&backgroundColor=1a1a2e", group: "Rogue" },
+  { label: "Silent Blade", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=SilentBlade&backgroundColor=2d1b69", group: "Rogue" },
+  // Brave Thorne — Fighter / Warrior options
+  { label: "Ironheart", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=IronheartFighter&backgroundColor=4a1a1a", group: "Fighter" },
+  { label: "Warblade", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=Warblade&backgroundColor=4a1a1a", group: "Fighter" },
+  { label: "Stoneguard", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=StoneguardAxe&backgroundColor=3d2b1f", group: "Fighter" },
+  { label: "Berserker", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=BerserkerRage&backgroundColor=4a1a1a", group: "Fighter" },
+  { label: "Axeborn", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=AxebornHero&backgroundColor=3d2b1f", group: "Fighter" },
+  { label: "Shield Breaker", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=ShieldBreaker&backgroundColor=4a1a1a", group: "Fighter" },
+  { label: "Champion", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=ChampionBrave&backgroundColor=3d2b1f", group: "Fighter" },
+  // Valerius the Just — Paladin / Holy Knight options
+  { label: "Sunblade", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=SunbladeKnight&backgroundColor=1a3a1a", group: "Paladin" },
+  { label: "Radiant", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=RadiantPaladin&backgroundColor=1a2a4a", group: "Paladin" },
+  { label: "Crusader", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=HolyCrusader&backgroundColor=1a3a1a", group: "Paladin" },
+  { label: "Dawn Knight", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=DawnKnight&backgroundColor=1a2a4a", group: "Paladin" },
+  { label: "Templar", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=TemplarJust&backgroundColor=1a3a1a", group: "Paladin" },
+  { label: "Devotion", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=DevotionHoly&backgroundColor=1a2a4a", group: "Paladin" },
 ];
 
 function PortraitGallery({ onSelect, onClose }) {
+  const groups = ['Rogue', 'Fighter', 'Paladin'];
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-10">
       <div className="bg-gray-900 border-2 border-dnd-gold rounded-2xl max-w-4xl w-full p-8 relative">
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white"><X /></button>
         <h2 className="text-2xl font-serif text-dnd-gold mb-6">Choose a Hero Portrait</h2>
-        <div className="grid grid-cols-4 gap-4 overflow-y-auto max-h-[60vh] p-2">
-          {PORTRAITS.map(p => (
-            <button 
-              key={p.url} 
-              onClick={() => onSelect(p.url)}
-              className="group relative rounded-xl overflow-hidden border-2 border-transparent hover:border-dnd-gold transition-all"
-            >
-              <img src={p.url} className="w-full aspect-square object-cover" alt={p.label} onError={handleImgError} />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center">
-                <span className="text-xs font-bold text-white uppercase tracking-widest">Select</span>
+        <div className="overflow-y-auto max-h-[60vh] p-2 space-y-6">
+          {groups.map(group => (
+            <div key={group}>
+              <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3 flex items-center gap-2">
+                <Shield size={14} className="text-dnd-gold" /> {group}
+              </h3>
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-3">
+                {PORTRAITS.filter(p => p.group === group).map(p => (
+                  <button 
+                    key={p.url} 
+                    onClick={() => onSelect(p.url)}
+                    className="group relative rounded-xl overflow-hidden border-2 border-transparent hover:border-dnd-gold transition-all"
+                  >
+                    <img src={p.url} className="w-full aspect-square object-cover rounded-lg" alt={p.label} onError={handleImgError} />
+                    <p className="text-[9px] text-center text-gray-500 group-hover:text-dnd-gold mt-1 truncate">{p.label}</p>
+                  </button>
+                ))}
               </div>
-            </button>
+            </div>
           ))}
         </div>
       </div>
