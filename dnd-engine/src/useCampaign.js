@@ -71,7 +71,7 @@ export function useCampaign() {
       sync.send(newState);
       return newState;
     });
-  }, [sync]);
+  }, [sync.send]);
 
   const getMaxHp = useCallback((id) => {
     const char = campaignData.characters.find(c => c.id === id);
@@ -112,7 +112,7 @@ export function useCampaign() {
       sync.send(newState);
       return newState;
     });
-  }, [sync]);
+  }, [sync.send]);
 
   const rollDice = useCallback((bonus, label, damageStr, targetId) => {
     let d20, advantageRolls = null, usedAdvantage = false;
@@ -272,7 +272,7 @@ export function useCampaign() {
     localStorage.removeItem('dnd_game_state');
     setGameState(fresh);
     sync.send(fresh);
-  }, [sync]);
+  }, [sync.send]);
 
   const awardXpAction = useCallback((characterId, amount, reason) => {
     const result = computeXpAward(gameState.characterXp || {}, characterId, amount);
