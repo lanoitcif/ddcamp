@@ -111,7 +111,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   console.log('🧁 ═══ ACT 1: MRS. CRUMB\'S BAKERY ═══\n');
 
   // DM Agent: Set the mood
-  await safeClick(dmPage, 'button:has-text("Intro Intro")', 'Intro Button');
+  await safeClick(dmPage, 'button:has-text("Scene Intro")', 'Intro Button');
   await safeClick(dmPage, 'button:has-text("Text Only")', 'Send Narration (Text Only)');
   noteAction('dm', 'Narrated opening bakery mystery using Intro button');
   await waitForSync(800);
