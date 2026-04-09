@@ -210,18 +210,21 @@ export function PingLayer({ ping }) {
 
 export function ReactionLayer({ reaction }) {
   const [visible, setVisible] = React.useState(false);
+  const [currentId, setCurrentId] = React.useState(reaction ? reaction.id : null);
 
   React.useEffect(() => {
-    if (!reaction) return;
+    if (!reaction || reaction.id === currentId) return;
+
+    setCurrentId(reaction.id);
     setVisible(true);
     const timer = setTimeout(() => setVisible(false), 4000);
     return () => clearTimeout(timer);
-  }, [reaction]);
+  }, [reaction, currentId]);
 
   if (!reaction || !visible) return null;
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-[110] flex items-center justify-center">
+    <div key={reaction.id} className="absolute inset-0 pointer-events-none z-[110] flex items-center justify-center">
       <div className="text-[15rem] animate-bounce-slow drop-shadow-2xl opacity-90 transition-all duration-[3000ms] ease-out transform translate-y-[-100px] scale-110">
         {reaction.emoji}
       </div>
