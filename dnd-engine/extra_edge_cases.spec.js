@@ -110,8 +110,8 @@ test.describe('Extra Edge Cases and Stability', () => {
     await expect(showAllBtn).toBeDisabled();
 
     // Verify Player TV shows puzzle solved correctly
-    await dmPage.locator('button:has-text("Answer: A Map")').click();
-    await expect(playerPage.locator('text=A Map!')).toBeVisible();
+    await dmPage.locator('button:has-text("Answer: A River")').click();
+    await expect(playerPage.locator('text=A River!')).toBeVisible();
 
     await dmPage.locator('[data-testid="end-puzzle"]').click();
   });
