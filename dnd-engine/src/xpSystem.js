@@ -27,24 +27,24 @@ export const XP_REWARDS = {
 
 /** Per-character bonuses earned at each level. */
 export const LEVEL_BONUSES = {
-  lily: [
-    { level: 2, hpBonus: 3, bonusIncrease: 0, newAction: null, title: "Shadow Step" },
-    { level: 3, hpBonus: 3, bonusIncrease: 1, newAction: { name: "Poison Blade", bonus: 6, damage: "1d8+4" }, title: "Blade Dancer" },
-    { level: 4, hpBonus: 4, bonusIncrease: 0, newAction: null, title: "Ghost Walker" },
-    { level: 5, hpBonus: 4, bonusIncrease: 1, newAction: { name: "Shadow Strike", bonus: 7, damage: "2d6+4" }, title: "Master Thief" },
-  ],
-  thorne: [
-    { level: 2, hpBonus: 4, bonusIncrease: 0, newAction: null, title: "Shield Bash" },
-    { level: 3, hpBonus: 4, bonusIncrease: 1, newAction: { name: "Cleave", bonus: 6, damage: "1d10+3" }, title: "Battle Master" },
-    { level: 4, hpBonus: 5, bonusIncrease: 0, newAction: null, title: "Iron Will" },
-    { level: 5, hpBonus: 5, bonusIncrease: 1, newAction: { name: "Whirlwind", bonus: 7, damage: "2d8+3" }, title: "Champion" },
-  ],
-  valerius: [
-    { level: 2, hpBonus: 4, bonusIncrease: 0, newAction: null, title: "Holy Shield" },
-    { level: 3, hpBonus: 4, bonusIncrease: 1, newAction: { name: "Holy Light", bonus: 5, damage: "2d6+2" }, title: "Crusader" },
-    { level: 4, hpBonus: 5, bonusIncrease: 0, newAction: null, title: "Divine Ward" },
-    { level: 5, hpBonus: 5, bonusIncrease: 1, newAction: { name: "Radiant Burst", bonus: 6, damage: "3d6" }, title: "Paladin Lord" },
-  ],
+  lily: {
+    2: { level: 2, hpBonus: 3, bonusIncrease: 0, newAction: null, title: "Shadow Step" },
+    3: { level: 3, hpBonus: 3, bonusIncrease: 1, newAction: { name: "Poison Blade", bonus: 6, damage: "1d8+4" }, title: "Blade Dancer" },
+    4: { level: 4, hpBonus: 4, bonusIncrease: 0, newAction: null, title: "Ghost Walker" },
+    5: { level: 5, hpBonus: 4, bonusIncrease: 1, newAction: { name: "Shadow Strike", bonus: 7, damage: "2d6+4" }, title: "Master Thief" },
+  },
+  thorne: {
+    2: { level: 2, hpBonus: 4, bonusIncrease: 0, newAction: null, title: "Shield Bash" },
+    3: { level: 3, hpBonus: 4, bonusIncrease: 1, newAction: { name: "Cleave", bonus: 6, damage: "1d10+3" }, title: "Battle Master" },
+    4: { level: 4, hpBonus: 5, bonusIncrease: 0, newAction: null, title: "Iron Will" },
+    5: { level: 5, hpBonus: 5, bonusIncrease: 1, newAction: { name: "Whirlwind", bonus: 7, damage: "2d8+3" }, title: "Champion" },
+  },
+  valerius: {
+    2: { level: 2, hpBonus: 4, bonusIncrease: 0, newAction: null, title: "Holy Shield" },
+    3: { level: 3, hpBonus: 4, bonusIncrease: 1, newAction: { name: "Holy Light", bonus: 5, damage: "2d6+2" }, title: "Crusader" },
+    4: { level: 4, hpBonus: 5, bonusIncrease: 0, newAction: null, title: "Divine Ward" },
+    5: { level: 5, hpBonus: 5, bonusIncrease: 1, newAction: { name: "Radiant Burst", bonus: 6, damage: "3d6" }, title: "Paladin Lord" },
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -106,9 +106,9 @@ export function getXpProgress(xp) {
  * @returns {string|null} Title string or null if none exists.
  */
 export function getLevelTitle(characterId, level) {
-  const bonuses = LEVEL_BONUSES[characterId];
-  if (!bonuses) return null;
-  const entry = bonuses.find((b) => b.level === level);
+  const characterBonuses = LEVEL_BONUSES[characterId];
+  if (!characterBonuses) return null;
+  const entry = characterBonuses[level];
   return entry ? entry.title : null;
 }
 
@@ -119,9 +119,9 @@ export function getLevelTitle(characterId, level) {
  * @returns {{ level: number, hpBonus: number, bonusIncrease: number, newAction: object|null, title: string }|null}
  */
 export function getLevelBonuses(characterId, level) {
-  const bonuses = LEVEL_BONUSES[characterId];
-  if (!bonuses) return null;
-  return bonuses.find((b) => b.level === level) ?? null;
+  const characterBonuses = LEVEL_BONUSES[characterId];
+  if (!characterBonuses) return null;
+  return characterBonuses[level] ?? null;
 }
 
 // ---------------------------------------------------------------------------
