@@ -50,38 +50,6 @@ async function safeClick(page, selector, label = '') {
   }
 }
 
-async function verifyPlayerSync(dmPage, playerPage, testName) {
-  await waitForSync(800);
-  try {
-    const dmScene = await dmPage.locator('.parchment h2').first().textContent();
-    const playerScene = await playerPage.locator('h2').first().textContent();
-    if (dmScene && playerScene && !playerScene.includes(dmScene.trim())) {
-      logIssue('CRITICAL', 'Sync', `${testName}: DM scene "${dmScene}" ≠ Player scene "${playerScene}"`);
-    }
-  } catch {
-    // Might be transient
-  }
-}
-
-async function checkHpSync(dmPage, playerPage, entityId, expectedHp) {
-  await waitForSync(400);
-  try {
-    const dmHp = await dmPage.locator(`[data-testid="hp-${entityId}"]`).textContent();
-    const playerHp = await playerPage.locator(`[data-testid="player-hp-${entityId}"]`).textContent();
-    const dmVal = parseInt(dmHp);
-    const playerVal = parseInt(playerHp);
-    if (dmVal !== expectedHp) {
-      logIssue('HIGH', 'HP', `DM shows ${entityId} HP=${dmVal}, expected ${expectedHp}`);
-    }
-    if (playerVal !== expectedHp) {
-      logIssue('HIGH', 'HP Sync', `Player shows ${entityId} HP=${playerVal}, expected ${expectedHp}`);
-    }
-    return dmVal;
-  } catch {
-    logIssue('MEDIUM', 'HP', `Could not read HP for ${entityId}`);
-    return -1;
-  }
-}
 
 // ═══════════════════════════════════════════════════════════════════
 // THE FULL CAMPAIGN PLAYTEST
@@ -111,7 +79,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
   console.log('🧁 ═══ ACT 1: MRS. CRUMB\'S BAKERY ═══\n');
 
   // DM Agent: Set the mood
-  await safeClick(dmPage, 'button:has-text("Intro Intro")', 'Intro Button');
+  await safeClick(dmPage, 'button:has-text("Scene Intro")', 'Intro Button');
   await safeClick(dmPage, 'button:has-text("Text Only")', 'Send Narration (Text Only)');
   noteAction('dm', 'Narrated opening bakery mystery using Intro button');
   await waitForSync(800);
