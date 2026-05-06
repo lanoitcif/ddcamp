@@ -7,6 +7,17 @@ function getSyncParams() {
   const params = new URLSearchParams(window.location.search);
   const ws = params.get('ws');
   if (!ws) return { mode: 'local' };
+
+  try {
+    const wsUrl = new URL(`ws://${ws}`);
+    if (wsUrl.hostname !== window.location.hostname) {
+      console.warn('Blocked connection to external WebSocket host:', wsUrl.hostname);
+      return { mode: 'local' };
+    }
+  } catch (e) {
+    return { mode: 'local' };
+  }
+
   const room = params.get('room') || 'default';
   return { mode: 'remote', host: ws, room };
 }
