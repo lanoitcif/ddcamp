@@ -3,6 +3,8 @@
 // Provides validation, factory functions, and import/export utilities
 // for campaign data consumed by useCampaign.js and the dual-view UI.
 
+import { secureRandomString } from './cryptoUtils';
+
 // ─── Constants ──────────────────────────────────────────────────────
 
 export const DAMAGE_PATTERN = /^(\d+)d(\d+)(\+\d+)?$/;
@@ -19,7 +21,7 @@ export const DEFAULT_IMAGES = {
 
 function generateId(prefix) {
   const timestamp = Date.now();
-  const suffix = Math.random().toString(36).slice(2, 7);
+  const suffix = secureRandomString(5);
   return `${prefix}-${timestamp}-${suffix}`;
 }
 
