@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import { Search, Lightbulb, Footprints, Trophy, Droplets, Sparkles, Eye, Music, Scroll, Star } from 'lucide-react';
+import { secureRoll, secureRandomInt } from './cryptoUtils';
 
 // ═══════════════════════════════════════════════════════════════════
 // PUZZLE 1: Bakery Spotlight Search
@@ -713,7 +714,7 @@ function MelodyDM({ puzzle, onUpdate }) {
   const phase = puzzle.phase || 'play';
 
   const addNote = () => {
-    const next = Math.floor(Math.random() * 4);
+    const next = secureRandomInt(0, 3);
     onUpdate({ ...puzzle, sequence: [...sequence, next], playerInput: [], phase: 'watch', showIndex: 0 });
   };
 
@@ -855,7 +856,7 @@ function createRuneTiles() {
     { id: i * 2 + 1, rune, flipped: false, matched: false },
   ]);
   for (let i = tiles.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = secureRandomInt(0, i);
     [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
   }
   return tiles;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Sparkles } from 'lucide-react';
+import { secureRoll, secureRandomFloat } from './cryptoUtils';
 
 const FALLBACK_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23333' width='100' height='100' rx='8'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='%23d4af37' font-size='36'%3E⚔%3C/text%3E%3C/svg%3E";
 function handleImgError(e) { e.target.onerror = null; e.target.src = FALLBACK_IMG; }
@@ -59,7 +60,7 @@ const SCENE_PARTICLES = {
 };
 
 function rand(min, max) {
-  return Math.random() * (max - min) + min;
+  return secureRandomFloat() * (max - min) + min;
 }
 
 // ─── Particle Component ─────────────────────────────────────────
@@ -288,7 +289,7 @@ export function DiceRollAnimation({ roll, onComplete }) {
 
       // Decelerate: fast at start, slow at end
       const interval = 30 + progress * 200;
-      const randomNum = Math.floor(Math.random() * 20) + 1;
+      const randomNum = secureRoll(20);
       setDisplayNum(randomNum);
 
       if (progress < 1) {
