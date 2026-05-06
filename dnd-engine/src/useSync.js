@@ -69,15 +69,17 @@ export function useSync(onMessage) {
           return;
         }
 
-        switch (msg.type) {
-          case 'sync':
-            onMessageRef.current?.(msg.payload);
-            break;
-          case 'welcome':
-          case 'client_joined':
-          case 'client_left':
-            if (msg.clientCount != null) setClientCount(msg.clientCount);
-            break;
+        if (msg && typeof msg === 'object') {
+          switch (msg.type) {
+            case 'sync':
+              onMessageRef.current?.(msg.payload);
+              break;
+            case 'welcome':
+            case 'client_joined':
+            case 'client_left':
+              if (msg.clientCount != null) setClientCount(msg.clientCount);
+              break;
+          }
         }
       });
 
