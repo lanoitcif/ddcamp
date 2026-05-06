@@ -276,7 +276,8 @@ export function useCampaign() {
 
   const awardXpAction = useCallback((characterId, amount, reason) => {
     const result = computeXpAward(gameState.characterXp || {}, characterId, amount);
-    const charName = campaignData.characters.find(c => c.id === characterId)?.name || characterId;
+    const character = campaignData.characters.find(c => c.id === characterId);
+    const charName = character?.name || characterId;
     const updates = {
       characterXp: result.updatedXp,
       xpGain: { amount, reason, characterId, characterName: charName, id: Date.now() },
@@ -285,7 +286,7 @@ export function useCampaign() {
       updates.levelUp = { ...result.levelUp, characterName: charName, id: Date.now() };
       // Apply HP bonus from level-up
       if (result.levelUp.hpBonus) {
-        const maxHp = (campaignData.characters.find(c => c.id === characterId)?.maxHp || 0) + result.levelUp.hpBonus;
+        const maxHp = (character?.maxHp || 0) + result.levelUp.hpBonus;
         updates.characterHp = { ...gameState.characterHp, [characterId]: Math.min(maxHp, (gameState.characterHp[characterId] ?? 0) + result.levelUp.hpBonus) };
       }
     }
