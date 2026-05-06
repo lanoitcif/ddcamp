@@ -15,7 +15,6 @@ import { MidiDispatcher } from '../utils/MidiDispatcher';
 
 /** The grid of prompt inputs. */
 @customElement('prompt-dj-midi')
-// FIX: The class must extend LitElement to be a custom element.
 export class PromptDjMidi extends LitElement {
   static override styles = css`
     :host {
