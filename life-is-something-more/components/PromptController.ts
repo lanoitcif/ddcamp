@@ -14,7 +14,6 @@ import type { Prompt, ControlChange } from '../types';
 
 /** A single prompt input associated with a MIDI CC. */
 @customElement('prompt-controller')
-// FIX: The class must extend LitElement to be a custom element.
 export class PromptController extends LitElement {
   static override styles = css`
     .prompt {
@@ -138,7 +137,6 @@ export class PromptController extends LitElement {
     this.lastValidText = this.text;
   }
 
-  // FIX: Add override modifier to the update method.
   override update(changedProperties: Map<string, unknown>) {
     if (changedProperties.has('showCC') && !this.showCC) {
       this.learnMode = false;
