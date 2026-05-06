@@ -75,11 +75,11 @@ wss.on('connection', (ws, req) => {
       return;
     }
 
-    if (msg.type === 'state_update' && msg.payload) {
+    if (msg && typeof msg === 'object' && msg.type === 'state_update' && msg.payload) {
       room.state = msg.payload;
       broadcastToRoom(roomName, { type: 'sync', payload: msg.payload }, ws);
     } else {
-      log(`Unknown message type "${msg.type}" in room "${roomName}"`);
+      log(`Unknown message type "${msg?.type}" in room "${roomName}"`);
     }
   });
 
