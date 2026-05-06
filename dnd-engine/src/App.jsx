@@ -6,7 +6,7 @@ import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } f
 import { PUZZLES } from './Puzzles';
 import CampaignBuilder from './CampaignBuilder';
 import { XpBar, LevelUpOverlay, XpToast, DmXpPanel } from './LevelUpOverlay';
-import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Hash, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon, Wifi, WifiOff, Brain } from 'lucide-react';
+import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon, Wifi, WifiOff, Brain } from 'lucide-react';
 
 /* ─── Error Boundary ─────────────────────────────────────────── */
 
