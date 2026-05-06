@@ -6,10 +6,13 @@
 import {Blob} from '@google/genai';
 
 function encode(bytes: Uint8Array) {
+  const CHUNK_SIZE = 0x8000; // 32KB chunks
   let binary = '';
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+    binary += String.fromCharCode.apply(
+      null,
+      bytes.subarray(i, i + CHUNK_SIZE) as unknown as number[],
+    );
   }
   return btoa(binary);
 }
