@@ -132,9 +132,15 @@ function DMControl() {
   const audio = useAudio();
   const { generateResponse, isGenerating } = useOllama();
 
-  const activeScene = campaignData.scenes.find(s => s.id === gameState.currentSceneId);
-  const activeTurnEntity = campaignData.characters.find(c => c.id === gameState.activeTurnId) ||
-                           campaignData.monsters.find(m => m.id === gameState.activeTurnId);
+  const activeScene = React.useMemo(() =>
+    campaignData.scenes.find(s => s.id === gameState.currentSceneId),
+    [campaignData.scenes, gameState.currentSceneId]
+  );
+  const activeTurnEntity = React.useMemo(() =>
+    campaignData.characters.find(c => c.id === gameState.activeTurnId) ||
+    campaignData.monsters.find(m => m.id === gameState.activeTurnId),
+    [campaignData.characters, campaignData.monsters, gameState.activeTurnId]
+  );
 
   const handleAiGenerate = React.useCallback(async (entity) => {
     const actionStr = aiPromptInput[entity.id];
@@ -876,7 +882,11 @@ function NarrationAutoDismiss({ gameState, updateGameState }) {
 
 function PlayerView() {
   const { campaignData, gameState, sceneMonsters, updatePuzzle, dismissOverlay, updateGameState } = useCampaign();
-  const activeScene = campaignData.scenes.find(s => s.id === gameState.currentSceneId);
+  const activeScene = React.useMemo(() =>
+    campaignData.scenes.find(s => s.id === gameState.currentSceneId),
+    [campaignData.scenes, gameState.currentSceneId]
+  );
+
   const [showRoll, setShowRoll] = React.useState(false);
   const [showToast, setShowToast] = React.useState(false);
   const [prevSceneId, setPrevSceneId] = React.useState(gameState.currentSceneId);
@@ -887,8 +897,11 @@ function PlayerView() {
   const audio = useAudio();
   const diceFrameRef = React.useRef(null);
 
-  const activeTurnEntity = campaignData.characters.find(c => c.id === gameState.activeTurnId) ||
-                           campaignData.monsters.find(m => m.id === gameState.activeTurnId);
+  const activeTurnEntity = React.useMemo(() =>
+    campaignData.characters.find(c => c.id === gameState.activeTurnId) ||
+    campaignData.monsters.find(m => m.id === gameState.activeTurnId),
+    [campaignData.characters, campaignData.monsters, gameState.activeTurnId]
+  );
 
   // Sync ambient with global state
   React.useEffect(() => {
@@ -1025,10 +1038,10 @@ function PlayerView() {
   const isNat20 = gameState.lastRoll?.d20 === 20;
   const isNat1 = gameState.lastRoll?.d20 === 1;
 
-  const allEntities = [
+  const allEntities = React.useMemo(() => [
     ...campaignData.characters.map(c => ({ ...c, isMonster: false })),
     ...sceneMonsters.map(m => ({ ...m, isMonster: true })),
-  ];
+  ], [campaignData.characters, sceneMonsters]);
 
    return (
     <div className="relative h-screen w-screen overflow-hidden bg-black">
