@@ -25,7 +25,7 @@ const DAMAGE_PATTERN = /^\d+d\d+([+-]\d+)?$/;
 
 // --- Reusable UI Primitives ---
 
-function SectionHeader({ icon: SectionIcon, title, count, children }) { // eslint-disable-line no-unused-vars
+function SectionHeader({ icon: SectionIcon, title, count, children }) {
   return (
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-xl font-bold text-dnd-gold flex items-center gap-2">
@@ -134,7 +134,7 @@ function DamageInput({ value, onChange }) {
   );
 }
 
-function ConfirmButton({ onConfirm, icon: ConfirmIcon = Trash2, label = 'Delete', className = '' }) { // eslint-disable-line no-unused-vars
+function ConfirmButton({ onConfirm, icon: ConfirmIcon = Trash2, label = 'Delete', className = '' }) {
   const [confirming, setConfirming] = useState(false);
   return confirming ? (
     <span className="inline-flex gap-1 items-center">
