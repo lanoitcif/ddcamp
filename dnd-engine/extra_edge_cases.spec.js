@@ -113,6 +113,7 @@ test.describe('Extra Edge Cases and Stability', () => {
     await dmPage.locator('button:has-text("Answer:")').click({ timeout: 5000 }).catch(() => {});
     await playerPage.waitForTimeout(500);
 
+
     await dmPage.locator('[data-testid="end-puzzle"]').click({ timeout: 3000 }).catch(() => {});
   });
 });
