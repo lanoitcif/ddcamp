@@ -2,13 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import campaignData from './campaign_data.json';
 import { useSync } from './useSync';
 import { awardXp as computeXpAward, defaultXpState } from './xpSystem';
+import { secureRoll } from './cryptoUtils';
 
-// Cryptographically secure random number between 0 and 1
-function getSecureRandom() {
-  const array = new Uint32Array(1);
-  window.crypto.getRandomValues(array);
-  return array[0] / (0xffffffff + 1);
-}
+
 
 function defaultState() {
   return {
@@ -56,7 +52,7 @@ export function rollDamage(damageStr) {
   const [, count, sides, mod] = match;
   const dice = [];
   for (let i = 0; i < Number(count); i++) {
-    dice.push(Math.floor(getSecureRandom() * Number(sides)) + 1);
+    dice.push(secureRoll(Number(sides)));
   }
   const total = dice.reduce((a, b) => a + b, 0) + (Number(mod) || 0);
   return { dice, sides: Number(sides), mod: Number(mod) || 0, total, str: damageStr };
@@ -129,13 +125,13 @@ export function useCampaign() {
       .find(e => label.startsWith(e.name + ':'))?.id;
 
     if (gameState.hasAdvantage && rollingEntityId === gameState.hasAdvantage) {
-      const roll1 = Math.floor(getSecureRandom() * 20) + 1;
-      const roll2 = Math.floor(getSecureRandom() * 20) + 1;
+      const roll1 = secureRoll(20);
+      const roll2 = secureRoll(20);
       d20 = Math.max(roll1, roll2);
       advantageRolls = [roll1, roll2];
       usedAdvantage = true;
     } else {
-      d20 = Math.floor(getSecureRandom() * 20) + 1;
+      d20 = secureRoll(20);
     }
 
     const total = d20 + bonus;
@@ -169,14 +165,14 @@ export function useCampaign() {
   }, [updateGameState, addLogEntry, handleHpChange, gameState.hasAdvantage, gameState.audioPlaying, gameState.audioMood]);
 
   const rollSkillCheck = useCallback((label) => {
-    const d20 = Math.floor(getSecureRandom() * 20) + 1;
+    const d20 = secureRoll(20);
     const roll = { d20, bonus: 0, total: d20, label: label || 'Skill Check', damage: null, id: Date.now() };
     updateGameState({ lastRoll: roll });
     addLogEntry({ ...roll, time: new Date().toLocaleTimeString() });
   }, [updateGameState, addLogEntry]);
 
   const rollSecret = useCallback((label) => {
-    const d20 = Math.floor(getSecureRandom() * 20) + 1;
+    const d20 = secureRoll(20);
     const roll = { d20, bonus: 0, total: d20, label: label || 'Secret Roll', time: new Date().toLocaleTimeString() };
     addLogEntry({ ...roll, secret: true });
     return roll;

@@ -2,6 +2,7 @@ import React from 'react';
 import { useCampaign } from './useCampaign';
 import { useAudio } from './useAudio';
 import { useOllama } from './useOllama';
+import { secureRoll } from './cryptoUtils';
 import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } from './SceneEffects';
 import { PUZZLES } from './Puzzles';
 import CampaignBuilder from './CampaignBuilder';
@@ -948,7 +949,7 @@ function PlayerView() {
       const progress = Math.min(elapsed / spinDuration, 1);
       const interval = 30 + progress * 200;
 
-      setDiceDisplay(Math.floor(Math.random() * 20) + 1);
+      setDiceDisplay(secureRoll(20));
 
       if (progress < 1) {
         diceFrameRef.current = setTimeout(() => requestAnimationFrame(tick), interval);
