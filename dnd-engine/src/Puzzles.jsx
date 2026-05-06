@@ -368,6 +368,8 @@ const INGREDIENTS = [
   { id: 'honey-dew', label: '🍯 Honey Dew', bowl: 'sun-cake' },
 ];
 
+const INGREDIENT_MAP = INGREDIENTS.reduce((acc, i) => ({ ...acc, [i.id]: i.bowl }), {});
+
 const RECIPE_BOWLS = [
   { id: 'sun-cake', label: '☀️ Sun-Cake' },
   { id: 'moon-bread', label: '🌙 Moon-Bread' },
@@ -377,7 +379,7 @@ function IngredientsDM({ puzzle, onUpdate }) {
   const placed = puzzle.placed || {};
 
   const countCorrect = (p) => Object.entries(p).filter(([iId, bId]) =>
-    INGREDIENTS.find(i => i.id === iId)?.bowl === bId
+    INGREDIENT_MAP[iId] === bId
   ).length;
 
   const placeIngredient = (ingredientId, bowlId) => {
@@ -1080,6 +1082,8 @@ const TREASURES = [
   { id: 'necklace', label: '📿 Necklace', pile: 'keep' },
 ];
 
+const TREASURE_MAP = TREASURES.reduce((acc, t) => ({ ...acc, [t.id]: t.pile }), {});
+
 const TREASURE_PILES = [
   { id: 'village', label: '🏘️ Return to Village' },
   { id: 'dragon', label: '🐉 Give to Dragon' },
@@ -1129,7 +1133,7 @@ function HoardPlayer({ puzzle, onUpdate }) {
   const [selected, setSelected] = React.useState(null);
 
   const countCorrect = (s) => Object.entries(s).filter(([tId, pId]) =>
-    TREASURES.find(t => t.id === tId)?.pile === pId
+    TREASURE_MAP[tId] === pId
   ).length;
 
   const selectTreasure = (treasureId) => {
