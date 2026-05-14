@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,22 +12,32 @@
   animation: bounce-slow 2s infinite;
 }
 
+html {
+  font-size: 10px;
+}
+
 body {
   @apply bg-dnd-dark text-white overflow-hidden;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Press Start 2P', monospace;
+  -webkit-font-smoothing: none;
+}
+
+img {
+  image-rendering: pixelated;
 }
 
 .parchment {
-  background-color: #f4f1ea;
-  color: #1a1a1a;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  border: 2px solid #d4af37;
+  background-color: #0000aa;
+  color: #ffffff;
+  box-shadow: 8px 8px 0px rgba(0,0,0,1);
+  border: 4px solid #ffffff;
+  border-radius: 0;
 }
 
 .dnd-button {
-  @apply px-4 py-2 bg-dnd-red text-white font-bold rounded border-2 border-dnd-gold hover:bg-red-700 transition-colors shadow-lg active:scale-95;
+  @apply px-4 py-2 bg-dnd-red text-white border-4 border-white hover:bg-red-700 transition-none shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-y-1 active:translate-x-1 active:shadow-none rounded-none;
 }
 
 .dnd-card {
-  @apply bg-gray-900 border border-dnd-gold p-4 rounded-lg shadow-2xl;
+  @apply bg-black border-4 border-white p-4 rounded-none shadow-[8px_8px_0px_rgba(0,0,0,1)];
 }

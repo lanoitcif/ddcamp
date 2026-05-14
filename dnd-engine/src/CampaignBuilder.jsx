@@ -216,7 +216,7 @@ function JsonPreviewModal({ data, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
       onClick={onClose}>
-      <div className="bg-gray-900 border-2 border-dnd-gold rounded-lg w-full max-w-3xl max-h-[80vh] flex flex-col"
+      <div className="bg-gray-900 border-2 border-dnd-gold rounded-none w-full max-w-3xl max-h-[80vh] flex flex-col"
         onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700">
           <h3 className="text-dnd-gold font-bold flex items-center gap-2">
@@ -277,7 +277,7 @@ function OverviewTab({ campaign, setCampaign, onPreviewJSON, onNewCampaign }) {
         </button>
         <button onClick={onNewCampaign}
           className="px-4 py-2 bg-gray-700 text-white font-bold rounded border-2 border-gray-500
-            hover:bg-gray-600 transition-colors shadow-lg active:scale-95 flex items-center gap-2">
+            hover:bg-gray-600 transition-colors shadow-[4px_4px_0px_rgba(0,0,0,1)] active:scale-95 flex items-center gap-2">
           <Sparkles size={16} /> New Campaign
         </button>
       </div>
@@ -297,7 +297,7 @@ function CharacterCard({ character, onChange, onDelete }) {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
           {character.image && (
-            <img src={character.image} alt="" className="w-10 h-10 rounded-full border border-dnd-gold object-cover" />
+            <img src={character.image} alt="" className="w-10 h-10 rounded-none border border-dnd-gold object-cover" />
           )}
           <span className="font-bold text-dnd-gold">{character.name || 'Unnamed Character'}</span>
           <span className="text-xs text-gray-400">{character.class}</span>
@@ -543,7 +543,7 @@ function MonsterCard({ monster, scenes, onChange, onDelete }) {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
           {monster.image && (
-            <img src={monster.image} alt="" className="w-10 h-10 rounded-full border border-dnd-gold object-cover" />
+            <img src={monster.image} alt="" className="w-10 h-10 rounded-none border border-dnd-gold object-cover" />
           )}
           <span className="font-bold text-dnd-gold">{monster.name || 'Unnamed Monster'}</span>
           <span className="text-xs text-gray-500">
@@ -882,7 +882,7 @@ export default function CampaignBuilder() {
           </button>
           <button onClick={handleImport}
             className="w-full px-4 py-2 bg-gray-700 text-white font-bold rounded border-2 border-gray-500
-              hover:bg-gray-600 transition-colors shadow-lg active:scale-95 text-sm flex items-center justify-center gap-2">
+              hover:bg-gray-600 transition-colors shadow-[4px_4px_0px_rgba(0,0,0,1)] active:scale-95 text-sm flex items-center justify-center gap-2">
             <Upload size={14} /> Import JSON
           </button>
           <button onClick={handleLoadCurrent}
@@ -907,7 +907,7 @@ export default function CampaignBuilder() {
 
       {/* Toast Notification */}
       {toast && (
-        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-lg shadow-2xl font-bold text-sm
+        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-sm
           flex items-center gap-2 animate-bounce-slow
           ${toast.type === 'error'
             ? 'bg-red-800 text-white border border-red-600'

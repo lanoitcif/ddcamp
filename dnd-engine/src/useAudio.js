@@ -18,74 +18,74 @@ import { useRef, useCallback, useEffect } from 'react';
 const SCENE_AMBIENTS = {
   bakery: {
     // Warm, golden bakery — cozy and inviting (C-based)
-    calm:   { notes: [261.6, 329.6, 392.0, 493.9, 523.3], type: 'sine', detune: 2, filterFreq: 800, gain: 0.12, sparkle: true, lfoRate: 0.08, lfoDepth: 150, delayTime: 0.5, delayFeedback: 0.35 },
-    tense:  { notes: [261.6, 311.1, 370.0, 466.2], type: 'sine', detune: 6, filterFreq: 500, gain: 0.10, heartbeatBpm: 60, heartbeatFreq: 55, heartbeatGain: 0.12, filterSweepRate: 0.06, filterSweepDepth: 300, rumbleInterval: 10000, delayTime: 0.7, delayFeedback: 0.2 },
-    combat: { notes: [130.8, 196.0, 185.0], type: 'sawtooth', detune: 8, filterFreq: 900, gain: 0.07, percBpm: 128, percGain: 0.16, filterLfoRate: 0.4, filterLfoDepth: 500 },
+    calm:   { notes: [261.6, 329.6, 392.0, 493.9, 523.3], type: 'square', detune: 2, filterFreq: 800, gain: 0.12, sparkle: true, lfoRate: 0.08, lfoDepth: 150, delayTime: 0.5, delayFeedback: 0.35 },
+    tense:  { notes: [261.6, 311.1, 370.0, 466.2], type: 'square', detune: 6, filterFreq: 500, gain: 0.10, heartbeatBpm: 60, heartbeatFreq: 55, heartbeatGain: 0.12, filterSweepRate: 0.06, filterSweepDepth: 300, rumbleInterval: 10000, delayTime: 0.7, delayFeedback: 0.2 },
+    combat: { notes: [130.8, 196.0, 185.0], type: 'square', detune: 8, filterFreq: 900, gain: 0.07, percBpm: 128, percGain: 0.16, filterLfoRate: 0.4, filterLfoDepth: 500 },
   },
   market: {
     // Bright village square — bustling energy (D-based)
-    calm:   { notes: [293.7, 370.0, 440.0, 554.4, 587.3], type: 'sine', detune: 3, filterFreq: 900, gain: 0.11, sparkle: true, lfoRate: 0.1, lfoDepth: 180, delayTime: 0.45, delayFeedback: 0.35 },
-    tense:  { notes: [293.7, 349.2, 415.3, 493.9], type: 'sine', detune: 7, filterFreq: 550, gain: 0.09, heartbeatBpm: 66, heartbeatFreq: 58, heartbeatGain: 0.13, filterSweepRate: 0.07, filterSweepDepth: 350, rumbleInterval: 9000, delayTime: 0.65, delayFeedback: 0.2 },
-    combat: { notes: [146.8, 220.0, 207.7], type: 'sawtooth', detune: 10, filterFreq: 950, gain: 0.07, percBpm: 132, percGain: 0.17, filterLfoRate: 0.45, filterLfoDepth: 550 },
+    calm:   { notes: [293.7, 370.0, 440.0, 554.4, 587.3], type: 'square', detune: 3, filterFreq: 900, gain: 0.11, sparkle: true, lfoRate: 0.1, lfoDepth: 180, delayTime: 0.45, delayFeedback: 0.35 },
+    tense:  { notes: [293.7, 349.2, 415.3, 493.9], type: 'square', detune: 7, filterFreq: 550, gain: 0.09, heartbeatBpm: 66, heartbeatFreq: 58, heartbeatGain: 0.13, filterSweepRate: 0.07, filterSweepDepth: 350, rumbleInterval: 9000, delayTime: 0.65, delayFeedback: 0.2 },
+    combat: { notes: [146.8, 220.0, 207.7], type: 'square', detune: 10, filterFreq: 950, gain: 0.07, percBpm: 132, percGain: 0.17, filterLfoRate: 0.45, filterLfoDepth: 550 },
   },
   woods: {
     // Enchanted forest — shimmering, magical (F Lydian)
-    calm:   { notes: [349.2, 440.0, 523.3, 659.3, 739.9], type: 'sine', detune: 6, filterFreq: 1200, gain: 0.10, sparkle: true, lfoRate: 0.12, lfoDepth: 250, delayTime: 0.55, delayFeedback: 0.4 },
-    tense:  { notes: [349.2, 370.0, 415.3, 493.9], type: 'sine', detune: 12, filterFreq: 600, gain: 0.10, heartbeatBpm: 58, heartbeatFreq: 50, heartbeatGain: 0.11, filterSweepRate: 0.05, filterSweepDepth: 400, rumbleInterval: 7000, delayTime: 0.8, delayFeedback: 0.25 },
-    combat: { notes: [174.6, 261.6, 246.9], type: 'sawtooth', detune: 14, filterFreq: 1000, gain: 0.08, percBpm: 126, percGain: 0.15, filterLfoRate: 0.5, filterLfoDepth: 600 },
+    calm:   { notes: [349.2, 440.0, 523.3, 659.3, 739.9], type: 'square', detune: 6, filterFreq: 1200, gain: 0.10, sparkle: true, lfoRate: 0.12, lfoDepth: 250, delayTime: 0.55, delayFeedback: 0.4 },
+    tense:  { notes: [349.2, 370.0, 415.3, 493.9], type: 'square', detune: 12, filterFreq: 600, gain: 0.10, heartbeatBpm: 58, heartbeatFreq: 50, heartbeatGain: 0.11, filterSweepRate: 0.05, filterSweepDepth: 400, rumbleInterval: 7000, delayTime: 0.8, delayFeedback: 0.25 },
+    combat: { notes: [174.6, 261.6, 246.9], type: 'square', detune: 14, filterFreq: 1000, gain: 0.08, percBpm: 126, percGain: 0.15, filterLfoRate: 0.5, filterLfoDepth: 600 },
   },
   glade: {
     // Magical clearing — sparkling, airy (A-based)
-    calm:   { notes: [440.0, 554.4, 659.3, 880.0, 987.8], type: 'sine', detune: 4, filterFreq: 1600, gain: 0.11, sparkle: true, lfoRate: 0.09, lfoDepth: 300, delayTime: 0.6, delayFeedback: 0.4 },
-    tense:  { notes: [220.0, 233.1, 261.6, 329.6], type: 'sine', detune: 10, filterFreq: 650, gain: 0.09, heartbeatBpm: 62, heartbeatFreq: 52, heartbeatGain: 0.12, filterSweepRate: 0.06, filterSweepDepth: 350, rumbleInterval: 8000, delayTime: 0.75, delayFeedback: 0.22 },
-    combat: { notes: [110.0, 164.8, 155.6], type: 'sawtooth', detune: 12, filterFreq: 1100, gain: 0.08, percBpm: 134, percGain: 0.17, filterLfoRate: 0.55, filterLfoDepth: 650 },
+    calm:   { notes: [440.0, 554.4, 659.3, 880.0, 987.8], type: 'square', detune: 4, filterFreq: 1600, gain: 0.11, sparkle: true, lfoRate: 0.09, lfoDepth: 300, delayTime: 0.6, delayFeedback: 0.4 },
+    tense:  { notes: [220.0, 233.1, 261.6, 329.6], type: 'square', detune: 10, filterFreq: 650, gain: 0.09, heartbeatBpm: 62, heartbeatFreq: 52, heartbeatGain: 0.12, filterSweepRate: 0.06, filterSweepDepth: 350, rumbleInterval: 8000, delayTime: 0.75, delayFeedback: 0.22 },
+    combat: { notes: [110.0, 164.8, 155.6], type: 'square', detune: 12, filterFreq: 1100, gain: 0.08, percBpm: 134, percGain: 0.17, filterLfoRate: 0.55, filterLfoDepth: 650 },
   },
   stream: {
     // Flowing water — cool, gentle (Eb-based)
-    calm:   { notes: [311.1, 392.0, 466.2, 587.3, 622.3], type: 'sine', detune: 5, filterFreq: 1100, gain: 0.10, sparkle: true, lfoRate: 0.11, lfoDepth: 200, delayTime: 0.5, delayFeedback: 0.38 },
-    tense:  { notes: [311.1, 329.6, 370.0, 466.2], type: 'sine', detune: 9, filterFreq: 580, gain: 0.09, heartbeatBpm: 56, heartbeatFreq: 48, heartbeatGain: 0.10, filterSweepRate: 0.05, filterSweepDepth: 300, rumbleInterval: 9000, delayTime: 0.8, delayFeedback: 0.2 },
-    combat: { notes: [155.6, 233.1, 220.0], type: 'sawtooth', detune: 12, filterFreq: 950, gain: 0.07, percBpm: 130, percGain: 0.16, filterLfoRate: 0.45, filterLfoDepth: 550 },
+    calm:   { notes: [311.1, 392.0, 466.2, 587.3, 622.3], type: 'square', detune: 5, filterFreq: 1100, gain: 0.10, sparkle: true, lfoRate: 0.11, lfoDepth: 200, delayTime: 0.5, delayFeedback: 0.38 },
+    tense:  { notes: [311.1, 329.6, 370.0, 466.2], type: 'square', detune: 9, filterFreq: 580, gain: 0.09, heartbeatBpm: 56, heartbeatFreq: 48, heartbeatGain: 0.10, filterSweepRate: 0.05, filterSweepDepth: 300, rumbleInterval: 9000, delayTime: 0.8, delayFeedback: 0.2 },
+    combat: { notes: [155.6, 233.1, 220.0], type: 'square', detune: 12, filterFreq: 950, gain: 0.07, percBpm: 130, percGain: 0.16, filterLfoRate: 0.45, filterLfoDepth: 550 },
   },
   goblin_camp: {
     // Mischievous goblin territory — sneaky and chaotic (D minor)
-    calm:   { notes: [293.7, 349.2, 440.0, 523.3, 261.6], type: 'sine', detune: 8, filterFreq: 700, gain: 0.08, sparkle: false, lfoRate: 0.07, lfoDepth: 120, delayTime: 0.4, delayFeedback: 0.3 },
-    tense:  { notes: [293.7, 311.1, 349.2, 440.0], type: 'sine', detune: 14, filterFreq: 450, gain: 0.10, heartbeatBpm: 72, heartbeatFreq: 60, heartbeatGain: 0.15, filterSweepRate: 0.09, filterSweepDepth: 400, rumbleInterval: 5000, delayTime: 0.6, delayFeedback: 0.18 },
+    calm:   { notes: [293.7, 349.2, 440.0, 523.3, 261.6], type: 'square', detune: 8, filterFreq: 700, gain: 0.08, sparkle: false, lfoRate: 0.07, lfoDepth: 120, delayTime: 0.4, delayFeedback: 0.3 },
+    tense:  { notes: [293.7, 311.1, 349.2, 440.0], type: 'square', detune: 14, filterFreq: 450, gain: 0.10, heartbeatBpm: 72, heartbeatFreq: 60, heartbeatGain: 0.15, filterSweepRate: 0.09, filterSweepDepth: 400, rumbleInterval: 5000, delayTime: 0.6, delayFeedback: 0.18 },
     combat: { notes: [146.8, 220.0, 207.7, 174.6], type: 'square', detune: 18, filterFreq: 850, gain: 0.07, percBpm: 140, percGain: 0.19, filterLfoRate: 0.6, filterLfoDepth: 700 },
   },
   caves: {
     // Underground — echoey, crystalline, dripping (B Phrygian)
-    calm:   { notes: [246.9, 261.6, 329.6, 370.0, 493.9], type: 'sine', detune: 2, filterFreq: 1800, gain: 0.13, sparkle: true, lfoRate: 0.06, lfoDepth: 350, delayTime: 0.7, delayFeedback: 0.45 },
-    tense:  { notes: [246.9, 261.6, 293.7, 370.0], type: 'sine', detune: 6, filterFreq: 700, gain: 0.11, heartbeatBpm: 54, heartbeatFreq: 45, heartbeatGain: 0.14, filterSweepRate: 0.04, filterSweepDepth: 500, rumbleInterval: 6000, delayTime: 0.9, delayFeedback: 0.3 },
-    combat: { notes: [123.5, 185.0, 174.6], type: 'sawtooth', detune: 10, filterFreq: 1200, gain: 0.09, percBpm: 124, percGain: 0.18, filterLfoRate: 0.5, filterLfoDepth: 700 },
+    calm:   { notes: [246.9, 261.6, 329.6, 370.0, 493.9], type: 'square', detune: 2, filterFreq: 1800, gain: 0.13, sparkle: true, lfoRate: 0.06, lfoDepth: 350, delayTime: 0.7, delayFeedback: 0.45 },
+    tense:  { notes: [246.9, 261.6, 293.7, 370.0], type: 'square', detune: 6, filterFreq: 700, gain: 0.11, heartbeatBpm: 54, heartbeatFreq: 45, heartbeatGain: 0.14, filterSweepRate: 0.04, filterSweepDepth: 500, rumbleInterval: 6000, delayTime: 0.9, delayFeedback: 0.3 },
+    combat: { notes: [123.5, 185.0, 174.6], type: 'square', detune: 10, filterFreq: 1200, gain: 0.09, percBpm: 124, percGain: 0.18, filterLfoRate: 0.5, filterLfoDepth: 700 },
   },
   bridge: {
     // High exposed bridge — windy, precarious (F#-based)
-    calm:   { notes: [370.0, 440.0, 554.4, 659.3, 739.9], type: 'sine', detune: 6, filterFreq: 1300, gain: 0.12, sparkle: true, lfoRate: 0.13, lfoDepth: 250, delayTime: 0.55, delayFeedback: 0.38 },
-    tense:  { notes: [370.0, 392.0, 440.0, 554.4], type: 'sine', detune: 11, filterFreq: 600, gain: 0.11, heartbeatBpm: 68, heartbeatFreq: 55, heartbeatGain: 0.13, filterSweepRate: 0.08, filterSweepDepth: 400, rumbleInterval: 7000, delayTime: 0.7, delayFeedback: 0.22 },
-    combat: { notes: [185.0, 277.2, 261.6], type: 'sawtooth', detune: 14, filterFreq: 1050, gain: 0.08, percBpm: 136, percGain: 0.17, filterLfoRate: 0.55, filterLfoDepth: 600 },
+    calm:   { notes: [370.0, 440.0, 554.4, 659.3, 739.9], type: 'square', detune: 6, filterFreq: 1300, gain: 0.12, sparkle: true, lfoRate: 0.13, lfoDepth: 250, delayTime: 0.55, delayFeedback: 0.38 },
+    tense:  { notes: [370.0, 392.0, 440.0, 554.4], type: 'square', detune: 11, filterFreq: 600, gain: 0.11, heartbeatBpm: 68, heartbeatFreq: 55, heartbeatGain: 0.13, filterSweepRate: 0.08, filterSweepDepth: 400, rumbleInterval: 7000, delayTime: 0.7, delayFeedback: 0.22 },
+    combat: { notes: [185.0, 277.2, 261.6], type: 'square', detune: 14, filterFreq: 1050, gain: 0.08, percBpm: 136, percGain: 0.17, filterLfoRate: 0.55, filterLfoDepth: 600 },
   },
   camp: {
     // Nighttime campfire — lullaby warmth, safe (Bb-based)
-    calm:   { notes: [233.1, 293.7, 349.2, 440.0, 466.2], type: 'sine', detune: 2, filterFreq: 600, gain: 0.13, sparkle: true, lfoRate: 0.06, lfoDepth: 100, delayTime: 0.6, delayFeedback: 0.35 },
-    tense:  { notes: [233.1, 246.9, 277.2, 349.2], type: 'sine', detune: 5, filterFreq: 400, gain: 0.10, heartbeatBpm: 58, heartbeatFreq: 48, heartbeatGain: 0.11, filterSweepRate: 0.04, filterSweepDepth: 250, rumbleInterval: 11000, delayTime: 0.8, delayFeedback: 0.2 },
-    combat: { notes: [116.5, 174.6, 164.8], type: 'sawtooth', detune: 8, filterFreq: 800, gain: 0.07, percBpm: 120, percGain: 0.15, filterLfoRate: 0.4, filterLfoDepth: 450 },
+    calm:   { notes: [233.1, 293.7, 349.2, 440.0, 466.2], type: 'square', detune: 2, filterFreq: 600, gain: 0.13, sparkle: true, lfoRate: 0.06, lfoDepth: 100, delayTime: 0.6, delayFeedback: 0.35 },
+    tense:  { notes: [233.1, 246.9, 277.2, 349.2], type: 'square', detune: 5, filterFreq: 400, gain: 0.10, heartbeatBpm: 58, heartbeatFreq: 48, heartbeatGain: 0.11, filterSweepRate: 0.04, filterSweepDepth: 250, rumbleInterval: 11000, delayTime: 0.8, delayFeedback: 0.2 },
+    combat: { notes: [116.5, 174.6, 164.8], type: 'square', detune: 8, filterFreq: 800, gain: 0.07, percBpm: 120, percGain: 0.15, filterLfoRate: 0.4, filterLfoDepth: 450 },
   },
   ruins: {
     // Ancient crumbling stone — mysterious, reverent (E Dorian)
-    calm:   { notes: [164.8, 185.0, 220.0, 246.9, 329.6], type: 'sine', detune: 3, filterFreq: 900, gain: 0.11, sparkle: true, lfoRate: 0.07, lfoDepth: 180, delayTime: 0.65, delayFeedback: 0.4 },
-    tense:  { notes: [164.8, 174.6, 207.7, 246.9], type: 'sine', detune: 8, filterFreq: 500, gain: 0.10, heartbeatBpm: 52, heartbeatFreq: 42, heartbeatGain: 0.14, filterSweepRate: 0.04, filterSweepDepth: 350, rumbleInterval: 7000, delayTime: 0.85, delayFeedback: 0.25 },
-    combat: { notes: [110.0, 164.8, 155.6], type: 'sawtooth', detune: 14, filterFreq: 900, gain: 0.08, percBpm: 122, percGain: 0.16, filterLfoRate: 0.45, filterLfoDepth: 550 },
+    calm:   { notes: [164.8, 185.0, 220.0, 246.9, 329.6], type: 'square', detune: 3, filterFreq: 900, gain: 0.11, sparkle: true, lfoRate: 0.07, lfoDepth: 180, delayTime: 0.65, delayFeedback: 0.4 },
+    tense:  { notes: [164.8, 174.6, 207.7, 246.9], type: 'square', detune: 8, filterFreq: 500, gain: 0.10, heartbeatBpm: 52, heartbeatFreq: 42, heartbeatGain: 0.14, filterSweepRate: 0.04, filterSweepDepth: 350, rumbleInterval: 7000, delayTime: 0.85, delayFeedback: 0.25 },
+    combat: { notes: [110.0, 164.8, 155.6], type: 'square', detune: 14, filterFreq: 900, gain: 0.08, percBpm: 122, percGain: 0.16, filterLfoRate: 0.45, filterLfoDepth: 550 },
   },
   peak: {
     // Mountaintop — airy, epic, vast (G Lydian)
-    calm:   { notes: [392.0, 493.9, 587.3, 784.0, 987.8], type: 'sine', detune: 3, filterFreq: 1500, gain: 0.14, sparkle: true, lfoRate: 0.1, lfoDepth: 300, delayTime: 0.6, delayFeedback: 0.42 },
-    tense:  { notes: [196.0, 207.7, 246.9, 293.7], type: 'sine', detune: 7, filterFreq: 650, gain: 0.12, heartbeatBpm: 64, heartbeatFreq: 52, heartbeatGain: 0.13, filterSweepRate: 0.06, filterSweepDepth: 400, rumbleInterval: 8000, delayTime: 0.8, delayFeedback: 0.25 },
-    combat: { notes: [196.0, 293.7, 277.2], type: 'sawtooth', detune: 12, filterFreq: 1200, gain: 0.09, percBpm: 138, percGain: 0.18, filterLfoRate: 0.55, filterLfoDepth: 650 },
+    calm:   { notes: [392.0, 493.9, 587.3, 784.0, 987.8], type: 'square', detune: 3, filterFreq: 1500, gain: 0.14, sparkle: true, lfoRate: 0.1, lfoDepth: 300, delayTime: 0.6, delayFeedback: 0.42 },
+    tense:  { notes: [196.0, 207.7, 246.9, 293.7], type: 'square', detune: 7, filterFreq: 650, gain: 0.12, heartbeatBpm: 64, heartbeatFreq: 52, heartbeatGain: 0.13, filterSweepRate: 0.06, filterSweepDepth: 400, rumbleInterval: 8000, delayTime: 0.8, delayFeedback: 0.25 },
+    combat: { notes: [196.0, 293.7, 277.2], type: 'square', detune: 12, filterFreq: 1200, gain: 0.09, percBpm: 138, percGain: 0.18, filterLfoRate: 0.55, filterLfoDepth: 650 },
   },
   celebration: {
     // Victory! Bright and festive — positive across all moods (C Major)
-    calm:   { notes: [261.6, 329.6, 392.0, 523.3, 659.3], type: 'sine', detune: 2, filterFreq: 1400, gain: 0.14, sparkle: true, lfoRate: 0.12, lfoDepth: 250, delayTime: 0.45, delayFeedback: 0.4 },
-    tense:  { notes: [261.6, 329.6, 392.0, 493.9], type: 'sine', detune: 3, filterFreq: 1000, gain: 0.12, heartbeatBpm: 80, heartbeatFreq: 65, heartbeatGain: 0.08, filterSweepRate: 0.1, filterSweepDepth: 200, rumbleInterval: 15000, delayTime: 0.5, delayFeedback: 0.3 },
+    calm:   { notes: [261.6, 329.6, 392.0, 523.3, 659.3], type: 'square', detune: 2, filterFreq: 1400, gain: 0.14, sparkle: true, lfoRate: 0.12, lfoDepth: 250, delayTime: 0.45, delayFeedback: 0.4 },
+    tense:  { notes: [261.6, 329.6, 392.0, 493.9], type: 'square', detune: 3, filterFreq: 1000, gain: 0.12, heartbeatBpm: 80, heartbeatFreq: 65, heartbeatGain: 0.08, filterSweepRate: 0.1, filterSweepDepth: 200, rumbleInterval: 15000, delayTime: 0.5, delayFeedback: 0.3 },
     combat: { notes: [261.6, 392.0, 523.3], type: 'square', detune: 4, filterFreq: 1100, gain: 0.09, percBpm: 144, percGain: 0.18, filterLfoRate: 0.6, filterLfoDepth: 500 },
   },
 };
@@ -141,7 +141,7 @@ function buildCalmPad(ctx, config, masterGain) {
 
   const lfo = ctx.createOscillator();
   const lfoGainNode = ctx.createGain();
-  lfo.type = 'sine';
+  lfo.type = 'square';
   lfo.frequency.value = config.lfoRate || 0.1;
   lfoGainNode.gain.value = config.lfoDepth || 200;
   lfo.connect(lfoGainNode);
@@ -156,7 +156,7 @@ function buildCalmPad(ctx, config, masterGain) {
         const freq = config.notes[Math.floor(Math.random() * config.notes.length)];
         const osc = ctx.createOscillator();
         const vca = ctx.createGain();
-        osc.type = 'sine';
+        osc.type = 'square';
         // Occasionally play an octave up for bell-like shimmer
         osc.frequency.value = freq * (Math.random() > 0.5 ? 2 : 1);
         vca.gain.setValueAtTime(0, ctx.currentTime);
@@ -229,7 +229,7 @@ function buildTensePad(ctx, config, masterGain) {
 
   const sweepLfo = ctx.createOscillator();
   const sweepGainNode = ctx.createGain();
-  sweepLfo.type = 'sine';
+  sweepLfo.type = 'square';
   sweepLfo.frequency.value = config.filterSweepRate || 0.08;
   sweepGainNode.gain.value = config.filterSweepDepth || 400;
   sweepLfo.connect(sweepGainNode);
@@ -240,7 +240,7 @@ function buildTensePad(ctx, config, masterGain) {
   // Minor/diminished pad — detuned oscillators for dissonance
   config.notes.forEach((freq, i) => {
     const osc = ctx.createOscillator();
-    osc.type = 'sine';
+    osc.type = 'square';
     // Push oscillators apart for beating/unease
     osc.frequency.value = freq + ((i % 2 === 0 ? 1 : -1) * Math.random() * config.detune);
     const vca = ctx.createGain();
@@ -258,7 +258,7 @@ function buildTensePad(ctx, config, masterGain) {
     [0, 0.2].forEach((offset, i) => {
       const osc = ctx.createOscillator();
       const vca = ctx.createGain();
-      osc.type = 'sine';
+      osc.type = 'square';
       osc.frequency.value = config.heartbeatFreq || 55;
       const level = (config.heartbeatGain || 0.12) * (i === 0 ? 0.6 : 1.0);
       const t = now + offset;
@@ -333,7 +333,7 @@ function buildCombatPad(ctx, config, masterGain) {
 
   const lfo = ctx.createOscillator();
   const lfoGainNode = ctx.createGain();
-  lfo.type = 'triangle';
+  lfo.type = 'square';
   lfo.frequency.value = config.filterLfoRate || 0.5;
   lfoGainNode.gain.value = config.filterLfoDepth || 600;
   lfo.connect(lfoGainNode);
@@ -356,7 +356,7 @@ function buildCombatPad(ctx, config, masterGain) {
     // Sub-octave on root note for extra weight
     if (i === 0) {
       const sub = ctx.createOscillator();
-      sub.type = 'sine';
+      sub.type = 'square';
       sub.frequency.value = freq / 2;
       const subGain = ctx.createGain();
       subGain.gain.value = 0.04;
@@ -386,7 +386,7 @@ function buildCombatPad(ctx, config, masterGain) {
       // KICK: sine pitch sweep 150Hz→40Hz (punchy sub thump)
       const kickOsc = ctx.createOscillator();
       const kickVca = ctx.createGain();
-      kickOsc.type = 'sine';
+      kickOsc.type = 'square';
       kickOsc.frequency.setValueAtTime(150, now);
       kickOsc.frequency.exponentialRampToValueAtTime(40, now + 0.08);
       kickVca.gain.setValueAtTime(pGain, now);
@@ -492,7 +492,7 @@ function playDiceRoll(ctx, masterGain) {
 function playRevealTone(ctx, masterGain) {
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
-  osc.type = 'sine';
+  osc.type = 'square';
   osc.frequency.value = 880; // High A
   gain.gain.setValueAtTime(0.1, ctx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
@@ -507,7 +507,7 @@ function playCriticalHitFanfare(ctx, masterGain) {
   [523.3, 659.3, 784.0, 1047].forEach((freq, i) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = 'sine';
+    osc.type = 'square';
     osc.frequency.value = freq;
     const start = ctx.currentTime + i * 0.15;
     gain.gain.setValueAtTime(0, start);
@@ -523,7 +523,7 @@ function playCriticalHitFanfare(ctx, masterGain) {
 function playCriticalFailSound(ctx, masterGain) {
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
-  osc.type = 'sine';
+  osc.type = 'square';
   osc.frequency.setValueAtTime(330, ctx.currentTime);
   osc.frequency.linearRampToValueAtTime(220, ctx.currentTime + 1.0);
   gain.gain.setValueAtTime(0.1, ctx.currentTime);
@@ -539,7 +539,7 @@ function playQuestComplete(ctx, masterGain) {
   [1047, 1319, 1568, 2093].forEach((freq, i) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = 'sine';
+    osc.type = 'square';
     osc.frequency.value = freq;
     const start = ctx.currentTime + i * 0.08;
     gain.gain.setValueAtTime(0, start);
