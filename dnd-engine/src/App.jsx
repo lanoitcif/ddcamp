@@ -901,13 +901,13 @@ function DMControl() {
 
       {/* ─── DM Guide Sidebar ─── */}
       {showGuide && (
-        <div className="w-80 bg-black border-l-4 border-white flex flex-col p-6 overflow-y-auto shadow-[-8px_0px_0px_rgba(0,0,0,1)] z-40">
+        <div className="w-80 bg-black border-l-4 border-white flex flex-col p-6 overflow-y-auto shadow-[-8px_0px_0px_rgba(0,0,0,1)] z-40 font-sans">
           <div className="flex justify-between items-center mb-6 pb-2 border-b-4 border-white">
-            <h2 className="text-xl text-dnd-gold">DM Guide</h2>
+            <h2 className="text-xl text-dnd-gold font-sans font-bold">DM Guide</h2>
             <button onClick={() => setShowGuide(false)} className="text-white hover:text-dnd-red"><X /></button>
           </div>
           
-          <div className="space-y-6 text-xs text-gray-300 leading-relaxed">
+          <div className="space-y-6 text-sm text-gray-300 leading-relaxed">
             <section>
               <h3 className="text-white mb-2 text-sm flex items-center gap-2"><BookOpen size={14}/> Setup & Players</h3>
               <p className="mb-2">Click <b className="text-dnd-gold">Campaign Builder</b> (top right menu on launch) to edit characters. Add or delete players as needed!</p>

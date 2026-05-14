@@ -41,3 +41,16 @@ img {
 .dnd-card {
   @apply bg-black border-4 border-white p-4 rounded-none shadow-[8px_8px_0px_rgba(0,0,0,1)];
 }
+
+/* Legibility Overrides for Narrative and Guide Text */
+.font-sans {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  -webkit-font-smoothing: auto !important;
+  letter-spacing: normal !important;
+}
+
+.font-serif {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif !important;
+  -webkit-font-smoothing: auto !important;
+  letter-spacing: normal !important;
+}

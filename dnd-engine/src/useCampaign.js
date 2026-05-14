@@ -22,6 +22,16 @@ function defaultState() {
     rollLog: [],
     audioMood: 'calm',
     audioPlaying: false,
+    audioVolume: 0.7,
+    audioSettings: {
+      llmEnabled: true,
+      contextAware: true,
+      style: 'alpha',
+      quality: 'full',
+      novelty: 0.72,
+      refreshSeconds: 24,
+    },
+    audioDirector: null,
     ping: null,
     activeHandout: null,
     reaction: null, // { emoji, id }
@@ -39,7 +49,14 @@ function loadState() {
     const saved = localStorage.getItem('dnd_game_state');
     if (saved) {
       const parsed = JSON.parse(saved);
-      return { ...defaultState(), ...parsed };
+      return {
+        ...defaultState(),
+        ...parsed,
+        audioSettings: {
+          ...defaultState().audioSettings,
+          ...(parsed.audioSettings || {}),
+        },
+      };
     }
   } catch { /* ok */ }
   return defaultState();
