@@ -7,7 +7,7 @@ import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } f
 import { PUZZLES } from './Puzzles';
 import CampaignBuilder from './CampaignBuilder';
 import { XpBar, LevelUpOverlay, XpToast, DmXpPanel } from './LevelUpOverlay';
-import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon, Wifi, WifiOff, Brain } from 'lucide-react';
+import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon, Wifi, WifiOff, Brain, Crosshair, Sparkles } from 'lucide-react';
 
 /* ─── Error Boundary ─────────────────────────────────────────── */
 
@@ -76,7 +76,7 @@ function PortraitGallery({ onSelect, onClose }) {
   const groups = ['Rogue', 'Fighter', 'Paladin'];
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-10">
-      <div className="bg-gray-900 border-2 border-dnd-gold rounded-2xl max-w-4xl w-full p-8 relative">
+      <div className="bg-gray-900 border-2 border-dnd-gold rounded-none max-w-4xl w-full p-8 relative">
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white"><X /></button>
         <h2 className="text-2xl font-serif text-dnd-gold mb-6">Choose a Hero Portrait</h2>
         <div className="overflow-y-auto max-h-[60vh] p-2 space-y-6">
@@ -90,9 +90,9 @@ function PortraitGallery({ onSelect, onClose }) {
                   <button 
                     key={p.url} 
                     onClick={() => onSelect(p.url)}
-                    className="group relative rounded-xl overflow-hidden border-2 border-transparent hover:border-dnd-gold transition-all"
+                    className="group relative rounded-none overflow-hidden border-2 border-transparent hover:border-dnd-gold transition-all"
                   >
-                    <img src={p.url} className="w-full aspect-square object-cover rounded-lg" alt={p.label} onError={handleImgError} />
+                    <img src={p.url} className="w-full aspect-square object-cover rounded-none" alt={p.label} onError={handleImgError} />
                     <p className="text-[9px] text-center text-gray-500 group-hover:text-dnd-gold mt-1 truncate">{p.label}</p>
                   </button>
                 ))}
@@ -128,6 +128,7 @@ function DMControl() {
   const [sideQuestsOpen, setSideQuestsOpen] = React.useState(false);
   const [showPrep, setShowPrep] = React.useState(true);
   const [prepSceneId, setPrepSceneId] = React.useState(null);
+  const [showGuide, setShowGuide] = React.useState(false);
   const [aiPromptInput, setAiPromptInput] = React.useState({});
   
   const audio = useAudio();
@@ -158,9 +159,12 @@ function DMControl() {
       switch(e.key.toLowerCase()) {
         case 'n': nextTurn(); break;
         case 'd': case 'escape': dismissOverlay(); break;
-        case '1': updateGameState({ activeTurnId: campaignData.characters[0]?.id }); break;
-        case '2': updateGameState({ activeTurnId: campaignData.characters[1]?.id }); break;
-        case '3': updateGameState({ activeTurnId: campaignData.characters[2]?.id }); break;
+        default:
+          const num = parseInt(e.key);
+          if (!isNaN(num) && num >= 1 && num <= campaignData.characters.length) {
+            updateGameState({ activeTurnId: campaignData.characters[num - 1]?.id });
+          }
+          break;
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -195,14 +199,14 @@ function DMControl() {
     const isDead = isMonster && hp <= 0;
 
     return (
-      <div data-testid={`card-${entity.id}`} className={`dnd-card transition-all ${isDead ? 'opacity-40 grayscale scale-95' : ''} ${isActive ? 'ring-2 ring-white scale-105 z-10' : 'opacity-80 hover:opacity-100'}`}>
+      <div data-testid={`card-${entity.id}`} className={`dnd-card flex-1 min-w-[300px] max-w-[450px] transition-all ${isDead ? 'opacity-40 grayscale scale-95' : ''} ${isActive ? 'ring-2 ring-white scale-105 z-10' : 'opacity-80 hover:opacity-100'}`}>
         <div className="flex items-center gap-4 mb-4">
           <div className="relative group/portrait">
-            <img src={portrait} alt={entity.name} className={`w-16 h-16 rounded-full border-2 shadow-lg object-cover ${isMonster ? 'border-red-500' : 'border-dnd-gold'}`} onError={handleImgError} />
+            <img src={portrait} alt={entity.name} className={`w-16 h-16 rounded-none border-2 shadow-[4px_4px_0px_rgba(0,0,0,1)] object-cover ${isMonster ? 'border-red-500' : 'border-dnd-gold'}`} onError={handleImgError} />
             {!isMonster && (
               <button 
                 onClick={() => setShowPortraits(entity.id)}
-                className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover/portrait:opacity-100 flex items-center justify-center text-[10px] font-bold text-white transition-opacity"
+                className="absolute inset-0 bg-black/60 rounded-none opacity-0 group-hover/portrait:opacity-100 flex items-center justify-center text-[10px] font-bold text-white transition-opacity"
               >CHANGE</button>
             )}
           </div>
@@ -221,8 +225,8 @@ function DMControl() {
             <span className="text-gray-500 text-sm">/ {maxHp}</span>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => handleHpChange(entity.id, -1)} className="w-10 h-10 rounded-lg bg-red-900/50 hover:bg-red-800 border border-red-500 flex items-center justify-center font-bold">-</button>
-            <button onClick={() => handleHpChange(entity.id, 1)} className="w-10 h-10 rounded-lg bg-green-900/50 hover:bg-green-800 border border-green-500 flex items-center justify-center font-bold">+</button>
+            <button onClick={() => handleHpChange(entity.id, -1)} className="w-10 h-10 rounded-none bg-red-900/50 hover:bg-red-800 border border-red-500 flex items-center justify-center font-bold">-</button>
+            <button onClick={() => handleHpChange(entity.id, 1)} className="w-10 h-10 rounded-none bg-green-900/50 hover:bg-green-800 border border-green-500 flex items-center justify-center font-bold">+</button>
           </div>
         </div>
 
@@ -269,7 +273,12 @@ function DMControl() {
                 }}
                 className="w-full text-left p-2 bg-gray-800 hover:bg-black rounded text-xs border border-gray-700 hover:border-dnd-gold transition-all flex justify-between group"
               >
-                <span><Sword size={12} className="inline mr-2 text-gray-500 group-hover:text-dnd-gold" /> {action.name}</span>
+                <span>
+                  {action.name.match(/bow|shoot|arrow/i) ? <Crosshair size={12} className="inline mr-2 text-gray-500 group-hover:text-dnd-gold" /> :
+                   action.name.match(/smite|magic|spell/i) ? <Sparkles size={12} className="inline mr-2 text-gray-500 group-hover:text-dnd-gold" /> :
+                   <Sword size={12} className="inline mr-2 text-gray-500 group-hover:text-dnd-gold" />}
+                  {action.name}
+                </span>
                 <span className="text-dnd-gold">+{action.bonus} <span className="text-gray-500 ml-1">({action.damage})</span></span>
               </button>
             ))}
@@ -277,44 +286,68 @@ function DMControl() {
         )}
 
         {/* Heroic Actions */}
-        {!isMonster ? (
-          <div className="flex gap-2">
+        {!isMonster && (
+          <div className="flex gap-2 mb-2">
             <button
               onClick={() => helpAction(entity.name, activeTurnEntity?.name)}
-              className="flex-1 px-3 py-1.5 bg-blue-900/40 hover:bg-blue-800 border border-blue-600 rounded text-[10px] font-bold text-blue-300 flex items-center justify-center gap-1"
+              className="flex-1 px-3 py-1.5 bg-blue-900/40 hover:bg-blue-800 border border-blue-600 rounded-none text-[10px] font-bold text-blue-300 flex items-center justify-center gap-1"
             >
-              <Zap size={10} /> Help
+              <Sparkles size={10} /> Lucky Roll!
             </button>
             <button
               onClick={() => snackAction(entity.id, entity.name)}
-              className="flex-1 px-3 py-1.5 bg-green-900/40 hover:bg-green-800 border border-green-600 rounded text-[10px] font-bold text-green-300 flex items-center justify-center gap-1"
+              className="flex-1 px-3 py-1.5 bg-green-900/40 hover:bg-green-800 border border-green-600 rounded-none text-[10px] font-bold text-green-300 flex items-center justify-center gap-1"
             >
               <Heart size={10} /> Snack
             </button>
           </div>
-        ) : (
-          <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-gray-700">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Ask AI via Player Action..."
-                value={aiPromptInput[entity.id] || ''}
-                onChange={e => setAiPromptInput(prev => ({ ...prev, [entity.id]: e.target.value }))}
-                onKeyDown={e => { if (e.key === 'Enter') handleAiGenerate(entity); }}
-                className="flex-1 bg-gray-900 border border-purple-900/50 focus:border-purple-500 rounded px-2 py-1.5 text-[10px] text-purple-200 placeholder-purple-800"
-                disabled={isGenerating}
-              />
+        )}
+
+        {/* Universal Voice / AI Controls */}
+        <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-gray-700">
+          <div className="flex gap-1">
+            <input
+              type="text"
+              placeholder={isMonster ? "Ask AI or Type to Speak..." : "Type to Speak..."}
+              value={aiPromptInput[entity.id] || ''}
+              onChange={e => setAiPromptInput(prev => ({ ...prev, [entity.id]: e.target.value }))}
+              onKeyDown={e => { 
+                if (e.key === 'Enter') {
+                  const text = aiPromptInput[entity.id];
+                  if (text) {
+                    setNarration(text, text.length * 100, isMonster ? 'monster' : 'character');
+                    setAiPromptInput(prev => ({ ...prev, [entity.id]: '' }));
+                  }
+                }
+              }}
+              className="flex-1 bg-gray-900 border border-gray-600 focus:border-white rounded-none px-2 py-1.5 text-[10px] text-white placeholder-gray-500 font-mono"
+              disabled={isGenerating}
+            />
+            <button
+              onClick={() => {
+                const text = aiPromptInput[entity.id];
+                if (text) {
+                  setNarration(text, text.length * 100, isMonster ? 'monster' : 'character');
+                  setAiPromptInput(prev => ({ ...prev, [entity.id]: '' }));
+                }
+              }}
+              className="px-2 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-500 rounded-none text-[10px] font-bold text-white flex items-center justify-center"
+              title="Speak text directly"
+            >
+              <Volume2 size={12} />
+            </button>
+            {isMonster && (
               <button
                 onClick={() => handleAiGenerate(entity)}
                 disabled={isGenerating}
-                className="px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800 border border-purple-600 rounded text-[10px] font-bold text-purple-300 flex items-center justify-center gap-1 disabled:opacity-50"
+                className="px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800 border border-purple-600 rounded-none text-[10px] font-bold text-purple-300 flex items-center justify-center disabled:opacity-50"
                 title="Generate AI Response"
               >
-                <Brain size={12} className={isGenerating ? "animate-pulse" : ""} /> AI
+                <Brain size={12} className={isGenerating ? "animate-pulse" : ""} />
               </button>
-            </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* XP Bar (characters only) */}
         {!isMonster && gameState.characterXp && (
@@ -364,7 +397,7 @@ function DMControl() {
         <h2 className="text-dnd-gold font-bold flex items-center gap-2 mb-4">
           <FastForward size={20} /> Initiative
         </h2>
-        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-8">
+        <div className="bg-gray-900 p-3 rounded-none border border-gray-700 mb-8">
           <div className="space-y-1 mb-3">
             {[...campaignData.characters, ...sceneMonsters].map(ent => {
               const isActive = gameState.activeTurnId === ent.id;
@@ -373,7 +406,7 @@ function DMControl() {
               const portrait = gameState.characterPortraits[ent.id] || ent.image;
               return (
                 <div key={ent.id} className={`flex items-center gap-2 px-2 py-1 rounded transition-all ${isActive ? 'bg-dnd-gold/20 border border-dnd-gold' : 'opacity-50'}`}>
-                  <img src={portrait} alt={ent.name} className="w-6 h-6 rounded-full object-cover" onError={handleImgError} />
+                  <img src={portrait} alt={ent.name} className="w-6 h-6 rounded-none object-cover" onError={handleImgError} />
                   <span className={`text-xs font-medium truncate ${isDead ? 'line-through opacity-30' : ''} ${isMon ? 'text-red-400' : 'text-white'}`}>{ent.name}</span>
                   {isActive && <span className="ml-auto text-[10px] text-dnd-gold uppercase">Active</span>}
                 </div>
@@ -387,9 +420,9 @@ function DMControl() {
             Next Turn <FastForward size={16} />
           </button>
           {gameState.hasAdvantage && (
-            <p className="text-blue-300 text-[10px] text-center mt-1 animate-pulse">
-              ✨ {campaignData.characters.find(c => c.id === gameState.hasAdvantage)?.name} has Advantage!
-            </p>
+            <div className="mb-6 p-3 bg-blue-900/40 border-2 border-blue-500 rounded text-center text-blue-300 font-bold uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+              ✨ {campaignData.characters.find(c => c.id === gameState.hasAdvantage)?.name} has a Lucky Roll!
+            </div>
           )}
         </div>
 
@@ -455,7 +488,7 @@ function DMControl() {
         </h2>
 
         {/* Skill Check */}
-        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-3">
+        <div className="bg-gray-900 p-3 rounded-none border border-gray-700 mb-3">
           <p className="text-xs text-gray-400 mb-2 uppercase tracking-widest">Skill Check</p>
           <div className="flex gap-2">
             <input
@@ -474,7 +507,7 @@ function DMControl() {
         </div>
 
         {/* Secret Roll */}
-        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-3">
+        <div className="bg-gray-900 p-3 rounded-none border border-gray-700 mb-3">
           <p className="text-xs text-gray-400 mb-2 uppercase tracking-widest">Secret Roll</p>
           <button
             onClick={() => setLastSecret(rollSecret('DM Secret'))}
@@ -488,7 +521,7 @@ function DMControl() {
         </div>
 
         {/* Narration */}
-        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-3">
+        <div className="bg-gray-900 p-3 rounded-none border border-gray-700 mb-3">
           <p className="text-xs text-gray-400 mb-2 uppercase tracking-widest flex justify-between items-center">
             <span>Narration (TV)</span>
             {activeScene?.introNarration && (
@@ -537,7 +570,7 @@ function DMControl() {
         </div>
 
         {/* Reactions */}
-        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-3">
+        <div className="bg-gray-900 p-3 rounded-none border border-gray-700 mb-3">
           <p className="text-xs text-gray-400 mb-2 uppercase tracking-widest flex items-center gap-1">
             <Zap size={12} /> Quick Reactions
           </p>
@@ -566,7 +599,7 @@ function DMControl() {
           const DMComp = scenePuzzle.DMComponent;
 
           return (
-            <div className="bg-gray-900 p-3 rounded-lg border border-purple-700 mb-3" data-testid="puzzle-controls">
+            <div className="bg-gray-900 p-3 rounded-none border border-purple-700 mb-3" data-testid="puzzle-controls">
               <p className="text-xs text-purple-400 mb-2 uppercase tracking-widest flex items-center gap-1">
                 <Puzzle size={12} /> {scenePuzzle.title}
               </p>
@@ -603,7 +636,7 @@ function DMControl() {
         </button>
 
         {/* ─── Audio Controls ─── */}
-        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-3" data-testid="audio-controls">
+        <div className="bg-gray-900 p-3 rounded-none border border-gray-700 mb-3" data-testid="audio-controls">
           <p className="text-xs text-gray-400 mb-2 uppercase tracking-widest flex items-center gap-1">
             <Music size={12} /> Ambience
           </p>
@@ -666,7 +699,7 @@ function DMControl() {
         </div>
 
         {/* ─── XP Awards ─── */}
-        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-3">
+        <div className="bg-gray-900 p-3 rounded-none border border-gray-700 mb-3">
           <DmXpPanel characterXp={gameState.characterXp || {}} onAwardXp={awardXpAction} />
         </div>
 
@@ -721,22 +754,29 @@ function DMControl() {
         )}
         <header className="mb-8 flex justify-between items-center">
           <h1 className="text-4xl font-serif text-dnd-gold italic tracking-tight">{campaignData.campaignName}</h1>
-          <div className="bg-gray-800 px-4 py-2 rounded-full flex items-center gap-2 border border-gray-700">
-             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+          <div className="bg-gray-800 px-4 py-2 rounded-none flex items-center gap-2 border border-gray-700">
+             <div className="w-2 h-2 bg-green-500 rounded-none animate-pulse" />
              <span className="text-sm font-bold tracking-widest text-gray-300">DM CONSOLE v2.0</span>
              <p className="text-[10px] text-gray-500 mt-1 tracking-wider">
                <kbd className="px-1 bg-gray-700 rounded text-gray-400 border border-gray-600">N</kbd> Next Turn
                <span className="mx-1">·</span>
                <kbd className="px-1 bg-gray-700 rounded text-gray-400 border border-gray-600">D</kbd> Dismiss
                <span className="mx-1">·</span>
-               <kbd className="px-1 bg-gray-700 rounded text-gray-400 border border-gray-600">1-3</kbd> Select Hero
+               <kbd className="px-1 bg-gray-700 rounded text-gray-400 border border-gray-600">1-9</kbd> Select Hero
              </p>
+             <button
+               onClick={() => setShowGuide(!showGuide)}
+               className="ml-4 p-2 bg-blue-900/40 hover:bg-blue-800 text-blue-300 border border-blue-600 rounded-none transition-colors"
+               title="Toggle DM Guide"
+             >
+               <BookOpen size={16} />
+             </button>
           </div>
         </header>
 
         {/* Scene Prep Panel */}
         {activeScene?.dmNotes && (
-          <div className={`mb-6 bg-gray-900 border border-amber-700/50 rounded-lg overflow-hidden transition-all ${showPrep ? '' : 'cursor-pointer'}`}>
+          <div className={`mb-6 bg-gray-900 border border-amber-700/50 rounded-none overflow-hidden transition-all ${showPrep ? '' : 'cursor-pointer'}`}>
             <button
               onClick={() => setShowPrep(p => !p)}
               className="w-full px-4 py-2 flex justify-between items-center text-sm text-amber-400 hover:bg-gray-800"
@@ -768,7 +808,7 @@ function DMControl() {
         )}
 
         {/* Character Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="flex flex-wrap justify-center gap-6 mb-8">
           {campaignData.characters.map(char => (
             <EntityCard key={char.id} entity={char} isMonster={false} />
           ))}
@@ -780,7 +820,7 @@ function DMControl() {
             <h2 className="text-xl font-bold text-red-400 flex items-center gap-2 mb-4">
               <Skull size={20} /> Monsters in Scene
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="flex flex-wrap justify-center gap-6 mb-8">
               {sceneMonsters.map(mon => (
                 <EntityCard key={mon.id} entity={mon} isMonster={true} />
               ))}
@@ -791,7 +831,7 @@ function DMControl() {
         )}
 
         {/* Scene Context */}
-        <div className="parchment p-8 rounded-lg shadow-2xl relative overflow-hidden group mb-8 cursor-crosshair active:brightness-95 transition-all"
+        <div className="parchment p-8 rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)] relative overflow-hidden group mb-8 cursor-crosshair active:brightness-95 transition-all"
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
             const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -832,7 +872,7 @@ function DMControl() {
         </div>
 
         {/* Combat Log */}
-        <div className="bg-gray-900 border border-gray-700 rounded-lg p-4">
+        <div className="bg-gray-900 border border-gray-700 rounded-none p-4">
           <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
             <BookOpen size={16} /> Combat Log
           </h2>
@@ -851,13 +891,48 @@ function DMControl() {
                   ={entry.total}
                   {entry.damage && <span className="text-red-400 ml-2">⚔ {entry.damage.total} dmg</span>}
                   {entry.autoApplied && <span className="text-green-400 ml-1">→ applied</span>}
-                  {entry.usedAdvantage && <span className="text-blue-300 ml-1">★ ADV</span>}
+                  {entry.usedAdvantage && <span className="text-blue-300 ml-1">★ LUCKY</span>}
                 </span>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {/* ─── DM Guide Sidebar ─── */}
+      {showGuide && (
+        <div className="w-80 bg-black border-l-4 border-white flex flex-col p-6 overflow-y-auto shadow-[-8px_0px_0px_rgba(0,0,0,1)] z-40">
+          <div className="flex justify-between items-center mb-6 pb-2 border-b-4 border-white">
+            <h2 className="text-xl text-dnd-gold">DM Guide</h2>
+            <button onClick={() => setShowGuide(false)} className="text-white hover:text-dnd-red"><X /></button>
+          </div>
+          
+          <div className="space-y-6 text-xs text-gray-300 leading-relaxed">
+            <section>
+              <h3 className="text-white mb-2 text-sm flex items-center gap-2"><BookOpen size={14}/> Setup & Players</h3>
+              <p className="mb-2">Click <b className="text-dnd-gold">Campaign Builder</b> (top right menu on launch) to edit characters. Add or delete players as needed!</p>
+              <p className="text-[8px] text-gray-500">Note: New custom characters won't have predefined level-up actions unless added to the code.</p>
+            </section>
+            
+            <section>
+              <h3 className="text-white mb-2 text-sm flex items-center gap-2"><Sword size={14}/> Combat & Turns</h3>
+              <p className="mb-2">Use keys <b className="text-dnd-gold">1-9</b> to quickly select active players.</p>
+              <p>Press <b className="text-dnd-gold">N</b> to cycle the next turn.</p>
+            </section>
+
+            <section>
+              <h3 className="text-white mb-2 text-sm flex items-center gap-2"><Volume2 size={14}/> Voice & AI</h3>
+              <p className="mb-2">Type text into the bottom of any Hero or Monster card and click the <b className="text-dnd-gold">Speaker</b> icon.</p>
+              <p>The Player TV will instantly read it out loud!</p>
+            </section>
+
+            <section>
+              <h3 className="text-white mb-2 text-sm flex items-center gap-2"><Trophy size={14}/> XP & Rewards</h3>
+              <p>Give XP using the left sidebar. Players level up at <b className="text-dnd-gold">100, 250, 500, and 800 XP</b> automatically!</p>
+            </section>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1000,39 +1075,35 @@ function PlayerView() {
   React.useEffect(() => {
     if (!gameState.narration?.text || !gameState.narration?.voiceId) return;
 
-    let audioEl = null;
-    let objectUrl = null;
     let cancelled = false;
 
-    const url = `http://localhost:5000/v1/audio/speech`;
-    const playTTS = async () => {
-      try {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'tts-1',
-            input: gameState.narration.text,
-            voice: gameState.narration.voiceId
-          })
-        });
-        if (res.ok && !cancelled) {
-          const blob = await res.blob();
-          objectUrl = URL.createObjectURL(blob);
-          audioEl = new Audio(objectUrl);
-          audioEl.volume = 0.9;
-          audioEl.play().catch(e => console.warn("TTS Playback failed:", e));
-        }
-      } catch (err) {
-        console.warn('TTS Backend not reachable:', err);
+    if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(gameState.narration.text);
+      
+      // 8-bit retro vibes: Monsters are slow/deep, characters are fast/high
+      if (gameState.narration.voiceId === 'monster') {
+        utterance.pitch = 0.3;
+        utterance.rate = 0.7;
+      } else {
+        utterance.pitch = 1.4;
+        utterance.rate = 1.1;
       }
-    };
-    playTTS();
+
+      const voices = window.speechSynthesis.getVoices();
+      const engVoice = voices.find(v => v.lang.startsWith('en'));
+      if (engVoice) utterance.voice = engVoice;
+
+      if (!cancelled) window.speechSynthesis.speak(utterance);
+    } else {
+      console.warn("TTS not supported in this browser.");
+    }
 
     return () => {
       cancelled = true;
-      if (audioEl) { audioEl.pause(); audioEl.src = ''; }
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     };
   }, [gameState.narration?.id]);
 
@@ -1063,7 +1134,7 @@ function PlayerView() {
 
       {/* Narrative Header */}
       <div className="absolute top-12 left-0 right-0 flex justify-center px-12">
-        <div className="bg-black/70 backdrop-blur-md border-b-4 border-dnd-gold px-12 py-6 rounded-xl shadow-2xl text-center">
+        <div className="bg-black/70 backdrop-blur-md border-b-4 border-dnd-gold px-12 py-6 rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)] text-center">
           <h2 className="text-6xl font-serif text-dnd-gold tracking-tight drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">{activeScene?.title}</h2>
         </div>
       </div>
@@ -1071,7 +1142,7 @@ function PlayerView() {
       {/* YOUR TURN Banner */}
       {activeTurnEntity && (
         <div data-testid="turn-banner" className="absolute top-44 left-0 right-0 flex justify-center pointer-events-none z-20">
-          <div className={`px-8 py-3 rounded-full border-2 shadow-lg transition-all duration-500 ${
+          <div className={`px-8 py-3 rounded-none border-2 shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all duration-500 ${
             campaignData.characters.some(c => c.id === gameState.activeTurnId)
               ? 'bg-dnd-gold/20 border-dnd-gold'
               : 'bg-red-900/40 border-red-500'
@@ -1087,7 +1158,7 @@ function PlayerView() {
       {/* DM Narration Subtitle */}
       {gameState.narration && (
         <div className="absolute bottom-60 left-0 right-0 flex justify-center px-20 z-30 pointer-events-none">
-          <div className="bg-black/80 backdrop-blur-sm px-10 py-5 rounded-2xl border border-white/20 max-w-4xl">
+          <div className="bg-black/80 backdrop-blur-sm px-10 py-5 rounded-none border border-white/20 max-w-4xl">
             <p className="text-4xl text-white font-serif italic text-center leading-relaxed">"{gameState.narration.text}"</p>
           </div>
         </div>
@@ -1108,9 +1179,9 @@ function PlayerView() {
       {showToast && gameState.toast && (
         <div className="absolute inset-0 flex items-center justify-center z-[60] pointer-events-none px-20 text-center">
            <div className="bg-gradient-to-b from-yellow-400 to-yellow-700 border-8 border-white p-16 rounded-[4rem] shadow-[0_0_100px_rgba(255,255,255,0.4)]">
-              <Trophy size={120} className="mx-auto text-white mb-6 drop-shadow-lg animate-bounce" />
+              <Trophy size={120} className="mx-auto text-white mb-6 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] animate-bounce" />
               <h3 className="text-7xl font-serif text-white mb-4 uppercase tracking-tighter drop-shadow-md">{gameState.toast.title}</h3>
-              <p className="text-4xl text-white font-bold bg-black/30 px-8 py-4 rounded-full inline-block">{gameState.toast.message}</p>
+              <p className="text-4xl text-white font-bold bg-black/30 px-8 py-4 rounded-none inline-block">{gameState.toast.message}</p>
            </div>
         </div>
       )}
@@ -1137,8 +1208,10 @@ function PlayerView() {
             </div>
             {dicePhase !== 'spin' && (
               <>
-                <div className="text-5xl font-serif text-dnd-gold flex items-center justify-center gap-4">
-                  <span className="opacity-50 text-3xl">d20</span> {gameState.lastRoll.d20} <span className="text-3xl opacity-50">+</span> {gameState.lastRoll.bonus}
+                <div className="text-6xl font-bold text-dnd-gold flex items-center justify-center gap-6 bg-black/40 py-4 px-8 rounded-none border-2 border-dnd-gold/30">
+                  <span className="text-5xl" title="Base Roll">🎲</span> {gameState.lastRoll.d20} 
+                  <span className="text-5xl opacity-50">+</span> 
+                  <span className="text-5xl" title="Bonus">✨</span> {gameState.lastRoll.bonus}
                 </div>
                 {isNat20 && (
                   <div className="mt-10 text-6xl font-bold text-yellow-400 animate-pulse uppercase tracking-tighter drop-shadow-[0_0_20px_rgba(250,204,21,0.8)]">✨ Critical Hit! ✨</div>
@@ -1154,7 +1227,7 @@ function PlayerView() {
                 )}
                 {gameState.lastRoll.usedAdvantage && (
                   <div className="mt-4 text-2xl text-blue-300 font-bold uppercase tracking-wider">
-                    ✨ ADVANTAGE! ({gameState.lastRoll.advantageRolls[0]} / {gameState.lastRoll.advantageRolls[1]})
+                    ✨ LUCKY ROLL! ({gameState.lastRoll.advantageRolls[0]} / {gameState.lastRoll.advantageRolls[1]})
                   </div>
                 )}
               </>
@@ -1186,21 +1259,21 @@ function PlayerView() {
 
           return (
             <div key={entity.id} data-testid={`hero-${entity.id}`} className="text-center group">
-              <div className={`relative mb-4 transition-all duration-500 ${isActive ? 'scale-125 z-10' : 'opacity-60 scale-100'} ${isBonked ? 'grayscale' : ''}`}>
+              <div className={`relative mb-4 transition-all duration-500 ${isActive ? 'scale-125 z-10' : 'opacity-60 scale-100'} ${isBonked ? 'grayscale' : (hpRatio <= 0.5 ? 'sepia-[.50]' : '')}`}>
                 {isActive && (
-                  <div className={`absolute -inset-4 rounded-full blur-2xl animate-pulse ${entity.isMonster ? 'bg-red-500/30' : 'bg-white/30'}`} />
+                  <div className={`absolute -inset-4 rounded-none blur-2xl animate-pulse ${entity.isMonster ? 'bg-red-500/30' : 'bg-white/30'}`} />
                 )}
                 <img
                   src={portrait}
                   alt={`${entity.name} portrait`}
                   onError={handleImgError}
-                  className={`w-32 h-32 rounded-full border-4 shadow-2xl transition-all object-cover ${
+                  className={`w-32 h-32 rounded-none border-4 shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all object-cover ${
                     isActive ? (entity.isMonster ? 'border-red-400 ring-8 ring-red-400/20' : 'border-white ring-8 ring-white/20')
                     : (entity.isMonster ? 'border-red-700' : 'border-dnd-gold')
-                  }`}
+                  } ${!isBonked && hpRatio <= 0.5 ? 'animate-[pulse_2s_ease-in-out_infinite] ring-4 ring-red-500/50 border-red-500' : ''}`}
                 />
                 {isBonked && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/70 rounded-full border-4 border-red-600">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/70 rounded-none border-4 border-red-600">
                     <span className="text-white font-black text-2xl uppercase tracking-tighter rotate-[-15deg]">BONKED</span>
                   </div>
                 )}
@@ -1210,7 +1283,7 @@ function PlayerView() {
 
               {/* HP Bar + Numbers */}
               <div className="w-32 mx-auto mt-2">
-                <div className="h-4 bg-gray-900 rounded-full border-2 border-white/20 overflow-hidden shadow-inner">
+                <div className="h-4 bg-gray-900 rounded-none border-2 border-white/20 overflow-hidden shadow-inner">
                   <div
                     className={`h-full transition-all duration-700 ${
                       hpRatio < 0.3 ? 'bg-gradient-to-r from-red-600 to-red-400' : 'bg-gradient-to-r from-green-600 to-green-400'

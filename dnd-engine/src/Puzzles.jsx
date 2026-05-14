@@ -39,14 +39,14 @@ function SpotlightDM({ puzzle, onUpdate }) {
       <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">Drag the spotlight to search</p>
       <div
         ref={containerRef}
-        className="relative w-full h-40 bg-gray-900 rounded-lg border border-gray-700 cursor-crosshair overflow-hidden select-none"
+        className="relative w-full h-40 bg-gray-900 rounded-none border border-gray-700 cursor-crosshair overflow-hidden select-none"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
       >
         {CLUE_ZONES.map(z => (
-          <div key={z.id} className={`absolute rounded-full border-2 border-dashed ${
+          <div key={z.id} className={`absolute rounded-none border-2 border-dashed ${
             found.includes(z.id) ? 'border-green-500 bg-green-900/30' : 'border-yellow-600/40'
           }`} style={{
             left: `${z.x - z.r}%`, top: `${z.y - z.r}%`,
@@ -57,7 +57,7 @@ function SpotlightDM({ puzzle, onUpdate }) {
             </span>
           </div>
         ))}
-        <div className="absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-yellow-400/60 border-2 border-yellow-300 shadow-[0_0_20px_rgba(250,204,21,0.5)]"
+        <div className="absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 rounded-none bg-yellow-400/60 border-2 border-yellow-300 shadow-[0_0_20px_rgba(250,204,21,0.5)]"
           style={{ left: `${puzzle.spotX ?? 50}%`, top: `${puzzle.spotY ?? 50}%` }}
         />
       </div>
@@ -71,7 +71,7 @@ function SpotlightDM({ puzzle, onUpdate }) {
       )}
       <div className="flex gap-1 flex-wrap">
         {CLUE_ZONES.map(z => (
-          <span key={z.id} className={`text-xs px-2 py-0.5 rounded-full ${found.includes(z.id) ? 'bg-green-900 text-green-300' : 'bg-gray-800 text-gray-500'}`}>
+          <span key={z.id} className={`text-xs px-2 py-0.5 rounded-none ${found.includes(z.id) ? 'bg-green-900 text-green-300' : 'bg-gray-800 text-gray-500'}`}>
             {found.includes(z.id) ? z.label : z.hint}
           </span>
         ))}
@@ -91,7 +91,7 @@ function SpotlightPlayer({ puzzle }) {
       <div className="absolute inset-0" style={{
         background: `radial-gradient(circle 180px at ${spotX}% ${spotY}%, transparent 0%, rgba(0,0,0,0.92) 100%)`,
       }} />
-      <div className="absolute w-[360px] h-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-yellow-400/30"
+      <div className="absolute w-[360px] h-[360px] -translate-x-1/2 -translate-y-1/2 rounded-none border-4 border-yellow-400/30"
         style={{ left: `${spotX}%`, top: `${spotY}%` }}
       />
       {found.map((id) => {
@@ -100,14 +100,14 @@ function SpotlightPlayer({ puzzle }) {
         return (
           <div key={id} className="absolute -translate-x-1/2 -translate-y-1/2 animate-bounce"
             style={{ left: `${z.x}%`, top: `${z.y - 5}%` }}>
-            <div className="bg-yellow-900/90 border-2 border-yellow-400 px-6 py-3 rounded-2xl shadow-[0_0_40px_rgba(250,204,21,0.4)]">
+            <div className="bg-yellow-900/90 border-2 border-yellow-400 px-6 py-3 rounded-none shadow-[0_0_40px_rgba(250,204,21,0.4)]">
               <p className="text-3xl font-bold text-yellow-200 whitespace-nowrap">{z.label}</p>
             </div>
           </div>
         );
       })}
       <div className="absolute top-8 left-0 right-0 flex justify-center">
-        <div className="bg-black/80 border border-dnd-gold px-8 py-4 rounded-xl">
+        <div className="bg-black/80 border border-dnd-gold px-8 py-4 rounded-none">
           <p className="text-3xl font-serif text-dnd-gold flex items-center gap-3">
             <Search size={32} /> Search for the thief's trail! ({found.length}/{CLUE_ZONES.length} clues)
           </p>
@@ -227,7 +227,7 @@ function RiddlePlayer({ puzzle }) {
         )}
         {solved && (
           <div className="mt-10 text-center animate-bounce">
-            <div className="inline-block bg-green-900/80 border-4 border-green-400 px-12 py-6 rounded-2xl shadow-[0_0_60px_rgba(74,222,128,0.4)]">
+            <div className="inline-block bg-green-900/80 border-4 border-green-400 px-12 py-6 rounded-none shadow-[0_0_60px_rgba(74,222,128,0.4)]">
               <p className="text-6xl font-bold text-green-300">🌊 {RIDDLE.answer}!</p>
               <p className="text-2xl text-green-400 mt-2">The owl hoots and lets you pass!</p>
             </div>
@@ -318,7 +318,7 @@ function StonesPlayer({ puzzle, onUpdate }) {
   return (
     <div className="absolute inset-0 z-40 flex flex-col items-center justify-center">
       <div className="mb-8">
-        <div className="bg-black/80 border-2 border-blue-400 px-10 py-5 rounded-2xl shadow-[0_0_60px_rgba(96,165,250,0.3)]">
+        <div className="bg-black/80 border-2 border-blue-400 px-10 py-5 rounded-none shadow-[0_0_60px_rgba(96,165,250,0.3)]">
           <h2 className="text-5xl font-serif text-blue-300 flex items-center gap-4">
             <Footprints size={40} /> Cross the Glimmer Stream!
           </h2>
@@ -337,7 +337,7 @@ function StonesPlayer({ puzzle, onUpdate }) {
               const isCorrectAnim = correctAnim?.row === ri && correctAnim?.stone === si;
               return (
                 <button key={si} onClick={() => handlePick(ri, si)} disabled={ri !== currentRow || crossed}
-                  className={`w-36 h-36 rounded-2xl text-6xl flex items-center justify-center transition-all duration-300 border-4 ${
+                  className={`w-36 h-36 rounded-none text-6xl flex items-center justify-center transition-all duration-300 border-4 ${
                     isChosen ? 'bg-green-900/80 border-green-400 shadow-[0_0_30px_rgba(74,222,128,0.5)] scale-105' :
                     isSplashing ? 'bg-blue-600/80 border-blue-300 animate-bounce scale-125' :
                     wasSplash ? 'bg-blue-900/40 border-blue-800 opacity-50' :
@@ -352,7 +352,7 @@ function StonesPlayer({ puzzle, onUpdate }) {
         )).reverse()}
       </div>
       {splashAnim && <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-50"><div className="text-[10rem] animate-ping opacity-50">💦</div></div>}
-      {crossed && <div className="mt-8 animate-bounce"><div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-2xl shadow-[0_0_80px_rgba(74,222,128,0.5)]"><p className="text-6xl font-bold text-green-300 flex items-center gap-4"><Trophy size={48} /> Safe Across!</p></div></div>}
+      {crossed && <div className="mt-8 animate-bounce"><div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-none shadow-[0_0_80px_rgba(74,222,128,0.5)]"><p className="text-6xl font-bold text-green-300 flex items-center gap-4"><Trophy size={48} /> Safe Across!</p></div></div>}
     </div>
   );
 }
@@ -401,7 +401,7 @@ function IngredientsDM({ puzzle, onUpdate }) {
       <p className="text-xs text-gray-400 uppercase tracking-widest">Place ingredients in bowls</p>
       <div className="flex gap-2">
         {RECIPE_BOWLS.map(bowl => (
-          <div key={bowl.id} className="flex-1 bg-gray-900 rounded-lg border border-gray-700 p-2">
+          <div key={bowl.id} className="flex-1 bg-gray-900 rounded-none border border-gray-700 p-2">
             <p className="text-xs text-dnd-gold font-bold mb-1">{bowl.label}</p>
             {INGREDIENTS.filter(i => placed[i.id] === bowl.id).map(i => {
               const isCorrect = i.bowl === bowl.id;
@@ -439,7 +439,7 @@ function IngredientsPlayer({ puzzle }) {
 
   return (
     <div className="absolute inset-0 z-40 flex flex-col items-center justify-center pointer-events-none">
-      <div className="bg-black/80 border-2 border-dnd-gold px-10 py-5 rounded-2xl mb-8">
+      <div className="bg-black/80 border-2 border-dnd-gold px-10 py-5 rounded-none mb-8">
         <h2 className="text-5xl font-serif text-dnd-gold flex items-center gap-4">
           <Sparkles size={40} /> Ingredient Hunt!
         </h2>
@@ -452,7 +452,7 @@ function IngredientsPlayer({ puzzle }) {
               {INGREDIENTS.filter(i => placed[i.id] === bowl.id).map(i => {
                 const isCorrect = i.bowl === bowl.id;
                 return (
-                  <div key={i.id} className={`text-3xl px-6 py-3 rounded-xl border-2 ${isCorrect ? 'bg-green-900/80 border-green-400 shadow-[0_0_30px_rgba(74,222,128,0.4)]' : 'bg-red-900/80 border-red-400'}`}>
+                  <div key={i.id} className={`text-3xl px-6 py-3 rounded-none border-2 ${isCorrect ? 'bg-green-900/80 border-green-400 shadow-[0_0_30px_rgba(74,222,128,0.4)]' : 'bg-red-900/80 border-red-400'}`}>
                     {i.label} {isCorrect && '✨'}
                   </div>
                 );
@@ -463,7 +463,7 @@ function IngredientsPlayer({ puzzle }) {
       </div>
       {correct === INGREDIENTS.length && (
         <div className="mt-8 animate-bounce">
-          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-2xl shadow-[0_0_80px_rgba(74,222,128,0.5)]">
+          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-none shadow-[0_0_80px_rgba(74,222,128,0.5)]">
             <p className="text-6xl font-bold text-green-300">🎉 Perfect Recipe!</p>
           </div>
         </div>
@@ -540,7 +540,7 @@ function FirefliesPlayer({ puzzle, onUpdate }) {
   return (
     <div className="absolute inset-0 z-40 bg-gray-950/80">
       <div className="absolute top-8 left-0 right-0 flex justify-center">
-        <div className="bg-black/80 border-2 border-yellow-400 px-10 py-5 rounded-2xl">
+        <div className="bg-black/80 border-2 border-yellow-400 px-10 py-5 rounded-none">
           <h2 className="text-5xl font-serif text-yellow-300 flex items-center gap-4">
             <Sparkles size={40} /> Catch the Fireflies!
           </h2>
@@ -554,7 +554,7 @@ function FirefliesPlayer({ puzzle, onUpdate }) {
           <button key={f.id}
             onClick={() => catchFirefly(f.id)}
             disabled={!isActive}
-            className={`absolute w-24 h-24 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-500 ${
+            className={`absolute w-24 h-24 -translate-x-1/2 -translate-y-1/2 rounded-none transition-all duration-500 ${
               isCaught ? 'bg-green-400/60 border-4 border-green-300 shadow-[0_0_40px_rgba(74,222,128,0.6)]' :
               isActive ? 'bg-yellow-300/80 border-4 border-yellow-200 shadow-[0_0_60px_rgba(250,204,21,0.8)] animate-pulse cursor-pointer scale-110' :
               'bg-gray-800/30 border-2 border-gray-700'
@@ -567,7 +567,7 @@ function FirefliesPlayer({ puzzle, onUpdate }) {
       })}
       {caught.length === FIREFLY_POSITIONS.length && (
         <div className="absolute bottom-16 left-0 right-0 flex justify-center animate-bounce">
-          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-2xl shadow-[0_0_80px_rgba(74,222,128,0.5)]">
+          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-none shadow-[0_0_80px_rgba(74,222,128,0.5)]">
             <p className="text-6xl font-bold text-green-300">🌟 All Fireflies Caught!</p>
           </div>
         </div>
@@ -648,7 +648,7 @@ function SneakPlayer({ puzzle, onUpdate }) {
 
   return (
     <div className="absolute inset-0 z-40 flex flex-col items-center justify-center">
-      <div className="bg-black/80 border-2 border-green-700 px-10 py-5 rounded-2xl mb-8">
+      <div className="bg-black/80 border-2 border-green-700 px-10 py-5 rounded-none mb-8">
         <h2 className="text-5xl font-serif text-green-300 flex items-center gap-4">
           <Eye size={40} /> Sneak Past the Goblins!
         </h2>
@@ -665,7 +665,7 @@ function SneakPlayer({ puzzle, onUpdate }) {
               return (
                 <button key={si} onClick={() => pickRoute(ri, si)}
                   disabled={ri !== currentCheckpoint || success}
-                  className={`w-40 h-28 rounded-2xl text-5xl flex flex-col items-center justify-center border-4 transition-all ${
+                  className={`w-40 h-28 rounded-none text-5xl flex flex-col items-center justify-center border-4 transition-all ${
                     isCorrectPast ? 'bg-green-900/80 border-green-400 shadow-[0_0_30px_rgba(74,222,128,0.4)]' :
                     isPast ? 'bg-gray-900/60 border-gray-700 opacity-40' :
                     ri === currentCheckpoint && !success ? 'bg-gray-800/90 border-gray-500 hover:border-green-400 hover:scale-110 cursor-pointer' :
@@ -681,14 +681,14 @@ function SneakPlayer({ puzzle, onUpdate }) {
       </div>
       {snap && (
         <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="bg-red-900/90 border-4 border-red-400 px-12 py-6 rounded-2xl animate-bounce">
+          <div className="bg-red-900/90 border-4 border-red-400 px-12 py-6 rounded-none animate-bounce">
             <p className="text-6xl font-bold text-red-300">💥 Snap! Twig breaks!</p>
           </div>
         </div>
       )}
       {success && (
         <div className="mt-8 animate-bounce">
-          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-2xl shadow-[0_0_80px_rgba(74,222,128,0.5)]">
+          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-none shadow-[0_0_80px_rgba(74,222,128,0.5)]">
             <p className="text-6xl font-bold text-green-300">🤫 Silent as a shadow!</p>
           </div>
         </div>
@@ -731,7 +731,7 @@ function MelodyDM({ puzzle, onUpdate }) {
       <p className="text-xs text-gray-400 uppercase tracking-widest">Crystal Melody</p>
       <div className="flex gap-1 flex-wrap">
         {sequence.map((ci, i) => (
-          <span key={i} className={`w-5 h-5 rounded-full ${CRYSTAL_COLORS[ci].bg}`} title={CRYSTAL_COLORS[ci].name} />
+          <span key={i} className={`w-5 h-5 rounded-none ${CRYSTAL_COLORS[ci].bg}`} title={CRYSTAL_COLORS[ci].name} />
         ))}
         {sequence.length === 0 && <span className="text-xs text-gray-500">No notes yet</span>}
       </div>
@@ -791,7 +791,7 @@ function MelodyPlayer({ puzzle, onUpdate }) {
 
   return (
     <div className="absolute inset-0 z-40 flex flex-col items-center justify-center">
-      <div className="bg-black/80 border-2 border-purple-500 px-10 py-5 rounded-2xl mb-8">
+      <div className="bg-black/80 border-2 border-purple-500 px-10 py-5 rounded-none mb-8">
         <h2 className="text-5xl font-serif text-purple-300 flex items-center gap-4">
           <Music size={40} /> Crystal Melody!
         </h2>
@@ -807,7 +807,7 @@ function MelodyPlayer({ puzzle, onUpdate }) {
           return (
             <button key={i} onClick={() => handlePlay(i)}
               disabled={phase !== 'play'}
-              className={`w-32 h-32 rounded-full border-4 ${c.border} transition-all duration-300 ${
+              className={`w-32 h-32 rounded-none border-4 ${c.border} transition-all duration-300 ${
                 isLit ? `${c.lit} ${c.glow} scale-125` : `${c.bg} opacity-70`
               } ${phase === 'play' && sequence.length > 0 ? 'hover:scale-110 cursor-pointer hover:opacity-100' : ''}`}
             >
@@ -818,7 +818,7 @@ function MelodyPlayer({ puzzle, onUpdate }) {
       </div>
       <div className="mt-6 flex gap-2">
         {sequence.map((_, i) => (
-          <div key={i} className={`w-6 h-6 rounded-full border-2 ${
+          <div key={i} className={`w-6 h-6 rounded-none border-2 ${
             i < playerInput.length
               ? (playerInput[i] === sequence[i] ? 'bg-green-500 border-green-300' : 'bg-red-500 border-red-300')
               : 'bg-gray-700 border-gray-500'
@@ -827,14 +827,14 @@ function MelodyPlayer({ puzzle, onUpdate }) {
       </div>
       {phase === 'success' && (
         <div className="mt-8 animate-bounce">
-          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-2xl">
+          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-none">
             <p className="text-5xl font-bold text-green-300">✨ Melody Complete!</p>
           </div>
         </div>
       )}
       {phase === 'fail' && (
         <div className="mt-8 animate-bounce">
-          <div className="bg-red-900/90 border-4 border-red-400 px-12 py-6 rounded-2xl">
+          <div className="bg-red-900/90 border-4 border-red-400 px-12 py-6 rounded-none">
             <p className="text-5xl font-bold text-red-300">💥 Wrong Note! Try Again</p>
           </div>
         </div>
@@ -924,7 +924,7 @@ function RunesPlayer({ puzzle, onUpdate }) {
 
   return (
     <div className="absolute inset-0 z-40 flex flex-col items-center justify-center">
-      <div className="bg-black/80 border-2 border-purple-500 px-10 py-5 rounded-2xl mb-8">
+      <div className="bg-black/80 border-2 border-purple-500 px-10 py-5 rounded-none mb-8">
         <h2 className="text-5xl font-serif text-purple-300 flex items-center gap-4">
           <Scroll size={40} /> Rune Match!
         </h2>
@@ -934,7 +934,7 @@ function RunesPlayer({ puzzle, onUpdate }) {
         {tiles.map((t, i) => (
           <button key={i} onClick={() => flipTile(i)}
             disabled={t.flipped || t.matched || flippedPair.length >= 2}
-            className={`w-28 h-28 rounded-2xl border-4 text-6xl flex items-center justify-center transition-all duration-300 ${
+            className={`w-28 h-28 rounded-none border-4 text-6xl flex items-center justify-center transition-all duration-300 ${
               t.matched ? 'bg-green-900/80 border-green-400 shadow-[0_0_30px_rgba(74,222,128,0.5)]' :
               t.flipped ? 'bg-purple-900/80 border-purple-400 shadow-[0_0_30px_rgba(168,85,247,0.5)]' :
               'bg-gray-800/90 border-gray-600 hover:border-purple-400 hover:scale-105 cursor-pointer'
@@ -945,7 +945,7 @@ function RunesPlayer({ puzzle, onUpdate }) {
       </div>
       {matches === RUNE_SYMBOLS.length && (
         <div className="mt-8 animate-bounce">
-          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-2xl">
+          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-none">
             <p className="text-6xl font-bold text-green-300">✨ All Runes Matched!</p>
           </div>
         </div>
@@ -980,7 +980,7 @@ function StarsDM({ puzzle, onUpdate }) {
   return (
     <div className="space-y-2">
       <p className="text-xs text-gray-400 uppercase tracking-widest">Star Connect — Full Outline</p>
-      <div className="relative w-full h-32 bg-gray-900 rounded-lg border border-gray-700 overflow-hidden">
+      <div className="relative w-full h-32 bg-gray-900 rounded-none border border-gray-700 overflow-hidden">
         <svg className="absolute inset-0 w-full h-full">
           {STAR_POSITIONS.map((s, i) => {
             if (i === 0) return null;
@@ -989,7 +989,7 @@ function StarsDM({ puzzle, onUpdate }) {
           })}
         </svg>
         {STAR_POSITIONS.map((s, i) => (
-          <div key={i} className="absolute w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-dnd-gold"
+          <div key={i} className="absolute w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-none bg-dnd-gold"
             style={{ left: `${s.x}%`, top: `${s.y}%` }}>
             <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-[10px] text-dnd-gold">{i + 1}</span>
           </div>
@@ -1027,7 +1027,7 @@ function StarsPlayer({ puzzle, onUpdate }) {
   return (
     <div className="absolute inset-0 z-40 bg-gray-950">
       <div className="absolute top-8 left-0 right-0 flex justify-center z-10">
-        <div className="bg-black/80 border-2 border-dnd-gold px-10 py-5 rounded-2xl">
+        <div className="bg-black/80 border-2 border-dnd-gold px-10 py-5 rounded-none">
           <h2 className="text-5xl font-serif text-dnd-gold flex items-center gap-4">
             <Star size={40} /> Connect the Stars!
           </h2>
@@ -1048,7 +1048,7 @@ function StarsPlayer({ puzzle, onUpdate }) {
         const isWrong = wrongStar === i;
         return (
           <button key={i} onClick={() => clickStar(i)}
-            className={`absolute w-20 h-20 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 transition-all duration-300 flex items-center justify-center text-3xl font-bold ${
+            className={`absolute w-20 h-20 -translate-x-1/2 -translate-y-1/2 rounded-none border-4 transition-all duration-300 flex items-center justify-center text-3xl font-bold ${
               isConnected ? 'bg-yellow-500 border-yellow-300 shadow-[0_0_40px_rgba(234,179,8,0.6)] text-black' :
               isWrong ? 'bg-red-600 border-red-400 animate-pulse scale-125' :
               'bg-gray-700 border-gray-500 hover:border-yellow-400 hover:scale-110 cursor-pointer text-gray-300'
@@ -1060,7 +1060,7 @@ function StarsPlayer({ puzzle, onUpdate }) {
       })}
       {complete && (
         <div className="absolute bottom-16 left-0 right-0 flex justify-center animate-bounce z-10">
-          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-2xl shadow-[0_0_80px_rgba(74,222,128,0.5)]">
+          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-none shadow-[0_0_80px_rgba(74,222,128,0.5)]">
             <p className="text-6xl font-bold text-green-300">🐉 Dragon Constellation Complete!</p>
           </div>
         </div>
@@ -1151,7 +1151,7 @@ function HoardPlayer({ puzzle, onUpdate }) {
 
   return (
     <div className="absolute inset-0 z-40 flex flex-col items-center justify-center">
-      <div className="bg-black/80 border-2 border-dnd-gold px-10 py-5 rounded-2xl mb-6">
+      <div className="bg-black/80 border-2 border-dnd-gold px-10 py-5 rounded-none mb-6">
         <h2 className="text-5xl font-serif text-dnd-gold flex items-center gap-4">
           <Trophy size={40} /> {"Dragon's Hoard!"}
         </h2>
@@ -1160,7 +1160,7 @@ function HoardPlayer({ puzzle, onUpdate }) {
       <div className="flex gap-4 flex-wrap justify-center mb-8">
         {TREASURES.filter(t => !sorted[t.id]).map(t => (
           <button key={t.id} onClick={() => selectTreasure(t.id)}
-            className={`px-6 py-4 rounded-2xl text-3xl border-4 transition-all ${
+            className={`px-6 py-4 rounded-none text-3xl border-4 transition-all ${
               selected === t.id ? 'bg-dnd-gold/20 border-dnd-gold scale-110 shadow-[0_0_30px_rgba(212,175,55,0.5)]' :
               'bg-gray-800/90 border-gray-600 hover:border-dnd-gold hover:scale-105 cursor-pointer'
             }`}>
@@ -1183,7 +1183,7 @@ function HoardPlayer({ puzzle, onUpdate }) {
               {TREASURES.filter(t => sorted[t.id] === pile.id).map(t => {
                 const isCorrect = t.pile === pile.id;
                 return (
-                  <div key={t.id} className={`text-2xl px-4 py-2 rounded-xl border-2 ${
+                  <div key={t.id} className={`text-2xl px-4 py-2 rounded-none border-2 ${
                     isCorrect ? 'bg-green-900/80 border-green-400' : 'bg-red-900/80 border-red-400'
                   }`}>
                     {t.label}
@@ -1196,7 +1196,7 @@ function HoardPlayer({ puzzle, onUpdate }) {
       </div>
       {correct === TREASURES.length && (
         <div className="mt-8 animate-bounce">
-          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-2xl shadow-[0_0_80px_rgba(74,222,128,0.5)]">
+          <div className="bg-green-900/90 border-4 border-green-400 px-12 py-6 rounded-none shadow-[0_0_80px_rgba(74,222,128,0.5)]">
             <p className="text-6xl font-bold text-green-300">👑 Treasures Sorted!</p>
           </div>
         </div>

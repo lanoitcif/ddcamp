@@ -3,7 +3,7 @@
 // Provides validation, factory functions, and import/export utilities
 // for campaign data consumed by useCampaign.js and the dual-view UI.
 
-import { secureRandomString } from './cryptoUtils';
+import { secureRandomString } from './cryptoUtils.js';
 
 // ─── Constants ──────────────────────────────────────────────────────
 

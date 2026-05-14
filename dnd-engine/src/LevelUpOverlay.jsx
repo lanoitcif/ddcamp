@@ -17,7 +17,7 @@ export function XpBar({ xp }) {
 
   return (
     <div className="flex items-center gap-1.5 w-full">
-      <span className="bg-dnd-gold text-black rounded-full text-[10px] font-bold px-2 leading-4 shrink-0">
+      <span className="bg-dnd-gold text-black rounded-none text-[10px] font-bold px-2 leading-4 shrink-0">
         Lv.{level}
       </span>
 
@@ -25,9 +25,9 @@ export function XpBar({ xp }) {
         <span className="text-[10px] text-dnd-gold font-bold tracking-wide">MAX</span>
       ) : (
         <>
-          <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+          <div className="flex-1 h-2 bg-gray-700 rounded-none overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-yellow-600 to-dnd-gold transition-all duration-500"
+              className="h-full rounded-none bg-gradient-to-r from-yellow-600 to-dnd-gold transition-all duration-500"
               style={{ width: `${progress.percent}%` }}
             />
           </div>
@@ -103,14 +103,14 @@ export function LevelUpOverlay({ levelUp, onDismiss }) {
         {/* stat bonuses */}
         <div className="flex justify-center gap-8">
           {hpBonus != null && (
-            <div className="bg-gray-800 rounded-xl p-4 min-w-[120px]">
+            <div className="bg-gray-800 rounded-none p-4 min-w-[120px]">
               <Heart className="mx-auto text-red-400 mb-1" size={24} />
               <p className="text-3xl font-bold text-white">+{hpBonus}</p>
               <p className="text-sm text-gray-400">HP</p>
             </div>
           )}
           {bonusIncrease != null && (
-            <div className="bg-gray-800 rounded-xl p-4 min-w-[120px]">
+            <div className="bg-gray-800 rounded-none p-4 min-w-[120px]">
               <Shield className="mx-auto text-blue-400 mb-1" size={24} />
               <p className="text-3xl font-bold text-white">+{bonusIncrease}</p>
               <p className="text-sm text-gray-400">Attack</p>
@@ -120,7 +120,7 @@ export function LevelUpOverlay({ levelUp, onDismiss }) {
 
         {/* new action card */}
         {newAction && (
-          <div className="bg-purple-900/50 border border-purple-500 rounded-xl p-4 mx-auto max-w-md">
+          <div className="bg-purple-900/50 border border-purple-500 rounded-none p-4 mx-auto max-w-md">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Sword className="text-purple-300" size={20} />
               <span className="text-lg text-purple-200 font-semibold">
@@ -155,7 +155,7 @@ export function XpToast({ xpGain }) {
 
   return (
     <div className="fixed top-4 right-4 z-[70] animate-bounce-in">
-      <div className="bg-gray-900/95 border border-dnd-gold/60 rounded-lg px-4 py-2 flex items-center gap-2 shadow-lg shadow-yellow-900/30">
+      <div className="bg-gray-900/95 border border-dnd-gold/60 rounded-none px-4 py-2 flex items-center gap-2 shadow-[4px_4px_0px_rgba(0,0,0,1)] shadow-yellow-900/30">
         <Star className="text-dnd-gold" size={16} />
         <span className="text-dnd-gold font-bold text-sm">+{xpGain.amount} XP</span>
         {xpGain.reason && (
@@ -200,11 +200,11 @@ export function DmXpPanel({ characterXp, onAwardXp }) {
         const isMax = level >= MAX_LEVEL;
 
         return (
-          <div key={charId} className="bg-gray-800/60 rounded-lg p-2 space-y-1.5">
+          <div key={charId} className="bg-gray-800/60 rounded-none p-2 space-y-1.5">
             {/* name + level */}
             <div className="flex items-center justify-between">
               <span className="text-white text-sm font-medium capitalize">{charId}</span>
-              <span className="bg-dnd-gold text-black rounded-full text-[10px] font-bold px-2 leading-4">
+              <span className="bg-dnd-gold text-black rounded-none text-[10px] font-bold px-2 leading-4">
                 Lv.{level}
               </span>
             </div>
@@ -214,9 +214,9 @@ export function DmXpPanel({ characterXp, onAwardXp }) {
               <p className="text-[10px] text-dnd-gold font-bold">MAX LEVEL</p>
             ) : (
               <div className="flex items-center gap-1">
-                <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                <div className="flex-1 h-1.5 bg-gray-700 rounded-none overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-yellow-600 to-dnd-gold transition-all duration-500"
+                    className="h-full rounded-none bg-gradient-to-r from-yellow-600 to-dnd-gold transition-all duration-500"
                     style={{ width: `${progress.percent}%` }}
                   />
                 </div>

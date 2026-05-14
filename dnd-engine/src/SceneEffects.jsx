@@ -151,7 +151,7 @@ function Particle({ config }) {
   return (
     <div
       ref={ref}
-      className="absolute rounded-full pointer-events-none"
+      className="absolute rounded-none pointer-events-none"
       style={{
         backgroundColor: config.color,
         boxShadow: config.type === 'firefly' ? `0 0 8px ${config.color}` :
@@ -200,8 +200,8 @@ export function PingLayer({ ping }) {
       style={{ left: `${ping.x}%`, top: `${ping.y}%` }}
     >
       <div className="relative w-12 h-12 flex items-center justify-center">
-        <div className="absolute w-full h-full rounded-full border-4 border-dnd-gold animate-ping opacity-75" />
-        <div className="absolute w-1/2 h-1/2 rounded-full bg-dnd-gold shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
+        <div className="absolute w-full h-full rounded-none border-4 border-dnd-gold animate-ping opacity-75" />
+        <div className="absolute w-1/2 h-1/2 rounded-none bg-dnd-gold shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
       </div>
     </div>
   );
@@ -226,7 +226,7 @@ export function ReactionLayer({ reaction }) {
 
   return (
     <div key={reaction.id} className="absolute inset-0 pointer-events-none z-[110] flex items-center justify-center">
-      <div className="text-[15rem] animate-bounce-slow drop-shadow-2xl opacity-90 transition-all duration-[3000ms] ease-out transform translate-y-[-100px] scale-110">
+      <div className="text-[15rem] animate-bounce-slow drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] opacity-90 transition-all duration-[3000ms] ease-out transform translate-y-[-100px] scale-110">
         {reaction.emoji}
       </div>
     </div>
@@ -247,7 +247,7 @@ export function HandoutOverlay({ handout, onDismiss }) {
           </h3>
           <button 
             onClick={onDismiss}
-            className="p-2 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-full transition-colors"
+            className="p-2 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-none transition-colors"
           >
             <X size={32} />
           </button>
@@ -257,7 +257,7 @@ export function HandoutOverlay({ handout, onDismiss }) {
             src={handout.image} 
             alt={handout.title}
             onError={handleImgError}
-            className="max-h-[60vh] rounded-lg shadow-2xl border border-white/10 object-contain"
+            className="max-h-[60vh] rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)] border border-white/10 object-contain"
           />
         </div>
         <div className="p-6 text-center bg-black/60">
@@ -342,7 +342,7 @@ export function ActionVfx({ label, visible }) {
 
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-40">
-      <span className={`text-[8rem] ${vfx.animation} opacity-60 drop-shadow-2xl`}>
+      <span className={`text-[8rem] ${vfx.animation} opacity-60 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]`}>
         {vfx.emoji}
       </span>
     </div>
