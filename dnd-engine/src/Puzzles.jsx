@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import { Search, Lightbulb, Footprints, Trophy, Droplets, Sparkles, Eye, Music, Scroll, Star } from 'lucide-react';
-import { secureRoll, secureRandomInt } from './cryptoUtils';
+import { secureRandomInt } from './cryptoUtils';
 
 // ═══════════════════════════════════════════════════════════════════
 // PUZZLE 1: Bakery Spotlight Search

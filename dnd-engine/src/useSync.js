@@ -14,7 +14,7 @@ function getSyncParams() {
       console.warn('Blocked connection to external WebSocket host:', wsUrl.hostname);
       return { mode: 'local' };
     }
-  } catch (e) {
+  } catch {
     return { mode: 'local' };
   }
 

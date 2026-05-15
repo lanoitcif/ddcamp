@@ -2,6 +2,7 @@ import React from 'react';
 import { useCampaign } from './useCampaign';
 import { useAudio } from './useAudio';
 import { useOllama } from './useOllama';
+import { useMusicDirector } from './useMusicDirector';
 import { secureRoll } from './cryptoUtils';
 import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } from './SceneEffects';
 import { PUZZLES } from './Puzzles';
@@ -44,6 +45,24 @@ const FALLBACK_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/sv
 function handleImgError(e) {
   e.target.onerror = null;
   e.target.src = FALLBACK_IMG;
+}
+
+function buildMusicScreenContext({ scene, gameState, activeTurnEntity, sceneMonsters }) {
+  const liveMonsters = sceneMonsters.filter(monster => (gameState.characterHp[monster.id] ?? 0) > 0).length;
+  const puzzleLabel = gameState.activePuzzle?.puzzleId || 'none';
+  const questToast = gameState.toast?.title || 'none';
+  const narration = gameState.narration?.text ? gameState.narration.text.slice(0, 140) : 'none';
+  const handout = gameState.activeHandout?.title || gameState.activeHandout?.name || 'none';
+  return [
+    `Scene ${scene?.title || 'Unknown'} is active`,
+    `${liveMonsters} hostile creatures remain in view`,
+    `Current mood is ${gameState.audioMood}`,
+    `Active turn belongs to ${activeTurnEntity?.name || 'nobody'}`,
+    `Puzzle overlay: ${puzzleLabel}`,
+    `Handout: ${handout}`,
+    `Quest toast: ${questToast}`,
+    `Narration excerpt: ${narration}`,
+  ].join('. ');
 }
 
 const PORTRAITS = [
@@ -124,7 +143,6 @@ function DMControl() {
   const [lastSecret, setLastSecret] = React.useState(null);
   const [showReset, setShowReset] = React.useState(false);
   const [showPortraits, setShowPortraits] = React.useState(null); // id or null
-  const [audioVolume, setAudioVolume] = React.useState(0.7);
   const [sideQuestsOpen, setSideQuestsOpen] = React.useState(false);
   const [showPrep, setShowPrep] = React.useState(true);
   const [prepSceneId, setPrepSceneId] = React.useState(null);
@@ -133,6 +151,11 @@ function DMControl() {
   
   const audio = useAudio();
   const { generateResponse, isGenerating } = useOllama();
+  const { generateMusicDirection, isGeneratingMusic, musicError } = useMusicDirector();
+  const directorTimerRef = React.useRef(null);
+  const directorRequestRef = React.useRef(0);
+  const directorInFlightRef = React.useRef(false);
+  const directorLastStartRef = React.useRef(0);
 
   const activeScene = React.useMemo(() =>
     campaignData.scenes.find(s => s.id === gameState.currentSceneId),
@@ -143,6 +166,67 @@ function DMControl() {
     campaignData.monsters.find(m => m.id === gameState.activeTurnId),
     [campaignData.characters, campaignData.monsters, gameState.activeTurnId]
   );
+  const audioSettings = gameState.audioSettings || {};
+  const musicScreenContext = React.useMemo(() =>
+    buildMusicScreenContext({ scene: activeScene, gameState, activeTurnEntity, sceneMonsters }),
+    [activeScene, gameState, activeTurnEntity, sceneMonsters]
+  );
+  const directorContextKey = React.useMemo(() => JSON.stringify({
+    sceneId: gameState.currentSceneId,
+    mood: gameState.audioMood,
+    activeTurn: activeTurnEntity?.name || 'none',
+    puzzle: gameState.activePuzzle?.puzzleId || 'none',
+    narration: gameState.narration?.text || 'none',
+    recentEvent: gameState.lastRoll?.label || gameState.toast?.message || 'ambient exploration',
+    style: audioSettings.style || 'alpha',
+    quality: audioSettings.quality || 'full',
+    novelty: audioSettings.novelty ?? 0.72,
+    contextAware: audioSettings.contextAware ?? true,
+    screenContext: audioSettings.contextAware ? musicScreenContext : `Scene ${activeScene?.title || 'Unknown'}`,
+  }), [
+    activeScene?.title,
+    activeTurnEntity?.name,
+    audioSettings.contextAware,
+    audioSettings.novelty,
+    audioSettings.quality,
+    audioSettings.style,
+    gameState.activePuzzle?.puzzleId,
+    gameState.audioMood,
+    gameState.currentSceneId,
+    gameState.lastRoll?.label,
+    gameState.narration?.text,
+    gameState.toast?.message,
+    musicScreenContext,
+  ]);
+  const directorContext = React.useMemo(() => {
+    if (!activeScene) return null;
+    return {
+      style: audioSettings.style || 'alpha',
+      quality: audioSettings.quality || 'full',
+      novelty: audioSettings.novelty ?? 0.72,
+      sceneTitle: activeScene.title,
+      sceneDescription: activeScene.description,
+      mood: gameState.audioMood,
+      activeTurn: activeTurnEntity?.name || 'none',
+      recentEvent: gameState.lastRoll?.label || gameState.toast?.message || 'ambient exploration',
+      narration: gameState.narration?.text || 'none',
+      puzzleState: gameState.activePuzzle?.puzzleId || 'none',
+      screenContext: audioSettings.contextAware ? musicScreenContext : `Scene ${activeScene.title}`,
+    };
+  }, [
+    activeScene,
+    activeTurnEntity?.name,
+    audioSettings.contextAware,
+    audioSettings.novelty,
+    audioSettings.quality,
+    audioSettings.style,
+    gameState.activePuzzle?.puzzleId,
+    gameState.audioMood,
+    gameState.lastRoll?.label,
+    gameState.narration?.text,
+    gameState.toast?.message,
+    musicScreenContext,
+  ]);
 
   const handleAiGenerate = React.useCallback(async (entity) => {
     const actionStr = aiPromptInput[entity.id];
@@ -159,12 +243,13 @@ function DMControl() {
       switch(e.key.toLowerCase()) {
         case 'n': nextTurn(); break;
         case 'd': case 'escape': dismissOverlay(); break;
-        default:
+        default: {
           const num = parseInt(e.key);
           if (!isNaN(num) && num >= 1 && num <= campaignData.characters.length) {
             updateGameState({ activeTurnId: campaignData.characters[num - 1]?.id });
           }
           break;
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -180,6 +265,103 @@ function DMControl() {
       return () => clearTimeout(timer);
     }
   }, [gameState.currentSceneId, prepSceneId]);
+
+  React.useEffect(() => {
+    audio.setVolume(gameState.audioVolume ?? 0.7);
+  }, [audio, gameState.audioVolume]);
+
+  React.useEffect(() => {
+    if (gameState.audioPlaying) {
+      audio.startAmbient(gameState.currentSceneId, gameState.audioMood, gameState.audioSettings, gameState.audioDirector);
+    } else {
+      audio.stopAmbient();
+    }
+  }, [audio, gameState.audioDirector, gameState.audioMood, gameState.audioPlaying, gameState.audioSettings, gameState.currentSceneId]);
+
+  React.useEffect(() => {
+    if (directorTimerRef.current) {
+      clearTimeout(directorTimerRef.current);
+      directorTimerRef.current = null;
+    }
+    if (!gameState.audioPlaying || !audioSettings.llmEnabled || !directorContext) return undefined;
+
+    let cancelled = false;
+    const refreshMs = Math.max(8, Number(audioSettings.refreshSeconds) || 24) * 1000;
+    const lastGeneratedAt = gameState.audioDirector?.generatedAt || 0;
+    const sameContextAsLast =
+      gameState.audioDirector?.sceneId === gameState.currentSceneId &&
+      gameState.audioDirector?.mood === gameState.audioMood;
+    const scheduleNext = () => {
+      if (cancelled) return;
+      directorTimerRef.current = setTimeout(() => {
+        runDirector('refresh');
+      }, refreshMs);
+    };
+
+    const runDirector = async (reason) => {
+      const now = Date.now();
+      if (
+        directorInFlightRef.current ||
+        now - directorLastStartRef.current < 4000 ||
+        (sameContextAsLast && now - lastGeneratedAt < refreshMs * 0.9)
+      ) return;
+      directorInFlightRef.current = true;
+      directorLastStartRef.current = now;
+      const requestId = ++directorRequestRef.current;
+      try {
+        const direction = await generateMusicDirection({
+          ...directorContext,
+        });
+
+        if (cancelled || !direction || requestId !== directorRequestRef.current) return;
+        updateGameState({
+          audioDirector: {
+            ...direction,
+            reason,
+            sceneId: gameState.currentSceneId,
+            mood: gameState.audioMood,
+            generatedAt: Date.now(),
+            contextSummary: musicScreenContext,
+          },
+        });
+      } finally {
+        directorInFlightRef.current = false;
+        scheduleNext();
+      }
+    };
+
+    if (sameContextAsLast && Date.now() - lastGeneratedAt < refreshMs * 0.9) {
+      scheduleNext();
+      return () => {
+        cancelled = true;
+        if (directorTimerRef.current) clearTimeout(directorTimerRef.current);
+        directorInFlightRef.current = false;
+      };
+    }
+
+    runDirector('start');
+
+    return () => {
+      cancelled = true;
+      if (directorTimerRef.current) clearTimeout(directorTimerRef.current);
+      directorInFlightRef.current = false;
+    };
+  }, [
+    activeScene,
+    audioSettings.llmEnabled,
+    audioSettings.refreshSeconds,
+    directorContext,
+    gameState.audioPlaying,
+    gameState.audioDirector?.generatedAt,
+    gameState.audioDirector?.mood,
+    gameState.audioDirector?.sceneId,
+    gameState.audioMood,
+    gameState.currentSceneId,
+    directorContextKey,
+    generateMusicDirection,
+    musicScreenContext,
+    updateGameState,
+  ]);
 
   const applyHpDelta = (id, maxHp) => {
     const raw = hpInput[id];
@@ -380,7 +562,9 @@ function DMControl() {
                 <button
                   onClick={() => {
                     updateGameState({ currentSceneId: scene.id });
-                    if (gameState.audioPlaying) audio.startAmbient(scene.id, gameState.audioMood);
+                    if (gameState.audioPlaying) {
+                      audio.startAmbient(scene.id, gameState.audioMood, gameState.audioSettings, gameState.audioDirector);
+                    }
                   }}
                   className={`w-full text-left px-3 py-2 rounded transition-all text-sm ${
                     gameState.currentSceneId === scene.id ? 'bg-dnd-red text-white border-l-4 border-white' : 'hover:bg-gray-800 text-gray-400'
@@ -647,8 +831,8 @@ function DMControl() {
                   audio.stopAmbient();
                   updateGameState({ audioPlaying: false });
                 } else {
-                  audio.startAmbient(gameState.currentSceneId, gameState.audioMood);
-                  audio.setVolume(audioVolume);
+                  audio.startAmbient(gameState.currentSceneId, gameState.audioMood, gameState.audioSettings, gameState.audioDirector);
+                  audio.setVolume(gameState.audioVolume ?? 0.7);
                   updateGameState({ audioPlaying: true });
                 }
               }}
@@ -663,19 +847,24 @@ function DMControl() {
             </button>
             <button
               onClick={() => {
-                audio.setVolume(audioVolume > 0 ? 0 : 0.7);
-                setAudioVolume(audioVolume > 0 ? 0 : 0.7);
+                const nextVolume = (gameState.audioVolume ?? 0.7) > 0 ? 0 : 0.7;
+                audio.setVolume(nextVolume);
+                updateGameState({ audioVolume: nextVolume });
               }}
               className="px-2 py-1 bg-gray-800 border border-gray-600 rounded text-xs hover:border-dnd-gold"
             >
-              {audioVolume > 0 ? <Volume2 size={14} /> : <VolumeX size={14} />}
+              {(gameState.audioVolume ?? 0.7) > 0 ? <Volume2 size={14} /> : <VolumeX size={14} />}
             </button>
           </div>
           <input
             type="range"
             min="0" max="1" step="0.05"
-            value={audioVolume}
-            onChange={e => { const v = parseFloat(e.target.value); setAudioVolume(v); audio.setVolume(v); }}
+            value={gameState.audioVolume ?? 0.7}
+            onChange={e => {
+              const v = parseFloat(e.target.value);
+              audio.setVolume(v);
+              updateGameState({ audioVolume: v });
+            }}
             className="w-full mb-2 accent-dnd-gold"
           />
           <div className="flex gap-1">
@@ -684,7 +873,9 @@ function DMControl() {
                 key={mood}
                 onClick={() => {
                   updateGameState({ audioMood: mood });
-                  if (gameState.audioPlaying) audio.startAmbient(gameState.currentSceneId, mood);
+                  if (gameState.audioPlaying) {
+                    audio.startAmbient(gameState.currentSceneId, mood, gameState.audioSettings, gameState.audioDirector);
+                  }
                 }}
                 className={`flex-1 px-2 py-1 rounded text-xs capitalize border transition-all ${
                   gameState.audioMood === mood
@@ -695,6 +886,101 @@ function DMControl() {
                 {mood}
               </button>
             ))}
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
+            <button
+              onClick={() => updateGameState({
+                audioSettings: {
+                  ...(gameState.audioSettings || {}),
+                  llmEnabled: !(gameState.audioSettings?.llmEnabled ?? true),
+                },
+              })}
+              className={`px-2 py-1 border ${
+                gameState.audioSettings?.llmEnabled ? 'bg-green-900/40 border-green-600 text-green-300' : 'bg-gray-800 border-gray-600'
+              }`}
+            >
+              Director {gameState.audioSettings?.llmEnabled ? 'On' : 'Off'}
+            </button>
+            <button
+              onClick={() => updateGameState({
+                audioSettings: {
+                  ...(gameState.audioSettings || {}),
+                  contextAware: !(gameState.audioSettings?.contextAware ?? true),
+                },
+              })}
+              className={`px-2 py-1 border ${
+                gameState.audioSettings?.contextAware ? 'bg-blue-900/40 border-blue-600 text-blue-300' : 'bg-gray-800 border-gray-600'
+              }`}
+            >
+              Context {gameState.audioSettings?.contextAware ? 'On' : 'Off'}
+            </button>
+            <label className="flex flex-col gap-1">
+              <span className="text-gray-500 uppercase tracking-wide">Style</span>
+              <select
+                value={gameState.audioSettings?.style || 'alpha'}
+                onChange={e => updateGameState({
+                  audioSettings: { ...(gameState.audioSettings || {}), style: e.target.value },
+                })}
+                className="bg-gray-800 border border-gray-600 px-2 py-1"
+              >
+                <option value="alpha">Alpha</option>
+                <option value="chiptune">8-Bit</option>
+                <option value="hybrid">Hybrid</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-gray-500 uppercase tracking-wide">Quality</span>
+              <select
+                value={gameState.audioSettings?.quality || 'full'}
+                onChange={e => updateGameState({
+                  audioSettings: { ...(gameState.audioSettings || {}), quality: e.target.value },
+                })}
+                className="bg-gray-800 border border-gray-600 px-2 py-1"
+              >
+                <option value="full">Full</option>
+                <option value="sketch">Sketch</option>
+              </select>
+            </label>
+          </div>
+          <div className="mt-3">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-gray-500 mb-1">
+              <span>Novelty</span>
+              <span>{Math.round((gameState.audioSettings?.novelty ?? 0.72) * 100)}%</span>
+            </div>
+            <input
+              type="range"
+              min="0.2" max="1" step="0.05"
+              value={gameState.audioSettings?.novelty ?? 0.72}
+              onChange={e => updateGameState({
+                audioSettings: {
+                  ...(gameState.audioSettings || {}),
+                  novelty: parseFloat(e.target.value),
+                },
+              })}
+              className="w-full accent-dnd-gold"
+            />
+          </div>
+          <div className="mt-3">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-gray-500 mb-1">
+              <span>Refresh</span>
+              <span>{gameState.audioSettings?.refreshSeconds || 24}s</span>
+            </div>
+            <input
+              type="range"
+              min="8" max="45" step="1"
+              value={gameState.audioSettings?.refreshSeconds || 24}
+              onChange={e => updateGameState({
+                audioSettings: {
+                  ...(gameState.audioSettings || {}),
+                  refreshSeconds: parseInt(e.target.value, 10),
+                },
+              })}
+              className="w-full accent-dnd-gold"
+            />
+          </div>
+          <div className="mt-3 text-[10px] text-gray-300 leading-relaxed">
+            <p className="text-dnd-gold">Director: {isGeneratingMusic ? 'thinking...' : (gameState.audioDirector?.instrumentBlend || 'idle')}</p>
+            <p className="text-gray-300">{musicError ? `Model issue: ${musicError}` : (gameState.audioDirector?.contextSummary || 'Uses synced game context to steer new phrases.')}</p>
           </div>
         </div>
 
@@ -842,11 +1128,11 @@ function DMControl() {
           <div className="absolute top-0 right-0 p-4 opacity-10">
              <Scroll size={80} />
           </div>
-          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-40 transition-opacity flex items-center gap-1 text-[10px] text-gray-800 font-bold uppercase">
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-70 transition-opacity flex items-center gap-1 text-[10px] text-blue-100 font-bold uppercase">
              <Zap size={10} /> Click to Ping TV
           </div>
-          <h2 className="text-3xl font-serif font-bold mb-4 border-b-2 border-gray-300 pb-2 text-gray-800">{activeScene?.title}</h2>
-          <p className="text-xl leading-relaxed text-gray-700 font-medium italic">"{activeScene?.description}"</p>
+          <h2 className="text-3xl font-serif font-bold mb-4 border-b-2 border-blue-100 pb-2 text-white drop-shadow-[2px_2px_0px_rgba(0,0,0,0.75)]">{activeScene?.title}</h2>
+          <p className="text-xl leading-relaxed text-blue-50 font-medium italic drop-shadow-[1px_1px_0px_rgba(0,0,0,0.8)]">"{activeScene?.description}"</p>
         </div>
 
         {/* Handouts */}
@@ -878,7 +1164,7 @@ function DMControl() {
           </h2>
           <div className="space-y-1 max-h-48 overflow-y-auto">
             {(gameState.rollLog || []).length === 0 && (
-              <p className="text-gray-600 text-xs italic">No rolls yet...</p>
+              <p className="text-gray-400 text-xs italic">No rolls yet...</p>
             )}
             {(gameState.rollLog || []).map((entry, i) => (
               <div key={entry.id || i} className={`text-xs flex gap-3 py-1 border-b border-gray-800 ${entry.secret ? 'text-purple-400' : 'text-gray-300'}`}>
@@ -950,7 +1236,7 @@ function NarrationAutoDismiss({ gameState, updateGameState }) {
       }
     }, duration);
     return () => clearTimeout(timer);
-  }, [gameState.narration?.id, gameState.narration?.duration, updateGameState]);
+  }, [gameState.narration, gameState.narration?.duration, updateGameState]);
   return null;
 }
 
@@ -982,12 +1268,16 @@ function PlayerView() {
   // Sync ambient with global state
   React.useEffect(() => {
     if (gameState.audioPlaying) {
-      audio.startAmbient(gameState.currentSceneId, gameState.audioMood);
+      audio.startAmbient(gameState.currentSceneId, gameState.audioMood, gameState.audioSettings, gameState.audioDirector);
     } else {
       audio.stopAmbient();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState.audioPlaying, gameState.audioMood, gameState.currentSceneId]);
+  }, [gameState.audioDirector, gameState.audioPlaying, gameState.audioMood, gameState.audioSettings, gameState.currentSceneId]);
+
+  React.useEffect(() => {
+    audio.setVolume(gameState.audioVolume ?? 0.7);
+  }, [audio, gameState.audioVolume]);
 
   // Scene transition fade
   React.useEffect(() => {
@@ -1105,7 +1395,7 @@ function PlayerView() {
       cancelled = true;
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     };
-  }, [gameState.narration?.id]);
+  }, [gameState.narration?.id, gameState.narration?.text, gameState.narration?.voiceId]);
 
   const isNat20 = gameState.lastRoll?.d20 === 20;
   const isNat1 = gameState.lastRoll?.d20 === 1;

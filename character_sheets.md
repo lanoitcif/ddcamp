@@ -6,7 +6,7 @@ Simplified Character Sheets for the *Dragon of Whispering Peak* campaign.
 ## 🌟 Universal Heroic Actions
 *These actions are available to all players in the DM Console.*
 
-- **✨ Help:** Use your turn to help a friend. They get **Advantage** (roll two d20s and take the highest) on their next roll.
+- **✨ Lucky Roll!:** Use your turn to help a friend. They get **Advantage** (roll two d20s and take the highest) on their next roll.
 - **🍎 Snack:** Take a quick break to eat a piece of Mrs. Crumb's famous Sun-Cake. **Heal 2 HP** immediately! (Use this when you are feeling "Bonked" or tired).
 
 ---

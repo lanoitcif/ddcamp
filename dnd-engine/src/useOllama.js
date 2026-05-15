@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react';
 
-// Default Ollama REST endpoint if running locally
-const OLLAMA_URL = 'http://localhost:11434/api/generate';
-const DEFAULT_MODEL = 'llama3.1'; // Can be changed based on what's explicitly installed locally
+const DEFAULT_MODEL = 'qwen3:8b';
+
+function getOllamaUrl() {
+  return '/api/ollama/api/generate';
+}
 
 export function useOllama() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -39,7 +41,7 @@ INSTRUCTIONS:
 `.trim();
 
     try {
-      const response = await fetch(OLLAMA_URL, {
+      const response = await fetch(getOllamaUrl(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -51,7 +53,8 @@ INSTRUCTIONS:
       });
 
       if (!response.ok) {
-        throw new Error(`Ollama Server Error: ${response.statusText}`);
+        const details = await response.text();
+        throw new Error(`Ollama Server Error: ${response.status} ${response.statusText}${details ? ` - ${details}` : ''}`);
       }
 
       const data = await response.json();

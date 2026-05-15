@@ -1,20 +1,30 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# life-is-something-more
 
-# Run and deploy your AI Studio app
-
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/drive/11kBBkSS1Bxk3zuGV5VTh93OFkJAqhLIW
+This directory is a separate experimental Vite app focused on live music and prompt-driven audio interaction. It is not the main D&D playtest app, but it remains useful as a reference sandbox for audio and controller ideas.
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+```bash
+cd life-is-something-more
+npm install
+npm run dev
+```
 
+Other commands:
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+npm run build
+npm run preview
+npm test
+```
+
+## Structure
+
+- `components/` — UI controls such as prompt and playback widgets
+- `utils/` — audio, MIDI, throttling, and helper logic
+- `utils/throttle.test.ts` — example Node test coverage
+
+## Notes
+
+- This app is independent from `dnd-engine/`
+- It currently includes `@google/genai` and `lit`, but it should be treated as an experiment/prototype workspace rather than a production dependency of the D&D app

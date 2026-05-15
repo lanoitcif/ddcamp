@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 
-const OLLAMA_URL = 'http://localhost:11434/api/generate';
-const DEFAULT_MODEL = 'llama3.1';
+const DEFAULT_MODEL = 'qwen3:8b';
 
 const FALLBACK_DIRECTION = {
   tempoScale: 1,
@@ -41,6 +40,10 @@ function normalizeDirection(raw) {
     seed: clamp(Number(raw.seed) || FALLBACK_DIRECTION.seed, 0, 1),
     phraseBars: clamp(Math.round(Number(raw.phraseBars) || FALLBACK_DIRECTION.phraseBars), 2, 8),
   };
+}
+
+function getOllamaUrl() {
+  return '/api/ollama/api/generate';
 }
 
 export function useMusicDirector() {
@@ -91,7 +94,7 @@ Return JSON only.
 `.trim();
 
     try {
-      const response = await fetch(OLLAMA_URL, {
+      const response = await fetch(getOllamaUrl(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

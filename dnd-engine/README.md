@@ -1,16 +1,77 @@
-# React + Vite
+# DnD Engine
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+`dnd-engine` is a React + Vite virtual tabletop for **The Dragon of Whispering Peak**. It runs as a dual-view app: a DM console at `/`, a player view at `/?mode=player`, and a campaign builder at `/?mode=builder`.
 
-Currently, two official plugins are available:
+## What It Does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Synced DM/player state via `BroadcastChannel` by default
+- Optional remote sync via `?ws=host:port&room=name`
+- Procedural Web Audio ambience in `src/useAudio.js`
+- Local Ollama-backed LLM features:
+  - monster response generation via `src/useOllama.js`
+  - context-aware music direction via `src/useMusicDirector.js`
+- Data-driven campaign content in `src/campaign_data.json`
+- Playwright-style gameplay tests and demo capture scripts
 
-## React Compiler
+## Run Locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+cd dnd-engine
+npm install
+npm run dev -- --host 0.0.0.0 --port 5173 --strictPort
+```
 
-## Expanding the ESLint configuration
+Expected local URLs:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- DM console: `http://localhost:5173/`
+- Player view: `http://localhost:5173/?mode=player`
+- Builder: `http://localhost:5173/?mode=builder`
+
+For LAN or Tailscale play, use the machine IP instead of `localhost`.
+
+## Local Services
+
+The app expects Ollama on `127.0.0.1:11434`. Vite proxies `/api/ollama/*` to Ollama, so browser code stays same-origin.
+
+Recommended verification:
+
+```bash
+curl -sS http://127.0.0.1:11434/api/tags
+```
+
+Current local model defaults:
+
+- music director: `qwen3:8b`
+- monster/character response generation: `qwen3:8b`
+
+## Commands
+
+```bash
+npm run dev
+npm run build
+npm run lint
+```
+
+Optional relay server:
+
+```bash
+cd server
+npm install
+npm run dev
+```
+
+## Tests And Demo Assets
+
+Useful files:
+
+- `playtest_campaign.spec.js`
+- `ui_gameplay_test.spec.js`
+- `simulate_campaign.spec.js`
+- `demo/capture_playtest.mjs`
+- `demo/render_demo.mjs`
+
+Demo outputs currently live in:
+
+- `../demo/creative_llm_demo.webm`
+- `../demo/creative_llm_demo.mp4`
+- `public/creative_llm_demo.webm`

@@ -16,7 +16,18 @@ The `dnd-engine` is designed for a dual-screen experience:
 - BroadcastChannel does **not** work in private/incognito mode on some browsers.
 
 ### Network Note
-Both views must be on the **same origin** (`localhost:5173`). If accessing from a second device on LAN (e.g., a Smart TV browser), use the machine's IP address (e.g., `http://192.168.1.100:5173/?mode=player`). Vite is configured with `host: true` for this. Both devices must use the same URL host for BroadcastChannel sync to work.
+For same-machine use, both views can stay on `localhost:5173`.
+
+For a second device on LAN or Tailscale, use the machine IP instead of `localhost`, for example:
+
+- `http://192.168.1.219:5173/`
+- `http://100.86.226.123:5173/`
+
+Important:
+
+- `BroadcastChannel` sync is same-origin only
+- if DM and player are on different devices, use the optional WebSocket relay mode instead of relying on `BroadcastChannel`
+- do not mix `localhost`, hostname, and IP across the two views and expect local sync to work
 
 ### Internet Dependency
 Character portraits and scene backgrounds load from external URLs (Unsplash, DiceBear). An internet connection is required for full visuals. If images fail to load, fallback placeholders will appear automatically.
@@ -48,7 +59,7 @@ At the start of your session, let the kids choose their look:
 ## 💡 DM Pro-Tips for TV Play
 - **Chapter Navigation:** The scene sidebar groups all 12 scenes under chapter headers (Ch 1 · Oakhaven Village, Ch 2 · The Sparkle Woods, etc.) — no more scrolling through a flat list.
 - **Quest Log at a Glance:** Main quests (⭐) are always visible with a gold border. Side quests collapse with a count badge so the sidebar stays clean.
-- **Minecraft Moods:** Use the `Ambience` controls to switch from `calm` (exploration) to `tense` (finding a clue) to `combat` (boss fight). The Minecraft-style procedural music will crossfade automatically.
+- **Ambient Director:** Use the `Ambience` panel to control mood, volume, `Director`, `Context`, `Style`, `Quality`, `Novelty`, and `Refresh`. The audio engine can now use local Ollama-generated phrase direction in addition to the procedural synth.
 - **Narrative Subtitles:** Type dialogue into the **Narration** box and hit **Send**. It appears as extra-large, readable text on the TV, perfect for Mrs. Crumb's dramatic lines.
 - **Auto-Sync:** If you refresh either page, the game state is saved in `localStorage`. Your HP, Quests, and Scene will stay exactly where you left them.
 
@@ -58,8 +69,9 @@ At the start of your session, let the kids choose their look:
 
 | Problem | Solution |
 |---------|----------|
-| TV not syncing with DM Console | Both must be on the same origin. Check the URL — `localhost` ≠ `127.0.0.1`. Refresh both pages. |
+| TV not syncing with DM Console | Same machine: both must use the same origin. Different devices: use WebSocket relay mode instead of plain BroadcastChannel. |
 | No audio playing | Click inside the page first (browsers require user interaction to enable audio). Then click **Start** in Ambience controls. |
+| Director says model issue | Check that Ollama is running on `127.0.0.1:11434` and that `qwen3:8b` is installed. |
 | Images appear as placeholders | Check internet connection. External image services (Unsplash) must be reachable. |
-| Game state seems stuck | Use **Reset Campaign** (bottom of DM sidebar). This clears localStorage and restarts fresh. |
-| Blank screen / crash | The app has a built-in recovery screen. Click **Restart Adventure** to reload. If it persists, clear browser data for localhost:5173. |
+| Game state seems stuck | Use **Reset Campaign**. This clears localStorage and restarts fresh. |
+| `:5173` does not open from another device | Verify Vite was started with `--host 0.0.0.0 --port 5173 --strictPort` and that a stale loopback-only dev server is not holding the port. |
