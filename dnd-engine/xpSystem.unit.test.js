@@ -1,5 +1,6 @@
 import { getLevel, XP_THRESHOLDS } from './src/xpSystem.js';
 import assert from 'node:assert';
+import process from 'node:process';
 
 const testCases = [
   { xp: XP_THRESHOLDS[0], expected: 1, desc: `level 1 for XP at threshold 0 (${XP_THRESHOLDS[0]})` },

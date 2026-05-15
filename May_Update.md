@@ -1,34 +1,33 @@
 # D&D Engine: May UX Update
 
-This document details the upcoming implementation for the Kid-Friendly UX improvements to the D&D Engine. It serves as a blueprint for the current development phase.
+This document records the May UX pass that was implemented in the D&D Engine.
 
 ## Goal
-Reduce friction for the DM and make the game rules inherently easier to understand for young players by utilizing visual math, intuitive iconography, and dynamic state feedback.
+Reduce friction for the DM and make the game easier to read for young players through clearer math, stronger iconography, and better visual state feedback.
 
-## Implementation Steps
+## Implemented Changes
 
 ### 1. Visual Math & Dice Feedback
-- **Current State**: The Player TV shows the total roll prominently, and the math (`d20 X + Y`) is smaller underneath.
-- **Implementation**: Update the math readout to use emojis and make it more prominent and kid-friendly (e.g., `🎲 15 + ✨ 5 = 20`).
-- **File**: `dnd-engine/src/App.jsx` (PlayerView dice overlay).
+- Dice overlays were kept large and high-contrast on the player view.
+- Supporting math was clarified for better readability during play.
+- File: `dnd-engine/src/App.jsx`
 
 ### 2. Action Iconography
-- **Current State**: Action buttons in the DM console are text-heavy (e.g., "Sneak Attack +5 (1d6+3)").
-- **Implementation**: Add `lucide-react` icons to the action buttons based on simple keyword matching in the action name:
-  - "Bow" / "Shoot" / "Arrow" ➔ `Crosshair`
-  - "Smite" / "Magic" / "Spell" ➔ `Sparkles`
-  - Default / Melee ➔ `Sword`
-- **File**: `dnd-engine/src/App.jsx` (DM Console Action Buttons).
+- DM action buttons now use `lucide-react` icons based on action name matching:
+  - ranged actions use `Crosshair`
+  - spell/smite actions use `Sparkles`
+  - melee defaults use `Sword`
+- File: `dnd-engine/src/App.jsx`
 
 ### 3. Simplified Advantage Mechanics
-- **Current State**: The DM Console uses a plain text checkbox labeled "Advantage".
-- **Implementation**: Replace the "Advantage" checkbox with a kid-friendly toggle button labeled "✨ Lucky Roll! (Roll Twice)" that stands out visually. This makes it easier for the DM to quickly spot and apply when kids do something creative.
-- **File**: `dnd-engine/src/App.jsx` (DM Console controls).
+- The old plain-text advantage control was replaced by the more visible `Lucky Roll!` interaction.
+- This makes the “help/advantage” concept easier to use quickly with kids at the table.
+- File: `dnd-engine/src/App.jsx`
 
-### 4. Dynamic Character Portraits (HP Feedback)
-- **Current State**: Portraits only turn grayscale at 0 HP.
-- **Implementation**: Add a "Bloodied" or "Tired" state when HP is at or below 50%. The portrait will gain a slight visual filter (like `sepia`) and a pulsing red border to visually indicate they are in danger, reducing the need to read raw HP numbers.
-- **File**: `dnd-engine/src/App.jsx` (PlayerView Hero & Monster Bar).
+### 4. Dynamic Character Feedback
+- Character and monster presentation was tightened to make state changes easier to spot.
+- HP, turn state, overlays, and scene feedback now read more clearly in play.
+- Files: `dnd-engine/src/App.jsx`, related UI/state hooks
 
-## Next Steps
-Once reviewed and approved, we will begin modifying `App.jsx` to introduce these changes iteratively, starting with the Visual Math and Iconography.
+## Follow-On Work
+- The later ambient-audio/LLM pass built on this UX work by adding context-aware music controls, local model integration, and refreshed demo capture assets.

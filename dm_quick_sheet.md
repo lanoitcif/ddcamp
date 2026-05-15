@@ -6,9 +6,12 @@
 ## 🎲 The Console Tools
 
 ### 🎛️ Ambience & Audio
-- **Start/Playing:** Toggle the procedural audio engine. Each scene has a unique ambient soundtrack.
+- **Start/Playing:** Toggle the procedural audio engine. Each scene has its own ambient palette.
 - **Moods:** `calm` (exploration), `tense` (investigating), `combat` (action). Click to switch — the music crossfades automatically.
 - **Volume:** Use the slider to keep it atmospheric but not distracting.
+- **Director:** Lets the local music-director model steer phrase changes.
+- **Context:** Includes synced game/screen context in the music-director prompt.
+- **Style / Quality / Novelty / Refresh:** Fine-tune how retro, dense, adventurous, and frequently refreshed the ambient score feels.
 
 ### 🎭 Reactions & Pings
 - **Quick Reactions:** Click an emoji (🎉, ❤️, 🌟, ❓, 💀, 🔥, 👏, 😂) to send it floating across the TV. Great for rewarding creativity.
@@ -26,7 +29,7 @@
 - **Initiative:** The tracker shows the **full turn order** with the active character highlighted. Click **Next Turn** to advance. The TV shows a "YOUR TURN" banner.
 - **HP Delta:** Type a number (like `-5` or `+2`) and hit **Apply**. Clamped to 0–max.
 - **HP +/- Buttons:** Quick single-point adjustments.
-- **Heroic Actions:** **Help** logs Advantage, **Snack** heals 2 HP.
+- **Heroic Actions:** **Lucky Roll!** grants Advantage, **Snack** heals 2 HP.
 
 ### 📜 Handouts
 - Click any item in the **Handouts** gallery to show it full-screen on the TV. Click **Dismiss Overlay** to clear.
@@ -150,6 +153,7 @@
 - **Everything is a d20:** 10+ usually works for any creative idea.
 - **Handouts on the big screen** make discoveries feel real.
 - **Second Wind & Lay on Hands:** Not automated — roll manually and use ±HP.
+- **Local AI prompts:** Monster AI generation depends on local Ollama availability.
 - **Diplomacy rewards:** Use 🌟 reactions when kids choose kindness over combat.
 - **Rest at Camp:** Always heal to full HP at the campfire scene!
 - **Side quests are optional:** The DM decides when to introduce them based on pacing and engagement.

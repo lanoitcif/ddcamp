@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Dungeon Engine Demo</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050816;
+      --panel: rgba(7, 12, 28, 0.78);
+      --gold: #f7c24b;
+      --amber: #ffda72;
+      --ice: #d9f1ff;
+      --muted: #9db6cf;
+      --red: #ff5d62;
+      --blue: #72c3ff;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #10234d 0%, var(--bg) 44%, #02040c 100%);
+      font-family: Georgia, "Times New Roman", serif;
+      color: white;
+    }
+
+    canvas {
+      width: 1280px;
+      height: 720px;
+      display: block;
+      margin: 0 auto;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+      background: #000;
+    }
+
+    #status {
+      position: fixed;
+      left: 16px;
+      bottom: 12px;
+      font: 12px/1.4 monospace;
+      color: #9db6cf;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="1280" height="720"></canvas>
+  <div id="status">idle</div>
+  <script>
+    const WIDTH = 1280;
+    const HEIGHT = 720;
+    const FPS = 24;
+    const BASE_DURATION = 90;
+    const params = new URLSearchParams(window.location.search);
+    const DURATION = Number(params.get('duration')) || BASE_DURATION;
+    const durationScale = DURATION / BASE_DURATION;
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const statusEl = document.getElementById('status');
+
+    const shots = [
+      {
+        start: 0,
+        end: 12,
+        image: './captures/01_dm_current_dashboard.png',
+        eyebrow: 'Creative LLM Workflows',
+        title: 'One Project, Many Practical Uses For AI',
+        subtitle: 'I used LLMs as a collaborator to design systems, implement features, refine UX, and turn an idea into something playable instead of theoretical.',
+        detail: 'Builder • critic • designer • implementation partner',
+        accent: '#f7c24b',
+        scaleStart: 1.08,
+        scaleEnd: 1.0,
+        panStart: [0.0, 0.0],
+        panEnd: [-0.03, -0.02],
+      },
+      {
+        start: 12,
+        end: 25,
+        image: './captures/02_player_intro_current.png',
+        eyebrow: 'Dual-View Experience',
+        title: 'The Same State Powers DM Control And Cinematic Output',
+        subtitle: 'One screen manages the systems. Another screen becomes the player-facing stage. That separation makes the project feel like a real experience instead of a toy demo.',
+        detail: 'Synced state • live narration • player-facing presentation',
+        accent: '#72c3ff',
+        scaleStart: 1.02,
+        scaleEnd: 1.08,
+        panStart: [0.02, -0.02],
+        panEnd: [-0.02, 0.01],
+      },
+      {
+        start: 25,
+        end: 38,
+        image: './captures/05_player_puzzle_live.png',
+        eyebrow: 'Procedural Interaction',
+        title: 'AI Is More Interesting When It Drives Systems',
+        subtitle: 'Puzzle overlays, handouts, timing, and scene reactions are generated behaviors. The goal is not just chat. The goal is responsive interaction.',
+        detail: 'Procedural moments • reactive UI • system-driven play',
+        accent: '#ff5d62',
+        scaleStart: 1.0,
+        scaleEnd: 1.12,
+        panStart: [0.0, 0.0],
+        panEnd: [0.05, -0.02],
+      },
+      {
+        start: 38,
+        end: 54,
+        image: './captures/06_dm_local_llm_prompt.png',
+        eyebrow: 'Local Model Features',
+        title: 'The LLM Layer Runs Through Local Services',
+        subtitle: 'Prompts can influence dialogue, scene behavior, and the adaptive music director. The model becomes a control system, not just a chatbot window.',
+        detail: 'Local Ollama calls • prompt-driven behavior • adaptive systems',
+        accent: '#9c8cff',
+        scaleStart: 1.06,
+        scaleEnd: 1.01,
+        panStart: [-0.03, 0.0],
+        panEnd: [0.03, -0.02],
+      },
+      {
+        start: 54,
+        end: 72,
+        image: './captures/08_player_combat_overlay.png',
+        eyebrow: 'AI Plus Craft',
+        title: 'The Fast Part Is Generation. The Hard Part Is Taste.',
+        subtitle: 'Working with an AI coding partner helped me move quickly, but the value came from steering the output, tightening the loops, and choosing what was actually worth keeping.',
+        detail: 'Collaborative coding • iteration • taste still matters',
+        accent: '#53e0a1',
+        scaleStart: 1.01,
+        scaleEnd: 1.08,
+        panStart: [0.0, -0.02],
+        panEnd: [-0.04, 0.02],
+      },
+      {
+        start: 72,
+        end: 90,
+        image: './captures/10_player_quest_reward.png',
+        eyebrow: 'The Real Pitch',
+        title: 'Creative Ways To Use LLMs In Life',
+        subtitle: 'Not just asking questions. Using local models and AI collaboration to prototype experiences, automate workflows, and build strange useful things faster.',
+        detail: 'Design • code • systems • workflow • imagination',
+        accent: '#f7c24b',
+        scaleStart: 1.0,
+        scaleEnd: 1.05,
+        panStart: [0.0, 0.0],
+        panEnd: [0.0, 0.0],
+      },
+    ];
+    const timedShots = shots.map(shot => ({
+      ...shot,
+      start: shot.start * durationScale,
+      end: shot.end * durationScale,
+    }));
+
+    const images = new Map();
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function easeInOut(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function clamp(v, min, max) {
+      return Math.min(max, Math.max(min, v));
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    async function preload() {
+      for (const shot of timedShots) {
+        if (!images.has(shot.image)) {
+          images.set(shot.image, await loadImage(shot.image));
+        }
+      }
+    }
+
+    function drawCover(img, scale, panX, panY) {
+      const imgRatio = img.width / img.height;
+      const canvasRatio = WIDTH / HEIGHT;
+      let drawW;
+      let drawH;
+      if (imgRatio > canvasRatio) {
+        drawH = HEIGHT * scale;
+        drawW = drawH * imgRatio;
+      } else {
+        drawW = WIDTH * scale;
+        drawH = drawW / imgRatio;
+      }
+      const x = (WIDTH - drawW) / 2 + panX * WIDTH;
+      const y = (HEIGHT - drawH) / 2 + panY * HEIGHT;
+      ctx.drawImage(img, x, y, drawW, drawH);
+    }
+
+    function drawWrappedText(text, x, y, maxWidth, lineHeight, color, font) {
+      ctx.font = font;
+      ctx.fillStyle = color;
+      const words = text.split(' ');
+      let line = '';
+      const lines = [];
+      for (const word of words) {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = test;
+        }
+      }
+      if (line) lines.push(line);
+      lines.forEach((entry, index) => ctx.fillText(entry, x, y + index * lineHeight));
+      return lines.length;
+    }
+
+    function drawGlassPanel(x, y, w, h, accent, alpha = 0.78) {
+      ctx.save();
+      ctx.fillStyle = `rgba(5, 10, 24, ${alpha})`;
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 2;
+      roundRect(ctx, x, y, w, h, 24);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function roundRect(context, x, y, w, h, r) {
+      context.beginPath();
+      context.moveTo(x + r, y);
+      context.arcTo(x + w, y, x + w, y + h, r);
+      context.arcTo(x + w, y + h, x, y + h, r);
+      context.arcTo(x, y + h, x, y, r);
+      context.arcTo(x, y, x + w, y, r);
+      context.closePath();
+    }
+
+    function drawScanlines() {
+      ctx.save();
+      ctx.globalAlpha = 0.08;
+      ctx.fillStyle = '#ffffff';
+      for (let y = 0; y < HEIGHT; y += 4) {
+        ctx.fillRect(0, y, WIDTH, 1);
+      }
+      ctx.restore();
+    }
+
+    function drawNoise(seed) {
+      ctx.save();
+      ctx.globalAlpha = 0.03;
+      for (let i = 0; i < 80; i++) {
+        const x = (Math.sin(seed * (i + 3.2)) * 0.5 + 0.5) * WIDTH;
+        const y = (Math.cos(seed * (i + 7.1)) * 0.5 + 0.5) * HEIGHT;
+        const s = 1 + ((i * 7) % 3);
+        ctx.fillStyle = i % 2 ? '#ffffff' : '#8dbfff';
+        ctx.fillRect(x, y, s, s);
+      }
+      ctx.restore();
+    }
+
+    function drawTimeline(t) {
+      const progress = t / DURATION;
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      ctx.fillRect(80, HEIGHT - 44, WIDTH - 160, 4);
+      ctx.fillStyle = '#f7c24b';
+      ctx.fillRect(80, HEIGHT - 44, (WIDTH - 160) * progress, 4);
+      ctx.restore();
+    }
+
+    function drawFrame(t) {
+      const shot = timedShots.find(s => t >= s.start && t < s.end) || timedShots[timedShots.length - 1];
+      const img = images.get(shot.image);
+      const p = clamp((t - shot.start) / (shot.end - shot.start), 0, 1);
+      const eased = easeInOut(p);
+      const fadeIn = clamp((p - 0.02) / 0.12, 0, 1);
+      const fadeOut = clamp((1 - p) / 0.12, 0, 1);
+      const opacity = Math.min(fadeIn, fadeOut);
+      const scale = lerp(shot.scaleStart, shot.scaleEnd, eased);
+      const panX = lerp(shot.panStart[0], shot.panEnd[0], eased);
+      const panY = lerp(shot.panStart[1], shot.panEnd[1], eased);
+
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+      ctx.fillStyle = '#030712';
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      drawCover(img, scale, panX, panY);
+
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+      bgGrad.addColorStop(0, 'rgba(3, 8, 18, 0.28)');
+      bgGrad.addColorStop(0.55, 'rgba(3, 8, 18, 0.18)');
+      bgGrad.addColorStop(1, 'rgba(1, 2, 8, 0.88)');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      const vignette = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, HEIGHT * 0.1, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.75);
+      vignette.addColorStop(0, 'rgba(0,0,0,0)');
+      vignette.addColorStop(1, 'rgba(0,0,0,0.55)');
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      ctx.save();
+      ctx.globalAlpha = 0.9 * opacity;
+      drawGlassPanel(72, 62, 840, 260, shot.accent, 0.68);
+
+      ctx.fillStyle = shot.accent;
+      ctx.font = '700 20px Arial';
+      ctx.fillText(shot.eyebrow.toUpperCase(), 108, 112);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 54px Georgia';
+      drawWrappedText(shot.title, 104, 176, 740, 62, '#ffffff', '700 54px Georgia');
+
+      ctx.fillStyle = '#d9f1ff';
+      drawWrappedText(shot.subtitle, 108, 256, 740, 30, '#d9f1ff', '400 24px Arial');
+
+      drawGlassPanel(72, 614, 1136, 54, shot.accent, 0.65);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 18px Arial';
+      ctx.fillText(shot.detail, 102, 648);
+
+      drawGlassPanel(954, 62, 254, 88, shot.accent, 0.7);
+      ctx.fillStyle = '#9db6cf';
+      ctx.font = '700 14px Arial';
+      ctx.fillText('WHAT I\'M DOING WITH AI', 980, 96);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 28px Georgia';
+      ctx.fillText('Gameplay Demo', 980, 130);
+
+      if (t > 28 && t < 45) {
+        const flash = Math.sin((t - 28) * 12) * 0.5 + 0.5;
+        ctx.fillStyle = `rgba(255, 93, 98, ${0.10 * flash})`;
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      }
+
+      drawTimeline(t);
+      ctx.restore();
+
+      drawScanlines();
+      drawNoise(t * 0.53);
+    }
+
+    function createMusic(audioCtx, destination, durationSec) {
+      const master = audioCtx.createGain();
+      master.gain.value = 0.14;
+      master.connect(destination);
+
+      const delay = audioCtx.createDelay();
+      delay.delayTime.value = 0.34;
+      const feedback = audioCtx.createGain();
+      feedback.gain.value = 0.25;
+      master.connect(delay);
+      delay.connect(feedback);
+      feedback.connect(delay);
+      delay.connect(destination);
+
+      const scale = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33];
+      const motif = [0, 2, 4, 5, 4, 2, 0, 1];
+      const bass = [0, -1, 3, -1, 4, -1, 2, -1];
+      const step = 0.78;
+      const start = audioCtx.currentTime + 0.1;
+
+      for (let i = 0; i < durationSec / step; i++) {
+        const when = start + i * step;
+        const degree = motif[i % motif.length];
+        const bassDegree = bass[i % bass.length];
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = i % 7 === 0 ? 'triangle' : 'sine';
+        osc.frequency.value = scale[degree];
+        gain.gain.setValueAtTime(0, when);
+        gain.gain.linearRampToValueAtTime(0.08, when + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, when + step * 0.9);
+        osc.connect(gain);
+        gain.connect(master);
+        osc.start(when);
+        osc.stop(when + step);
+
+        if (bassDegree >= 0) {
+          const bOsc = audioCtx.createOscillator();
+          const bGain = audioCtx.createGain();
+          bOsc.type = 'triangle';
+          bOsc.frequency.value = scale[bassDegree] / 2;
+          bGain.gain.setValueAtTime(0, when);
+          bGain.gain.linearRampToValueAtTime(0.05, when + 0.04);
+          bGain.gain.exponentialRampToValueAtTime(0.001, when + step * 1.4);
+          bOsc.connect(bGain);
+          bGain.connect(master);
+          bOsc.start(when);
+          bOsc.stop(when + step * 1.5);
+        }
+      }
+
+      return audioCtx;
+    }
+
+    async function startRender() {
+      setStatus('preloading');
+      await preload();
+      setStatus('recording');
+
+      const stream = canvas.captureStream(FPS);
+      const audioDestinationContext = new AudioContext();
+      const mediaDestination = audioDestinationContext.createMediaStreamDestination();
+      const musicCtx = createMusic(audioDestinationContext, mediaDestination, DURATION);
+      await musicCtx.resume();
+
+      const mixed = new MediaStream([
+        ...stream.getVideoTracks(),
+        ...mediaDestination.stream.getAudioTracks(),
+      ]);
+
+      const chunks = [];
+      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
+        ? 'video/webm;codecs=vp9,opus'
+        : 'video/webm;codecs=vp8,opus';
+
+      const recorder = new MediaRecorder(mixed, {
+        mimeType,
+        videoBitsPerSecond: 5_000_000,
+        audioBitsPerSecond: 128_000,
+      });
+
+      recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) chunks.push(event.data);
+      };
+
+      const done = new Promise((resolve) => {
+        recorder.onstop = async () => {
+          const blob = new Blob(chunks, { type: mimeType });
+          const buffer = await blob.arrayBuffer();
+          let binary = '';
+          const bytes = new Uint8Array(buffer);
+          const chunkSize = 0x8000;
+          for (let i = 0; i < bytes.length; i += chunkSize) {
+            binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+          }
+          setStatus('done');
+          resolve(btoa(binary));
+        };
+      });
+
+      recorder.start(1000);
+
+      const startTime = performance.now();
+      await new Promise((resolve) => {
+        function tick(now) {
+          const t = Math.min((now - startTime) / 1000, DURATION);
+          drawFrame(t);
+          setStatus(`recording ${t.toFixed(1)}s / ${DURATION}s`);
+          if (t < DURATION) {
+            requestAnimationFrame(tick);
+          } else {
+            resolve();
+          }
+        }
+        requestAnimationFrame(tick);
+      });
+
+      recorder.stop();
+      const base64 = await done;
+      musicCtx.close();
+      audioDestinationContext.close();
+      return base64;
+    }
+
+    window.startRender = startRender;
+    drawFrame(0);
+  </script>
+</body>
+</html>

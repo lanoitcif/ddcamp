@@ -2,14 +2,14 @@
 
 ## Project Overview
 
-A D&D virtual tabletop (VTT) engine designed for playing "The Dragon of Whispering Peak" campaign with kids ages 8–13. The app runs as a dual-view React SPA: a **DM Console** for the game master and a **Player View** displayed on a shared TV/screen. Both views share state via BroadcastChannel and localStorage.
+A D&D virtual tabletop (VTT) engine designed for playing "The Dragon of Whispering Peak" with kids ages 8–13. The app runs as a dual-view React SPA: a **DM Console** for the game master and a **Player View** for a shared TV/screen. Local state sync is handled through `BroadcastChannel`; optional remote sync is handled by `useSync` and the relay server.
 
 ## Build, Test, and Lint
 
 All commands run from the `dnd-engine/` directory:
 
 ```bash
-npm run dev          # Vite dev server on http://localhost:5173 (host: true for LAN)
+npm run dev -- --host 0.0.0.0 --port 5173 --strictPort
 npm run build        # Production build → dist/
 npm run lint         # ESLint
 npm run lint -- --fix
@@ -26,7 +26,7 @@ npx playwright test ui_gameplay_test.spec.js -g "Critical Hit"  # Single test by
 npx playwright test --headed                              # Watch in browser
 ```
 
-Test files live in `dnd-engine/` root (not a `tests/` subdirectory):
+Test files mostly live in `dnd-engine/` root, with some additional specs under `dnd-engine/tests/`:
 - `simulate_campaign.spec.js` — DM→Player sync and scene transitions
 - `ui_gameplay_test.spec.js` — Exhaustive UI/gameplay assertions
 - `visual_documentation.spec.js` — Screenshot-based visual regression (saves to `screenshots/`)
@@ -35,24 +35,25 @@ Test files live in `dnd-engine/` root (not a `tests/` subdirectory):
 
 ### Dual-View, Single State Source
 
-`App.jsx` renders either `<DMControl />` or `<PlayerView />` based on the `?mode=player` URL param. Both consume the same `useCampaign()` hook.
+`App.jsx` renders either the DM console, player view, or builder mode based on the URL params. All consume the same `useCampaign()` hook.
 
-- **DM Console** (`/`) — Sidebar with scene selector, initiative tracker, quest log, and DM tools (skill check roller, secret rolls, narration text, overlay dismiss, campaign reset). Main area has character cards and scene-relevant monster cards with HP controls, custom HP delta input, and action buttons that trigger attack + damage rolls. Combat log at bottom.
-- **Player View** (`/?mode=player`) — Full-screen cinematic display with scene crossfade transitions, "YOUR TURN" banner, dice roll overlays (5s) with damage, critical hit/fail callouts, quest toasts (6s), DM narration subtitles, and a hero+monster status bar with HP numbers.
+- **DM Console** (`/`) — Sidebar with scenes, quests, narration, reactions, ambience controls, overlays, and reset controls. Main area has character/monster cards, HP controls, and action buttons.
+- **Player View** (`/?mode=player`) — Full-screen cinematic display with scene transitions, turn banner, dice/quest overlays, narration, and status bars.
+- **Builder** (`/?mode=builder`) — Campaign editor with validation and import/export support.
 
 ### State Sync (`useCampaign.js`)
 
 `useCampaign()` is the single custom hook for all game logic. It manages:
 
-- `currentSceneId`, `characterHp`, `activeTurnId`, `completedQuests`, `lastRoll`, `toast`, `narration`, `rollLog`
+- `currentSceneId`, `characterHp`, `activeTurnId`, `completedQuests`, `lastRoll`, `toast`, `narration`, `rollLog`, `audioSettings`, `audioDirector`
 
-State flows: DM action → `updateGameState()` → React state + `localStorage('dnd_game_state')` + `BroadcastChannel('dnd_engine_sync')` → Player View reacts.
+State flows: DM action → `updateGameState()` → React state + `localStorage('dnd_game_state')` + sync transport → Player View reacts.
 
-Key functions: `handleHpChange` (clamped to 0–maxHp), `setHp`, `rollDice` (d20 + damage), `rollSkillCheck`, `rollSecret` (DM-only), `nextTurn`, `awardLoot`, `setNarration`, `dismissOverlay`, `resetGame`.
+Key functions include HP clamping, action rolling, narration, quest rewards, puzzle updates, and synced audio state changes.
 
 ### Data-Driven Campaign (`campaign_data.json`)
 
-All campaign content — characters, scenes, monsters, quests — lives in `src/campaign_data.json`. Components iterate over this data to generate UI. To run a different campaign, swap this file.
+All campaign content — characters, scenes, monsters, quests — lives in `src/campaign_data.json`. Components iterate over this data to generate UI.
 
 ## Key Conventions
 
@@ -67,7 +68,7 @@ All campaign content — characters, scenes, monsters, quests — lives in `src/
 
 - Functional components only. No class components.
 - All game state lives in the `useCampaign` hook — components don't manage their own game state.
-- `framer-motion` is installed for animations. `lucide-react` provides icons (Sword, Heart, Trophy, Scroll, etc.).
+- `lucide-react` provides icons. Prefer existing project styles and terse, readable controls over adding new visual systems.
 
 ### Naming
 
@@ -78,4 +79,4 @@ All campaign content — characters, scenes, monsters, quests — lives in `src/
 
 ### Network Access
 
-Vite is configured with `host: true` so the app is accessible over LAN/Tailscale. The DM runs the console on their laptop while the Player View displays on a TV via a second device or browser window.
+Vite is configured for LAN/Tailscale access. When you need predictable networking, start it with `--host 0.0.0.0 --port 5173 --strictPort` so it does not silently drift to `5174`.

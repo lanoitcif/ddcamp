@@ -25,7 +25,8 @@ const DAMAGE_PATTERN = /^\d+d\d+([+-]\d+)?$/;
 
 // --- Reusable UI Primitives ---
 
-function SectionHeader({ icon: SectionIcon, title, count, children }) {
+function SectionHeader({ icon: sectionIcon, title, count, children }) {
+  const SectionIcon = sectionIcon;
   return (
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-xl font-bold text-dnd-gold flex items-center gap-2">
@@ -134,8 +135,9 @@ function DamageInput({ value, onChange }) {
   );
 }
 
-function ConfirmButton({ onConfirm, icon: ConfirmIcon = Trash2, label = 'Delete', className = '' }) {
+function ConfirmButton({ onConfirm, icon: iconComponent = Trash2, label = 'Delete', className = '' }) {
   const [confirming, setConfirming] = useState(false);
+  const Icon = iconComponent;
   return confirming ? (
     <span className="inline-flex gap-1 items-center">
       <button
@@ -157,7 +159,7 @@ function ConfirmButton({ onConfirm, icon: ConfirmIcon = Trash2, label = 'Delete'
       className={`text-gray-400 hover:text-red-400 transition-colors ${className}`}
       title={label}
     >
-      <ConfirmIcon size={16} />
+      <Icon size={16} />
     </button>
   );
 }
