@@ -16,9 +16,19 @@ test.describe('D&D Engine Exhaustive UI and Gameplay Tests', () => {
     await dmPage.goto('http://localhost:5173');
     await dmPage.evaluate(() => localStorage.removeItem('dnd_game_state'));
     
-    // Mock Math.random to always return 0.99 for a critical hit (20)
+    // Mock Math.random and crypto.getRandomValues to always return critical hit (20)
     await dmPage.addInitScript(() => {
       window.Math.random = () => 0.99;
+      if (window.crypto && window.crypto.getRandomValues) {
+        window.crypto.getRandomValues = (arr) => {
+          if (arr instanceof Uint32Array) {
+            arr[0] = 19; // 1 + (19 % 20) = 20
+          } else if (arr instanceof Uint8Array) {
+            for (let i = 0; i < arr.length; i++) arr[i] = 19;
+          }
+          return arr;
+        };
+      }
     });
 
     await dmPage.goto('http://localhost:5173');
@@ -166,8 +176,20 @@ test.describe('D&D Engine Exhaustive UI and Gameplay Tests', () => {
     // Reload
     await dmPage.reload();
     
-    // Restore the Math.random mock after reload
-    await dmPage.evaluate(() => { window.Math.random = () => 0.99; });
+    // Restore the Math.random and crypto mocks after reload
+    await dmPage.evaluate(() => {
+      window.Math.random = () => 0.99;
+      if (window.crypto && window.crypto.getRandomValues) {
+        window.crypto.getRandomValues = (arr) => {
+          if (arr instanceof Uint32Array) {
+            arr[0] = 19;
+          } else if (arr instanceof Uint8Array) {
+            for (let i = 0; i < arr.length; i++) arr[i] = 19;
+          }
+          return arr;
+        };
+      }
+    });
     
     // Check again
     const lilyCardReloaded = dmPage.locator('[data-testid="card-lily"]');
@@ -224,7 +246,7 @@ test.describe('D&D Engine Exhaustive UI and Gameplay Tests', () => {
     await expect(dmPage.locator('text=Monsters in Scene')).toBeVisible();
 
     // Verify AI prompt input is visible on monster cards
-    const aiInput = dmPage.locator('input[placeholder="Ask AI via Player Action..."]').first();
+    const aiInput = dmPage.locator('input[placeholder="Ask AI or Type to Speak..."]').first();
     await expect(aiInput).toBeVisible();
 
     // Verify AI button is visible

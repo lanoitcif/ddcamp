@@ -169,7 +169,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
 
   // Lily & Valerius Help Interaction
   console.log('\n  ✨ Valerius: "Let me help you search, Lily!" (Uses Help Action)');
-  await safeClick(dmPage, '[data-testid="card-valerius"] >> button:has-text("Help")', 'Valerius Help');
+  await safeClick(dmPage, '[data-testid="card-valerius"] >> button:has-text("Lucky Roll!")', 'Valerius Help');
   noteAction('valerius', 'Used Help to give Lily advantage');
   await waitForSync(1500);
   await safeClick(dmPage, 'button:has-text("Dismiss Overlay")', 'Dismiss Overlay');
@@ -190,7 +190,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
 
   // DM Agent: Test AI prompt on monster card
   console.log('  🤖 DM: Testing AI prompt on monster card...');
-  const aiInput = dmPage.locator('input[placeholder="Ask AI via Player Action..."]').first();
+  const aiInput = dmPage.locator('input[placeholder="Ask AI or Type to Speak..."]').first();
   try {
     await expect(aiInput).toBeVisible({ timeout: 3000 });
     await aiInput.fill('Who dares disturb my tree?');
@@ -316,7 +316,7 @@ test('Full Campaign Playtest — DM + 3 Player Agents', async ({ browser }) => {
 
   // Lily helps Valerius speak
   console.log('  🗡️ Lily: "You talk to him, Valerius. I\'ll help!"');
-  await safeClick(dmPage, '[data-testid="card-lily"] >> button:has-text("Help")', 'Lily Help');
+  await safeClick(dmPage, '[data-testid="card-lily"] >> button:has-text("Lucky Roll!")', 'Lily Help');
   await waitForSync(1500);
   await safeClick(dmPage, 'button:has-text("Dismiss Overlay")', 'Dismiss');
 

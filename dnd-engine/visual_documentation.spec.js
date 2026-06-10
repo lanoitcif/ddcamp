@@ -36,9 +36,19 @@ test.describe('Visual Documentation Suite', () => {
   });
 
   test('Scenario 3: The Moment of Glory', async () => {
-    // Mock Math.random for a critical hit before page reload
+    // Mock Math.random and crypto.getRandomValues for a critical hit before page reload
     await dmPage.addInitScript(() => {
         window.Math.random = () => 0.99;
+        if (window.crypto && window.crypto.getRandomValues) {
+          window.crypto.getRandomValues = (arr) => {
+            if (arr instanceof Uint32Array) {
+              arr[0] = 19; // 1 + (19 % 20) = 20
+            } else if (arr instanceof Uint8Array) {
+              for (let i = 0; i < arr.length; i++) arr[i] = 19;
+            }
+            return arr;
+          };
+        }
     });
     await dmPage.reload();
     await expect(dmPage.locator('h1')).toContainText('Dragon of Whispering Peak');

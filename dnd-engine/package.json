@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node src/campaignSchema.test.js && node src/security.test.js && node xpSystem.unit.test.js",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "lucide-react": "^1.7.0",

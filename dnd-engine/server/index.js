@@ -48,17 +48,17 @@ wss.on('connection', (ws, req) => {
 
   log(`Client connected to room "${roomName}" (${room.clients.size} clients)`);
 
-  // Send welcome message
+  // Send welcome message (clientCount is the field useSync.js reads)
   ws.send(JSON.stringify({
     type: 'welcome',
     room: roomName,
-    clients: room.clients.size,
+    clientCount: room.clients.size,
   }));
 
   // Notify others in the room
   broadcastToRoom(roomName, {
     type: 'client_joined',
-    clients: room.clients.size,
+    clientCount: room.clients.size,
   }, ws);
 
   // Send existing state if available
@@ -93,7 +93,7 @@ wss.on('connection', (ws, req) => {
 
     broadcastToRoom(roomName, {
       type: 'client_left',
-      clients: room.clients.size,
+      clientCount: room.clients.size,
     });
 
     // Clean up empty rooms
@@ -114,7 +114,7 @@ const heartbeat = setInterval(() => {
     if (!ws.isAlive) {
       log(`Terminating unresponsive client in room "${ws.roomName}"`);
       ws.terminate();
-      return;
+      continue;
     }
     ws.isAlive = false;
     ws.ping();

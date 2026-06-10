@@ -124,6 +124,184 @@ function PortraitGallery({ onSelect, onClose }) {
   );
 }
 
+/* ─── Entity card (module-level so React never remounts it mid-typing) ─── */
+
+function EntityCard({
+  entity, isMonster,
+  gameState, campaignData, sceneMonsters, activeTurnEntity,
+  hpInput, setHpInput, applyHpDelta,
+  setHp, handleHpChange, setShowPortraits,
+  rollDice, helpAction, snackAction,
+  aiPromptInput, setAiPromptInput, setNarration,
+  isGenerating, handleAiGenerate,
+}) {
+  const hp = gameState.characterHp[entity.id] ?? 0;
+  const maxHp = entity.maxHp ?? entity.hp;
+  const isActive = gameState.activeTurnId === entity.id;
+  const portrait = gameState.characterPortraits[entity.id] || entity.image;
+  const isDead = isMonster && hp <= 0;
+
+  return (
+    <div data-testid={`card-${entity.id}`} className={`dnd-card flex-1 min-w-[300px] max-w-[450px] transition-all ${isDead ? 'opacity-40 grayscale scale-95' : ''} ${isActive ? 'ring-2 ring-white scale-105 z-10' : 'opacity-80 hover:opacity-100'}`}>
+      <div className="flex items-center gap-4 mb-4">
+        <div className="relative group/portrait">
+          <img src={portrait} alt={entity.name} className={`w-16 h-16 rounded-none border-2 shadow-[4px_4px_0px_rgba(0,0,0,1)] object-cover ${isMonster ? 'border-red-500' : 'border-dnd-gold'}`} onError={handleImgError} />
+          {!isMonster && (
+            <button
+              onClick={() => setShowPortraits(entity.id)}
+              className="absolute inset-0 bg-black/60 rounded-none opacity-0 group-hover/portrait:opacity-100 flex items-center justify-center text-[10px] font-bold text-white transition-opacity"
+            >CHANGE</button>
+          )}
+        </div>
+        <div>
+          <h3 className="font-bold text-xl text-dnd-gold">{entity.name}</h3>
+          {entity.class && <p className="text-xs text-gray-400 italic tracking-widest">{entity.class.toUpperCase()}</p>}
+          {isMonster && <p className="text-xs text-red-400 italic tracking-widest flex items-center gap-1"><Skull size={10} /> MONSTER</p>}
+        </div>
+      </div>
+
+      {/* HP display */}
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex items-center gap-2">
+          <Heart className={`${isMonster ? 'text-red-400 fill-red-400' : 'text-red-500 fill-red-500'}`} size={18} />
+          <span data-testid={`hp-${entity.id}`} className="font-bold text-3xl">{hp}</span>
+          <span className="text-gray-500 text-sm">/ {maxHp}</span>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={() => handleHpChange(entity.id, -1)} className="w-10 h-10 rounded-none bg-red-900/50 hover:bg-red-800 border border-red-500 flex items-center justify-center font-bold">-</button>
+          <button onClick={() => handleHpChange(entity.id, 1)} className="w-10 h-10 rounded-none bg-green-900/50 hover:bg-green-800 border border-green-500 flex items-center justify-center font-bold">+</button>
+        </div>
+      </div>
+
+      {/* Quick HP delta */}
+      <div className="flex gap-2 mb-4">
+        <input
+          type="number"
+          placeholder="±HP"
+          value={hpInput[entity.id] || ''}
+          onChange={e => setHpInput(prev => ({ ...prev, [entity.id]: e.target.value }))}
+          onKeyDown={e => e.key === 'Enter' && applyHpDelta(entity.id, maxHp)}
+          className="flex-1 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-center"
+        />
+        <button
+          onClick={() => applyHpDelta(entity.id, maxHp)}
+          className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs border border-gray-500"
+        >Apply</button>
+      </div>
+
+      {isDead && (
+        <button
+          onClick={() => setHp(entity.id, entity.maxHp ?? entity.hp)}
+          className="w-full mb-4 px-3 py-2 bg-green-900/40 hover:bg-green-800 border border-green-600 rounded text-xs font-bold text-green-300 flex items-center justify-center gap-2"
+        >
+          <RotateCcw size={12} /> Revive ({entity.maxHp ?? entity.hp} HP)
+        </button>
+      )}
+
+      {/* Actions */}
+      {entity.actions && (
+        <div className="space-y-2 mb-4">
+          {entity.actions.map(action => (
+            <button
+              key={action.name}
+              onClick={() => {
+                let targetId = null;
+                if (isMonster) {
+                  const activeChar = campaignData.characters.find(c => c.id === gameState.activeTurnId);
+                  targetId = activeChar?.id || campaignData.characters[0]?.id;
+                } else {
+                  targetId = sceneMonsters.find(m => (gameState.characterHp[m.id] ?? m.hp) > 0)?.id;
+                }
+                rollDice(action.bonus, `${entity.name}: ${action.name}`, action.damage, targetId);
+              }}
+              className="w-full text-left p-2 bg-gray-800 hover:bg-black rounded text-xs border border-gray-700 hover:border-dnd-gold transition-all flex justify-between group"
+            >
+              <span>
+                {action.name.match(/bow|shoot|arrow/i) ? <Crosshair size={12} className="inline mr-2 text-gray-500 group-hover:text-dnd-gold" /> :
+                 action.name.match(/smite|magic|spell/i) ? <Sparkles size={12} className="inline mr-2 text-gray-500 group-hover:text-dnd-gold" /> :
+                 <Sword size={12} className="inline mr-2 text-gray-500 group-hover:text-dnd-gold" />}
+                {action.name}
+              </span>
+              <span className="text-dnd-gold">+{action.bonus} <span className="text-gray-500 ml-1">({action.damage})</span></span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Heroic Actions */}
+      {!isMonster && (
+        <div className="flex gap-2 mb-2">
+          <button
+            onClick={() => helpAction(entity.name, activeTurnEntity?.name)}
+            className="flex-1 px-3 py-1.5 bg-blue-900/40 hover:bg-blue-800 border border-blue-600 rounded-none text-[10px] font-bold text-blue-300 flex items-center justify-center gap-1"
+          >
+            <Sparkles size={10} /> Lucky Roll!
+          </button>
+          <button
+            onClick={() => snackAction(entity.id, entity.name)}
+            className="flex-1 px-3 py-1.5 bg-green-900/40 hover:bg-green-800 border border-green-600 rounded-none text-[10px] font-bold text-green-300 flex items-center justify-center gap-1"
+          >
+            <Heart size={10} /> Snack
+          </button>
+        </div>
+      )}
+
+      {/* Universal Voice / AI Controls */}
+      <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-gray-700">
+        <div className="flex gap-1">
+          <input
+            type="text"
+            placeholder={isMonster ? "Ask AI or Type to Speak..." : "Type to Speak..."}
+            value={aiPromptInput[entity.id] || ''}
+            onChange={e => setAiPromptInput(prev => ({ ...prev, [entity.id]: e.target.value }))}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                const text = aiPromptInput[entity.id];
+                if (text) {
+                  setNarration(text, text.length * 100, isMonster ? 'monster' : 'character');
+                  setAiPromptInput(prev => ({ ...prev, [entity.id]: '' }));
+                }
+              }
+            }}
+            className="flex-1 bg-gray-900 border border-gray-600 focus:border-white rounded-none px-2 py-1.5 text-[10px] text-white placeholder-gray-500 font-mono"
+            disabled={isGenerating}
+          />
+          <button
+            onClick={() => {
+              const text = aiPromptInput[entity.id];
+              if (text) {
+                setNarration(text, text.length * 100, isMonster ? 'monster' : 'character');
+                setAiPromptInput(prev => ({ ...prev, [entity.id]: '' }));
+              }
+            }}
+            className="px-2 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-500 rounded-none text-[10px] font-bold text-white flex items-center justify-center"
+            title="Speak text directly"
+          >
+            <Volume2 size={12} />
+          </button>
+          {isMonster && (
+            <button
+              onClick={() => handleAiGenerate(entity)}
+              disabled={isGenerating}
+              className="px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800 border border-purple-600 rounded-none text-[10px] font-bold text-purple-300 flex items-center justify-center disabled:opacity-50"
+              title="Generate AI Response"
+            >
+              <Brain size={12} className={isGenerating ? "animate-pulse" : ""} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* XP Bar (characters only) */}
+      {!isMonster && gameState.characterXp && (
+        <div className="mt-3 pt-3 border-t border-gray-700">
+          <XpBar xp={gameState.characterXp[entity.id] ?? 0} characterId={entity.id} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── DM Console ─────────────────────────────────────────────── */
 
 function DMControl() {
@@ -372,173 +550,14 @@ function DMControl() {
     setHpInput(prev => ({ ...prev, [id]: '' }));
   };
 
-  /* ─── Card renderer shared by characters & monsters ─── */
-  const EntityCard = ({ entity, isMonster }) => {
-    const hp = gameState.characterHp[entity.id] ?? 0;
-    const maxHp = entity.maxHp ?? entity.hp;
-    const isActive = gameState.activeTurnId === entity.id;
-    const portrait = gameState.characterPortraits[entity.id] || entity.image;
-    const isDead = isMonster && hp <= 0;
-
-    return (
-      <div data-testid={`card-${entity.id}`} className={`dnd-card flex-1 min-w-[300px] max-w-[450px] transition-all ${isDead ? 'opacity-40 grayscale scale-95' : ''} ${isActive ? 'ring-2 ring-white scale-105 z-10' : 'opacity-80 hover:opacity-100'}`}>
-        <div className="flex items-center gap-4 mb-4">
-          <div className="relative group/portrait">
-            <img src={portrait} alt={entity.name} className={`w-16 h-16 rounded-none border-2 shadow-[4px_4px_0px_rgba(0,0,0,1)] object-cover ${isMonster ? 'border-red-500' : 'border-dnd-gold'}`} onError={handleImgError} />
-            {!isMonster && (
-              <button 
-                onClick={() => setShowPortraits(entity.id)}
-                className="absolute inset-0 bg-black/60 rounded-none opacity-0 group-hover/portrait:opacity-100 flex items-center justify-center text-[10px] font-bold text-white transition-opacity"
-              >CHANGE</button>
-            )}
-          </div>
-          <div>
-            <h3 className="font-bold text-xl text-dnd-gold">{entity.name}</h3>
-            {entity.class && <p className="text-xs text-gray-400 italic tracking-widest">{entity.class.toUpperCase()}</p>}
-            {isMonster && <p className="text-xs text-red-400 italic tracking-widest flex items-center gap-1"><Skull size={10} /> MONSTER</p>}
-          </div>
-        </div>
-
-        {/* HP display */}
-        <div className="flex justify-between items-center mb-3">
-          <div className="flex items-center gap-2">
-            <Heart className={`${isMonster ? 'text-red-400 fill-red-400' : 'text-red-500 fill-red-500'}`} size={18} />
-            <span data-testid={`hp-${entity.id}`} className="font-bold text-3xl">{hp}</span>
-            <span className="text-gray-500 text-sm">/ {maxHp}</span>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => handleHpChange(entity.id, -1)} className="w-10 h-10 rounded-none bg-red-900/50 hover:bg-red-800 border border-red-500 flex items-center justify-center font-bold">-</button>
-            <button onClick={() => handleHpChange(entity.id, 1)} className="w-10 h-10 rounded-none bg-green-900/50 hover:bg-green-800 border border-green-500 flex items-center justify-center font-bold">+</button>
-          </div>
-        </div>
-
-        {/* Quick HP delta */}
-        <div className="flex gap-2 mb-4">
-          <input
-            type="number"
-            placeholder="±HP"
-            value={hpInput[entity.id] || ''}
-            onChange={e => setHpInput(prev => ({ ...prev, [entity.id]: e.target.value }))}
-            onKeyDown={e => e.key === 'Enter' && applyHpDelta(entity.id, maxHp)}
-            className="flex-1 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-center"
-          />
-          <button
-            onClick={() => applyHpDelta(entity.id, maxHp)}
-            className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs border border-gray-500"
-          >Apply</button>
-        </div>
-
-        {isDead && (
-          <button
-            onClick={() => setHp(entity.id, entity.maxHp ?? entity.hp)}
-            className="w-full mb-4 px-3 py-2 bg-green-900/40 hover:bg-green-800 border border-green-600 rounded text-xs font-bold text-green-300 flex items-center justify-center gap-2"
-          >
-            <RotateCcw size={12} /> Revive ({entity.maxHp ?? entity.hp} HP)
-          </button>
-        )}
-
-        {/* Actions */}
-        {entity.actions && (
-          <div className="space-y-2 mb-4">
-            {entity.actions.map(action => (
-              <button
-                key={action.name}
-                onClick={() => {
-                  let targetId = null;
-                  if (isMonster) {
-                    const activeChar = campaignData.characters.find(c => c.id === gameState.activeTurnId);
-                    targetId = activeChar?.id || campaignData.characters[0]?.id;
-                  } else {
-                    targetId = sceneMonsters.find(m => (gameState.characterHp[m.id] ?? m.hp) > 0)?.id;
-                  }
-                  rollDice(action.bonus, `${entity.name}: ${action.name}`, action.damage, targetId);
-                }}
-                className="w-full text-left p-2 bg-gray-800 hover:bg-black rounded text-xs border border-gray-700 hover:border-dnd-gold transition-all flex justify-between group"
-              >
-                <span>
-                  {action.name.match(/bow|shoot|arrow/i) ? <Crosshair size={12} className="inline mr-2 text-gray-500 group-hover:text-dnd-gold" /> :
-                   action.name.match(/smite|magic|spell/i) ? <Sparkles size={12} className="inline mr-2 text-gray-500 group-hover:text-dnd-gold" /> :
-                   <Sword size={12} className="inline mr-2 text-gray-500 group-hover:text-dnd-gold" />}
-                  {action.name}
-                </span>
-                <span className="text-dnd-gold">+{action.bonus} <span className="text-gray-500 ml-1">({action.damage})</span></span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Heroic Actions */}
-        {!isMonster && (
-          <div className="flex gap-2 mb-2">
-            <button
-              onClick={() => helpAction(entity.name, activeTurnEntity?.name)}
-              className="flex-1 px-3 py-1.5 bg-blue-900/40 hover:bg-blue-800 border border-blue-600 rounded-none text-[10px] font-bold text-blue-300 flex items-center justify-center gap-1"
-            >
-              <Sparkles size={10} /> Lucky Roll!
-            </button>
-            <button
-              onClick={() => snackAction(entity.id, entity.name)}
-              className="flex-1 px-3 py-1.5 bg-green-900/40 hover:bg-green-800 border border-green-600 rounded-none text-[10px] font-bold text-green-300 flex items-center justify-center gap-1"
-            >
-              <Heart size={10} /> Snack
-            </button>
-          </div>
-        )}
-
-        {/* Universal Voice / AI Controls */}
-        <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-gray-700">
-          <div className="flex gap-1">
-            <input
-              type="text"
-              placeholder={isMonster ? "Ask AI or Type to Speak..." : "Type to Speak..."}
-              value={aiPromptInput[entity.id] || ''}
-              onChange={e => setAiPromptInput(prev => ({ ...prev, [entity.id]: e.target.value }))}
-              onKeyDown={e => { 
-                if (e.key === 'Enter') {
-                  const text = aiPromptInput[entity.id];
-                  if (text) {
-                    setNarration(text, text.length * 100, isMonster ? 'monster' : 'character');
-                    setAiPromptInput(prev => ({ ...prev, [entity.id]: '' }));
-                  }
-                }
-              }}
-              className="flex-1 bg-gray-900 border border-gray-600 focus:border-white rounded-none px-2 py-1.5 text-[10px] text-white placeholder-gray-500 font-mono"
-              disabled={isGenerating}
-            />
-            <button
-              onClick={() => {
-                const text = aiPromptInput[entity.id];
-                if (text) {
-                  setNarration(text, text.length * 100, isMonster ? 'monster' : 'character');
-                  setAiPromptInput(prev => ({ ...prev, [entity.id]: '' }));
-                }
-              }}
-              className="px-2 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-500 rounded-none text-[10px] font-bold text-white flex items-center justify-center"
-              title="Speak text directly"
-            >
-              <Volume2 size={12} />
-            </button>
-            {isMonster && (
-              <button
-                onClick={() => handleAiGenerate(entity)}
-                disabled={isGenerating}
-                className="px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800 border border-purple-600 rounded-none text-[10px] font-bold text-purple-300 flex items-center justify-center disabled:opacity-50"
-                title="Generate AI Response"
-              >
-                <Brain size={12} className={isGenerating ? "animate-pulse" : ""} />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* XP Bar (characters only) */}
-        {!isMonster && gameState.characterXp && (
-          <div className="mt-3 pt-3 border-t border-gray-700">
-            <XpBar xp={gameState.characterXp[entity.id] ?? 0} characterId={entity.id} />
-          </div>
-        )}
-      </div>
-    );
+  /* Shared props for the module-level EntityCard */
+  const entityCardProps = {
+    gameState, campaignData, sceneMonsters, activeTurnEntity,
+    hpInput, setHpInput, applyHpDelta,
+    setHp, handleHpChange, setShowPortraits,
+    rollDice, helpAction, snackAction,
+    aiPromptInput, setAiPromptInput, setNarration,
+    isGenerating, handleAiGenerate,
   };
 
   return (
@@ -982,6 +1001,29 @@ function DMControl() {
             <p className="text-dnd-gold">Director: {isGeneratingMusic ? 'thinking...' : (gameState.audioDirector?.instrumentBlend || 'idle')}</p>
             <p className="text-gray-300">{musicError ? `Model issue: ${musicError}` : (gameState.audioDirector?.contextSummary || 'Uses synced game context to steer new phrases.')}</p>
           </div>
+
+          {/* ─── LiteLLM Model Selector ─── */}
+          <div className="mt-3">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-gray-500 mb-1">
+              <span className="flex items-center gap-1"><Brain size={10} /> AI Model</span>
+            </div>
+            <select
+              defaultValue={(() => { try { return localStorage.getItem('dnd_llm_model') || 'fast-local'; } catch (e) { console.warn(e); return 'fast-local'; } })()}
+              onChange={e => { try { localStorage.setItem('dnd_llm_model', e.target.value); } catch (err) { console.warn(err); } }}
+              className="w-full bg-gray-800 border border-purple-700 text-purple-200 px-2 py-1 text-[10px]"
+            >
+              <optgroup label="Aliases">
+                <option value="fast-local">fast-local (default)</option>
+                <option value="hermes-default">hermes-default</option>
+                <option value="large-context">large-context</option>
+              </optgroup>
+              <optgroup label="Ollama Models">
+                <option value="ollama-qwen35-9b">qwen3.5 9B</option>
+                <option value="ollama-llama31-8b">llama 3.1 8B</option>
+                <option value="ollama-gemma3-12b">gemma3 12B</option>
+              </optgroup>
+            </select>
+          </div>
         </div>
 
         {/* ─── XP Awards ─── */}
@@ -1096,7 +1138,7 @@ function DMControl() {
         {/* Character Cards */}
         <div className="flex flex-wrap justify-center gap-6 mb-8">
           {campaignData.characters.map(char => (
-            <EntityCard key={char.id} entity={char} isMonster={false} />
+            <EntityCard key={char.id} entity={char} isMonster={false} {...entityCardProps} />
           ))}
         </div>
 
@@ -1108,7 +1150,7 @@ function DMControl() {
             </h2>
             <div className="flex flex-wrap justify-center gap-6 mb-8">
               {sceneMonsters.map(mon => (
-                <EntityCard key={mon.id} entity={mon} isMonster={true} />
+                <EntityCard key={mon.id} entity={mon} isMonster={true} {...entityCardProps} />
               ))}
             </div>
           </>
@@ -1191,6 +1233,17 @@ function DMControl() {
           <div className="flex justify-between items-center mb-6 pb-2 border-b-4 border-white">
             <h2 className="text-xl text-dnd-gold font-sans font-bold">DM Guide</h2>
             <button onClick={() => setShowGuide(false)} className="text-white hover:text-dnd-red"><X /></button>
+          </div>
+          
+          <div className="mb-6 p-3 bg-dnd-gold/10 border border-dnd-gold rounded-none">
+            <a 
+              href="/DM_Campaign_Walkthrough.md" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-dnd-gold hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-200"
+            >
+              <BookOpen size={14} /> Open Full Campaign Walkthrough
+            </a>
           </div>
           
           <div className="space-y-6 text-sm text-gray-300 leading-relaxed">

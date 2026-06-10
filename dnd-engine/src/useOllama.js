@@ -1,73 +1,80 @@
 import { useState, useCallback } from 'react';
 
-const DEFAULT_MODEL = 'qwen3:8b';
+// Default model — one of the LiteLLM aliases or explicit Ollama-backed names.
+// The DM Console model selector writes to localStorage('dnd_llm_model') to override.
+const FALLBACK_MODEL = 'fast-local';
 
-function getOllamaUrl() {
-  return '/api/ollama/api/generate';
+function getLlmModel() {
+  try {
+    return localStorage.getItem('dnd_llm_model') || FALLBACK_MODEL;
+  } catch {
+    return FALLBACK_MODEL;
+  }
 }
+
+// All requests go to /api/llm (Vite proxy → LiteLLM :4000).
+// The proxy injects the master key — the browser never sees it.
+const LLM_ENDPOINT = '/api/llm/v1/chat/completions';
 
 export function useOllama() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
 
   /**
-   * Calls the local Ollama API to generate a response in-character.
-   * 
-   * @param {Object} activeMonster - The monster the user clicked on.
-   * @param {Object} activeScene - The current active scene to pull context from.
-   * @param {string} playerAction - The action the DM typed that requires an AI response.
-   * @returns {Promise<string>} - The generated dialog text.
+   * Calls LiteLLM to generate an in-character monster response.
+   *
+   * @param {Object} activeMonster  - The monster being spoken as.
+   * @param {Object} activeScene    - Current scene for context.
+   * @param {string} playerAction   - The DM's typed action/prompt.
+   * @returns {Promise<string|null>} Generated dialogue text, or null on error.
    */
   const generateResponse = useCallback(async (activeMonster, activeScene, playerAction) => {
     setIsGenerating(true);
     setError(null);
 
-    // Build the system prompt using the rich v3.0 metadata
     const basePrompt = activeMonster.aiPrompt || `You are ${activeMonster.name}. You are a monster.`;
-    const sceneContext = activeScene ? `
-Current Scene: ${activeScene.title}. ${activeScene.description}
-Additional Context: ${activeScene.dmNotes?.npcs ? 'NPCs present: ' + activeScene.dmNotes.npcs : ''}
-Your Tactics: ${activeScene.dmNotes?.tactics || 'Fight to the bitter end.'}` : '';
+    const sceneContext = activeScene
+      ? `\nCurrent Scene: ${activeScene.title}. ${activeScene.description}` +
+        (activeScene.dmNotes?.npcs ? `\nNPCs present: ${activeScene.dmNotes.npcs}` : '') +
+        `\nYour Tactics: ${activeScene.dmNotes?.tactics || 'Fight to the bitter end.'}`
+      : '';
 
-    const systemPrompt = `
-${basePrompt}
-${sceneContext}
-
-INSTRUCTIONS:
-- Respond IN CHARACTER.
-- Limit your response to 2 or 3 short sentences.
-- Do NOT provide mechanical damage numbers, just roleplay.
-- Do NOT wrap your text in quotes unless you are explicitly speaking aloud.
-`.trim();
+    const systemPrompt =
+      `${basePrompt}${sceneContext}\n\nINSTRUCTIONS:\n` +
+      `- Respond IN CHARACTER.\n` +
+      `- Limit your response to 2 or 3 short sentences.\n` +
+      `- Do NOT provide mechanical damage numbers, just roleplay.\n` +
+      `- Do NOT wrap your text in quotes unless you are explicitly speaking aloud.`;
 
     try {
-      const response = await fetch(getOllamaUrl(), {
+      const response = await fetch(LLM_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: DEFAULT_MODEL,
-          system: systemPrompt,
-          prompt: `Player action: "${playerAction}"`,
-          stream: false // Await the whole response for simplicity in the UI
+          model: getLlmModel(),
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: `Player action: "${playerAction}"` },
+          ],
+          max_tokens: 150,
+          temperature: 0.8,
+          stream: false,
         }),
       });
 
       if (!response.ok) {
         const details = await response.text();
-        throw new Error(`Ollama Server Error: ${response.status} ${response.statusText}${details ? ` - ${details}` : ''}`);
+        throw new Error(`LiteLLM error ${response.status}: ${details}`);
       }
 
       const data = await response.json();
-      return data.response.trim();
+      const text = data?.choices?.[0]?.message?.content?.trim();
+      if (!text) throw new Error('LiteLLM returned an empty response');
+      return text;
 
     } catch (err) {
       console.error('Failed to generate AI response:', err);
-      // If it's a fetch error, it's likely CORS or Ollama is not running
-      if (err.message.includes('Failed to fetch')) {
-        setError("Could not connect to Ollama. Ensure it is running with 'OLLAMA_ORIGINS=\"*\" ollama serve'");
-      } else {
-        setError(err.message);
-      }
+      setError(err.message);
       return null;
     } finally {
       setIsGenerating(false);
