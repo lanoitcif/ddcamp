@@ -53,14 +53,21 @@ The engine runs as a dual-view web application:
   - LiteLLM defaults to proxying `http://127.0.0.1:4000`.
   - Native Ollama falls back to `http://127.0.0.1:11434`.
 
-### 2. Run the App
+### 2. Configure the LLM Key (optional, for AI features)
+```bash
+cd dnd-engine
+cp .env.example .env   # then put your LiteLLM master key in .env
+```
+`.env` is gitignored; the key is injected by the Vite dev proxy and never reaches the browser.
+
+### 3. Run the App
 ```bash
 cd dnd-engine
 npm install
 npm run dev -- --host 0.0.0.0 --port 5173 --strictPort
 ```
 
-### 3. Open the Screens
+### 4. Open the Screens
 - **DM Console**: Open `http://localhost:5173/` on your primary screen.
 - **Player View**: Drag a tab with `http://localhost:5173/?mode=player` to your TV/projector and press `F11` for fullscreen.
 
