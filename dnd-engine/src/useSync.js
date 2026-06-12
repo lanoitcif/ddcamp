@@ -63,6 +63,11 @@ export function useSync(onMessage) {
     function connect() {
       if (unmountedRef.current) return;
 
+      // Close any previous socket so it can't linger as a zombie connection
+      if (wsRef.current && wsRef.current.readyState <= WebSocket.OPEN) {
+        wsRef.current.close();
+      }
+
       const url = `ws://${syncConfig.host}?room=${encodeURIComponent(syncConfig.room)}`;
       const ws = new WebSocket(url);
       wsRef.current = ws;
@@ -95,6 +100,9 @@ export function useSync(onMessage) {
       });
 
       ws.addEventListener('close', () => {
+        // A stale socket's close event must not clobber a newer live socket
+        // (StrictMode double-mount fires the old close after reconnecting).
+        if (wsRef.current !== ws) return;
         setIsConnected(false);
         wsRef.current = null;
         scheduleReconnect();
