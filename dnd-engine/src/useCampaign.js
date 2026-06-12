@@ -41,6 +41,7 @@ function defaultState() {
     characterXp: defaultXpState(campaignData.characters),
     levelUp: null,
     xpGain: null,
+    optinioEnabled: true,
   };
 }
 

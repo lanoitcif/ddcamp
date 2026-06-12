@@ -119,6 +119,34 @@
   }
   .draper .sig { font-size: clamp(11px, 1.3vw, 17px); color: #777; margin-top: 4vh; }
 
+  /* ── Optinio the Goblin ── */
+  #goblin {
+    position: fixed; right: 28px; bottom: -340px; z-index: 102;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    transition: bottom .35s steps(8);
+    pointer-events: none;
+  }
+  #goblin.up { bottom: 24px; }
+  #goblin img {
+    width: clamp(110px, 14vw, 180px); aspect-ratio: 1; object-fit: cover;
+    border: 4px solid var(--green); box-shadow: 6px 6px 0 #000;
+    image-rendering: pixelated;
+    animation: goblinbob 0.6s steps(2) infinite;
+  }
+  @keyframes goblinbob { 50% { transform: translateY(-5px) rotate(-1.5deg); } }
+  #goblin .bubble {
+    background: #fff; color: #111;
+    border: 4px solid #000; box-shadow: 5px 5px 0 rgba(0,0,0,.6);
+    font-size: clamp(9px, 1.1vw, 13px); line-height: 1.8;
+    padding: 14px 16px; max-width: min(46vw, 420px); text-align: left;
+    position: relative;
+  }
+  #goblin .bubble::after {
+    content: ''; position: absolute; right: 34px; bottom: -16px;
+    border: 8px solid transparent; border-top-color: #000;
+  }
+  #goblin .who { color: var(--green); font-size: clamp(7px, .8vw, 9px); margin-bottom: 8px; }
+
   /* hud */
   #hud {
     position: fixed; top: 18px; right: 24px; z-index: 101;
@@ -206,7 +234,9 @@
   <h2 class="accent-purple">THE MONSTERS<br/>TALK BACK</h2>
   <img class="shot" src="assets/07_player_dragon_narration.jpg" alt="Dragon speaking on the TV" />
   <p>A real AI — running on <span class="accent-green">our own computer</span> — plays every monster.<br/>
-     Ask the goblin anything. He has OPINIONS.<br/>The TV reads them out loud.</p>
+     Starring <span class="accent-green">OPTINIO THE GOBLIN</span>. He has OPINIONS.<br/>
+     The TV reads them out loud.</p>
+  <p class="small accent-green blink">PRESS G FOR A GOBLIN OPINION</p>
 </section>
 
 <!-- 7 · MUSIC -->
@@ -264,8 +294,16 @@
   <p class="small">CONTINUE? 9… 8… 7…</p>
 </section>
 
+<div id="goblin">
+  <div class="bubble">
+    <p class="who">OPTINIO THE GOBLIN SAYS:</p>
+    <span id="goblin-text"></span><span class="blink">▌</span>
+  </div>
+  <img src="assets/pixel_goblin.jpg" alt="Optinio the Goblin" />
+</div>
+
 <div id="hud">LEVEL <span id="cur">1</span> / <span id="total">12</span></div>
-<div id="hint">← → ARROWS OR CLICK TO ADVENTURE · F11 FOR FULL SCREEN</div>
+<div id="hint">← → ARROWS OR CLICK TO ADVENTURE · G = GOBLIN OPINION · M = MUSIC · F11 FULL SCREEN</div>
 
 <script>
   const slides = [...document.querySelectorAll('.slide')];
@@ -284,10 +322,124 @@
     else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) show(i - 1);
     else if (e.key === 'Home') show(0);
     else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key.toLowerCase() === 'g') goblinSpeak();
+    else if (e.key.toLowerCase() === 'm') toggleMusic();
   });
   document.addEventListener('click', (e) => {
     show(e.clientX < window.innerWidth * 0.2 ? i - 1 : i + 1);
   });
+
+  /* ── Soundtrack — loops rendered by the game's own ChiptuneSequencer ── */
+  // Slide → track. null = dramatic silence (the Draper slide earns it).
+  const SLIDE_TRACKS = [
+    'title', 'woods', 'woods', 'woods', 'combat', 'creepy',
+    'fanfare', 'creepy', 'fanfare', 'title', null, 'combat',
+  ];
+  const tracks = {};
+  for (const name of ['title', 'woods', 'creepy', 'combat', 'fanfare']) {
+    const a = new Audio(`assets/music_${name}.m4a`);
+    a.loop = true; a.preload = 'auto'; a.volume = 0;
+    tracks[name] = a;
+  }
+  let musicOn = true, started = false, currentTrack = null;
+
+  function fadeTo(audio, target, ms = 600) {
+    const startVol = audio.volume, t0 = performance.now();
+    (function step(t) {
+      const k = Math.min((t - t0) / ms, 1);
+      audio.volume = startVol + (target - startVol) * k;
+      if (k < 1) requestAnimationFrame(step);
+      else if (target === 0) audio.pause();
+    })(t0);
+  }
+
+  function playForSlide() {
+    if (!started || !musicOn) return;
+    const name = SLIDE_TRACKS[i] ?? null;
+    if (name === currentTrack) return;
+    if (currentTrack) fadeTo(tracks[currentTrack], 0, 450);
+    currentTrack = name;
+    if (name) {
+      const a = tracks[name];
+      a.play().catch(() => {});
+      fadeTo(a, 0.55, 700);
+    }
+  }
+
+  function toggleMusic() {
+    musicOn = !musicOn;
+    if (!musicOn && currentTrack) { fadeTo(tracks[currentTrack], 0, 300); currentTrack = null; }
+    else playForSlide();
+  }
+
+  // Browsers require a user gesture before audio — first key/click arms it.
+  function armAudio() {
+    if (started) return;
+    started = true;
+    playForSlide();
+  }
+  document.addEventListener('click', armAudio, { once: true });
+  document.addEventListener('keydown', armAudio, { once: true });
+
+  const _show = show;
+  show = function(n) { _show(n); playForSlide(); };
+
+  /* ── Optinio the Goblin — opinions by our LLM, chatter by Web Audio ── */
+  const OPINIONS = [
+    "Greetings, puny mortals, I am Optinio and I am here to help!",
+    "By my shiny ears, that was legendary!",
+    "Oof, my eyes! That was spectacularly bad!",
+    "BONKED! Send that monster to the scrap heap!",
+    "BONKED! Someone get that hero a bandage!",
+    "Ooooh, sparkly new powers incoming!",
+    "We did it, now where is my victory cookie?",
+    "Uh oh, time to use those big, smart brains!",
+    "Munch, crunch, heal, repeat!",
+    "I'm hiding behind this rock until the spooky stuff stops!",
+    "Run away, it's a giant, fire-breathing lizard!",
+    "Is it nap time yet? I'm bored!",
+  ];
+  const goblinEl = document.getElementById('goblin');
+  const goblinTextEl = document.getElementById('goblin-text');
+  let goblinBusy = false, lastOpinion = -1, chatterCtx = null;
+
+  function chatterBlip() {
+    try {
+      chatterCtx = chatterCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = chatterCtx;
+      const osc = ctx.createOscillator(), vca = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = 480 + Math.random() * 420;
+      vca.gain.setValueAtTime(0.045, ctx.currentTime);
+      vca.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      osc.connect(vca); vca.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.06);
+    } catch { /* no audio, goblin mimes */ }
+  }
+
+  function goblinSpeak() {
+    if (goblinBusy) return;
+    goblinBusy = true;
+    let pick;
+    do { pick = Math.floor(Math.random() * OPINIONS.length); } while (pick === lastOpinion);
+    lastOpinion = pick;
+    const line = OPINIONS[pick];
+    goblinTextEl.textContent = '';
+    goblinEl.classList.add('up');
+    let c = 0;
+    const typer = setInterval(() => {
+      goblinTextEl.textContent = line.slice(0, ++c);
+      if (line[c - 1] && line[c - 1] !== ' ') chatterBlip();
+      if (c >= line.length) {
+        clearInterval(typer);
+        setTimeout(() => { goblinEl.classList.remove('up'); goblinBusy = false; }, 3200);
+      }
+    }, 38);
+  }
+
+  // Clippy mode: sometimes he just shows up with an opinion.
+  const _show2 = show;
+  show = function(n) { _show2(n); if (started && Math.random() < 0.18) setTimeout(goblinSpeak, 900); };
 
   show(i);
 </script>

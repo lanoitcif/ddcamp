@@ -8,6 +8,7 @@ import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } f
 import { PUZZLES } from './Puzzles';
 import CampaignBuilder from './CampaignBuilder';
 import { XpBar, LevelUpOverlay, XpToast, DmXpPanel } from './LevelUpOverlay';
+import GoblinOpinions from './GoblinOpinions';
 import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon, Wifi, WifiOff, Brain, Crosshair, Sparkles } from 'lucide-react';
 
 /* ─── Error Boundary ─────────────────────────────────────────── */
@@ -933,6 +934,15 @@ function DMControl() {
             >
               Context {gameState.audioSettings?.contextAware ? 'On' : 'Off'}
             </button>
+            <button
+              onClick={() => updateGameState({ optinioEnabled: !(gameState.optinioEnabled ?? true) })}
+              className={`px-2 py-1 border col-span-2 ${
+                (gameState.optinioEnabled ?? true) ? 'bg-green-900/40 border-green-600 text-green-300' : 'bg-gray-800 border-gray-600'
+              }`}
+              data-testid="optinio-toggle"
+            >
+              🗣 Optinio the Goblin {(gameState.optinioEnabled ?? true) ? 'On' : 'Off'}
+            </button>
             <label className="flex flex-col gap-1">
               <span className="text-gray-500 uppercase tracking-wide">Style</span>
               <select
@@ -1509,6 +1519,11 @@ function PlayerView() {
 
       {/* Narration auto-dismiss */}
       <NarrationAutoDismiss gameState={gameState} updateGameState={updateGameState} />
+
+      {/* Optinio the Goblin — Clippy-style companion (DM can disable) */}
+      {gameState.optinioEnabled !== false && (
+        <GoblinOpinions gameState={gameState} campaignData={campaignData} />
+      )}
 
       {/* Active Puzzle Overlay (only for current scene) */}
       {gameState.activePuzzle && gameState.activePuzzle.sceneId === gameState.currentSceneId && (() => {

@@ -54,3 +54,12 @@ img {
   -webkit-font-smoothing: auto !important;
   letter-spacing: normal !important;
 }
+
+/* Optinio the Goblin */
+@keyframes goblinpop {
+  from { transform: translateY(120%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes goblinbob {
+  50% { transform: translateY(-5px) rotate(-1.5deg); }
+}

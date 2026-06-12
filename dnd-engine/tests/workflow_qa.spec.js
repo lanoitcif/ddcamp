@@ -57,6 +57,30 @@ test('Live LLM monster dialogue lands in the narration box', async ({ page }) =>
   await expect(narration).not.toHaveValue(/Failed to generate/);
 });
 
+test('Optinio the Goblin reacts to a quest completion on the TV', async ({ browser }) => {
+  test.setTimeout(60_000);
+  const context = await browser.newContext();
+  const dmPage = await context.newPage();
+  await dmPage.goto(BASE);
+  await dmPage.evaluate(() => localStorage.clear());
+  await dmPage.reload();
+
+  const playerPage = await context.newPage();
+  await playerPage.goto(`${BASE}/?mode=player`);
+  await playerPage.waitForTimeout(1000); // goblin learns initial state
+
+  // Complete the first main quest → toast → goblin opinion (LLM or fallback)
+  await dmPage.locator('button:has-text("⭐")').first().click();
+
+  const goblin = playerPage.getByTestId('goblin-opinion');
+  await expect(goblin).toBeVisible({ timeout: 20_000 });
+  await expect(goblin).toContainText('OPTINIO THE GOBLIN SAYS:');
+  const text = await goblin.locator('p').nth(1).textContent();
+  expect(text.length).toBeGreaterThan(5);
+  console.log('Optinio said:', text);
+  await context.close();
+});
+
 test('WebSocket sync: two isolated contexts share state and show client count', async ({ browser }) => {
   const wsParam = 'ws=localhost:3737&room=qa';
 
