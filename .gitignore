@@ -48,3 +48,6 @@ dnd-engine/public/creative_llm_demo.webm
 
 # Zip archives (e.g. backup artifacts)
 *.zip
+
+# Generated demo capture screenshots (regenerable via demo/capture_playtest.mjs)
+demo/captures/
