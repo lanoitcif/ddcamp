@@ -1,0 +1,60 @@
+# ─── Example LiteLLM proxy config for dnd-engine ─────────────────────────────
+#
+# The VTT browser code never names a real provider model directly — it sends one
+# of the alias names below to the LiteLLM proxy (Vite forwards /api/llm/* →
+# http://127.0.0.1:4000). This file is the alias → backend map. Keep it in sync
+# with src/llmConfig.js (LLM_MODEL_OPTIONS).
+#
+# Usage:
+#   1. cp litellm.config.example.yaml litellm.config.yaml   # your real config
+#   2. Point each model_name at a backend you actually have installed/serving.
+#   3. litellm --config litellm.config.yaml --port 4000
+#
+# RECOVERING FROM AN OUTAGE ("the server stopped serving the model"):
+#   A model_name breaks when its `litellm_params.model` points at a backend that
+#   is gone (an Ollama model you removed, or a deprecated remote model). To fix:
+#     - run `ollama list` (or check your provider) to see what IS available, then
+#     - repoint the alias below to a served model and restart LiteLLM, OR
+#     - in the app's DM Console → Ambience → AI Model, pick another entry or
+#       choose "Custom…" and type a model the proxy currently serves.
+#
+# Keep real provider/API keys OUT of git — put them in env vars or a gitignored
+# litellm.config.yaml. The proxy's own master key is read by Vite from .env
+# (LITELLM_KEY) and injected server-side; the browser never sees it.
+
+model_list:
+  # ── Aliases (the app's defaults; edit the `model:` targets freely) ──
+  - model_name: fast-local            # app default — keep this one always working
+    litellm_params:
+      model: ollama/qwen3:8b          # a small, fast local model
+      api_base: http://127.0.0.1:11434
+
+  - model_name: hermes-default
+    litellm_params:
+      model: ollama/hermes3:8b
+      api_base: http://127.0.0.1:11434
+
+  - model_name: large-context         # bigger context window for long scenes
+    litellm_params:
+      model: ollama/qwen3:14b
+      api_base: http://127.0.0.1:11434
+
+  # ── Explicit Ollama-backed names (shown in the dropdown's "Ollama Models") ──
+  - model_name: ollama-qwen35-9b
+    litellm_params:
+      model: ollama/qwen3:8b
+      api_base: http://127.0.0.1:11434
+
+  - model_name: ollama-llama31-8b
+    litellm_params:
+      model: ollama/llama3.1:8b
+      api_base: http://127.0.0.1:11434
+
+  - model_name: ollama-gemma3-12b
+    litellm_params:
+      model: ollama/gemma3:12b
+      api_base: http://127.0.0.1:11434
+
+# Require the master key the proxy expects (matches LITELLM_KEY in dnd-engine/.env).
+general_settings:
+  master_key: sk-your-litellm-key-here

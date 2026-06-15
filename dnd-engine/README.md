@@ -7,9 +7,10 @@
 - Synced DM/player state via `BroadcastChannel` by default
 - Optional remote sync via `?ws=host:port&room=name`
 - Procedural Web Audio ambience in `src/useAudio.js`
-- Local Ollama-backed LLM features:
+- LiteLLM-backed LLM features (proxied to local Ollama or any provider):
   - monster response generation via `src/useOllama.js`
   - context-aware music direction via `src/useMusicDirector.js`
+  - all share model config in `src/llmConfig.js`
 - Data-driven campaign content in `src/campaign_data.json`
 - Playwright-style gameplay tests and demo capture scripts
 
@@ -31,18 +32,33 @@ For LAN or Tailscale play, use the machine IP instead of `localhost`.
 
 ## Local Services
 
-The app expects Ollama on `127.0.0.1:11434`. Vite proxies `/api/ollama/*` to Ollama, so browser code stays same-origin.
+The app talks to a **LiteLLM proxy on `127.0.0.1:4000`**. Vite proxies
+`/api/llm/*` to it and injects the master key (`LITELLM_KEY` from `.env`)
+server-side, so browser code stays same-origin and never sees the key. A legacy
+`/api/ollama/*` → `127.0.0.1:11434` proxy is kept for compatibility.
 
-Recommended verification:
+Start the proxy from the example config (alias → backend map):
 
 ```bash
-curl -sS http://127.0.0.1:11434/api/tags
+cp litellm.config.example.yaml litellm.config.yaml   # then edit targets
+litellm --config litellm.config.yaml --port 4000
+curl -sS http://127.0.0.1:4000/v1/models               # what's actually served
 ```
 
-Current local model defaults:
+### Choosing / swapping the model
 
-- music director: `qwen3:8b`
-- monster/character response generation: `qwen3:8b`
+The browser sends a **model name** (a LiteLLM alias) to the proxy. Default is
+`fast-local`. Three ways to change it — no rebuild needed for the first two:
+
+- **DM Console → Ambience → AI Model**: pick a listed model, or choose **Custom…**
+  and type any model name the proxy currently serves.
+- **`VITE_DEFAULT_LLM_MODEL`** in `.env`: sets the startup default.
+- **`src/llmConfig.js`** (`LLM_MODEL_OPTIONS`) + `litellm.config.example.yaml`:
+  edit when the available aliases themselves change.
+
+If a model "stops being served," repoint its alias in `litellm.config.yaml` to a
+model you have (e.g. `ollama list`) and restart LiteLLM, or just pick another in
+the AI Model selector.
 
 ## Commands
 

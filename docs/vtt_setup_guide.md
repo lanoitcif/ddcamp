@@ -71,7 +71,7 @@ At the start of your session, let the kids choose their look:
 |---------|----------|
 | TV not syncing with DM Console | Same machine: both must use the same origin. Different devices: use WebSocket relay mode instead of plain BroadcastChannel. |
 | No audio playing | Click inside the page first (browsers require user interaction to enable audio). Then click **Start** in Ambience controls. |
-| Director says model issue | Check that Ollama is running on `127.0.0.1:11434` and that `qwen3:8b` is installed. |
+| Director says model issue | Check the LiteLLM proxy is running on `127.0.0.1:4000` and that the selected model is actually served (`curl http://127.0.0.1:4000/v1/models`). Then pick another model in **Ambience → AI Model** (or **Custom…** to type a served one), or repoint the alias in `litellm.config.yaml` and restart LiteLLM. |
 | Images appear as placeholders | Check internet connection. External image services (Unsplash) must be reachable. |
 | Game state seems stuck | Use **Reset Campaign**. This clears localStorage and restarts fresh. |
 | `:5173` does not open from another device | Verify Vite was started with `--host 0.0.0.0 --port 5173 --strictPort` and that a stale loopback-only dev server is not holding the port. |

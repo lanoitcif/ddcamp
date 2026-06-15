@@ -1,4 +1,5 @@
 import React from 'react';
+import { LLM_ENDPOINT, getLlmModel } from './llmConfig';
 
 /* ─── Optinio the Goblin ──────────────────────────────────────────
  * Clippy-style TV companion. Watches live game state and pops up
@@ -6,9 +7,6 @@ import React from 'react';
  * napping), spoken via tuned browser TTS. DM can disable him via
  * gameState.optinioEnabled.
  */
-
-const FALLBACK_MODEL = 'fast-local';
-const LLM_ENDPOINT = '/api/llm/v1/chat/completions';
 
 const PERSONA =
   'You are Optinio the Goblin, the comic-relief mascot of a family D&D game ' +
@@ -39,14 +37,6 @@ const COOLDOWN_MS = 45_000;
 const BIG_EVENTS = ['crit', 'fail', 'quest', 'levelUp', 'monsterDown', 'heroDown', 'dragon'];
 const AMBIENT_CHANCE = 0.55;
 const IDLE_MS = 150_000;
-
-function getLlmModel() {
-  try {
-    return localStorage.getItem('dnd_llm_model') || FALLBACK_MODEL;
-  } catch {
-    return FALLBACK_MODEL;
-  }
-}
 
 async function generateOpinion(eventKey, context) {
   const controller = new AbortController();

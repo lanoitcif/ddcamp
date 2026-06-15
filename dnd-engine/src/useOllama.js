@@ -1,20 +1,5 @@
 import { useState, useCallback } from 'react';
-
-// Default model — one of the LiteLLM aliases or explicit Ollama-backed names.
-// The DM Console model selector writes to localStorage('dnd_llm_model') to override.
-const FALLBACK_MODEL = 'fast-local';
-
-function getLlmModel() {
-  try {
-    return localStorage.getItem('dnd_llm_model') || FALLBACK_MODEL;
-  } catch {
-    return FALLBACK_MODEL;
-  }
-}
-
-// All requests go to /api/llm (Vite proxy → LiteLLM :4000).
-// The proxy injects the master key — the browser never sees it.
-const LLM_ENDPOINT = '/api/llm/v1/chat/completions';
+import { LLM_ENDPOINT, getLlmModel } from './llmConfig';
 
 export function useOllama() {
   const [isGenerating, setIsGenerating] = useState(false);

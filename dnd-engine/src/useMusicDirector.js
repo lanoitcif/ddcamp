@@ -1,17 +1,5 @@
 import { useCallback, useState } from 'react';
-
-const FALLBACK_MODEL = 'fast-local';
-
-function getLlmModel() {
-  try {
-    return localStorage.getItem('dnd_llm_model') || FALLBACK_MODEL;
-  } catch {
-    return FALLBACK_MODEL;
-  }
-}
-
-// LiteLLM proxy — key is injected by vite.config.js, never in browser bundle.
-const LLM_ENDPOINT = '/api/llm/v1/chat/completions';
+import { LLM_ENDPOINT, getLlmModel } from './llmConfig';
 
 const FALLBACK_DIRECTION = {
   tempoScale: 1,

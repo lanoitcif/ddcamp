@@ -153,7 +153,7 @@
 - **Everything is a d20:** 10+ usually works for any creative idea.
 - **Handouts on the big screen** make discoveries feel real.
 - **Second Wind & Lay on Hands:** Not automated — roll manually and use ±HP.
-- **Local AI prompts:** Monster AI generation depends on local Ollama availability.
+- **Local AI prompts:** Monster AI generation needs the LiteLLM proxy (`127.0.0.1:4000`) up and the selected model served. Switch models in **Ambience → AI Model** if one stops responding.
 - **Diplomacy rewards:** Use 🌟 reactions when kids choose kindness over combat.
 - **Rest at Camp:** Always heal to full HP at the campfire scene!
 - **Side quests are optional:** The DM decides when to introduce them based on pacing and engagement.

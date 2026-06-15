@@ -3,6 +3,7 @@ import { useCampaign } from './useCampaign';
 import { useAudio } from './useAudio';
 import { useOllama } from './useOllama';
 import { useMusicDirector } from './useMusicDirector';
+import { LLM_MODEL_OPTIONS, getLlmModel, setLlmModel } from './llmConfig';
 import { secureRoll } from './cryptoUtils';
 import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } from './SceneEffects';
 import { PUZZLES } from './Puzzles';
@@ -327,7 +328,17 @@ function DMControl() {
   const [prepSceneId, setPrepSceneId] = React.useState(null);
   const [showGuide, setShowGuide] = React.useState(false);
   const [aiPromptInput, setAiPromptInput] = React.useState({});
-  
+  // AI model selector: track the active model so a saved custom value (one not in
+  // LLM_MODEL_OPTIONS) keeps the "Custom…" input visible and editable.
+  const [llmModel, setLlmModelState] = React.useState(() => getLlmModel());
+  const [customModelMode, setCustomModelMode] = React.useState(
+    () => !LLM_MODEL_OPTIONS.some(o => o.value === getLlmModel())
+  );
+  const chooseLlmModel = React.useCallback((value) => {
+    setLlmModel(value);
+    setLlmModelState(value);
+  }, []);
+
   const audio = useAudio();
   const { generateResponse, isGenerating } = useOllama();
   const { generateMusicDirection, isGeneratingMusic, musicError } = useMusicDirector();
@@ -1018,21 +1029,35 @@ function DMControl() {
               <span className="flex items-center gap-1"><Brain size={10} /> AI Model</span>
             </div>
             <select
-              defaultValue={(() => { try { return localStorage.getItem('dnd_llm_model') || 'fast-local'; } catch (e) { console.warn(e); return 'fast-local'; } })()}
-              onChange={e => { try { localStorage.setItem('dnd_llm_model', e.target.value); } catch (err) { console.warn(err); } }}
+              value={customModelMode ? '__custom__' : llmModel}
+              onChange={e => {
+                if (e.target.value === '__custom__') {
+                  setCustomModelMode(true);
+                } else {
+                  setCustomModelMode(false);
+                  chooseLlmModel(e.target.value);
+                }
+              }}
               className="w-full bg-gray-800 border border-purple-700 text-purple-200 px-2 py-1 text-[10px]"
             >
-              <optgroup label="Aliases">
-                <option value="fast-local">fast-local (default)</option>
-                <option value="hermes-default">hermes-default</option>
-                <option value="large-context">large-context</option>
-              </optgroup>
-              <optgroup label="Ollama Models">
-                <option value="ollama-qwen35-9b">qwen3.5 9B</option>
-                <option value="ollama-llama31-8b">llama 3.1 8B</option>
-                <option value="ollama-gemma3-12b">gemma3 12B</option>
-              </optgroup>
+              {[...new Set(LLM_MODEL_OPTIONS.map(o => o.group))].map(group => (
+                <optgroup key={group} label={group}>
+                  {LLM_MODEL_OPTIONS.filter(o => o.group === group).map(o => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </optgroup>
+              ))}
+              <option value="__custom__">Custom…</option>
             </select>
+            {customModelMode && (
+              <input
+                type="text"
+                value={llmModel}
+                onChange={e => chooseLlmModel(e.target.value.trim())}
+                placeholder="model name served by LiteLLM, e.g. ollama/llama3.2"
+                className="mt-1 w-full bg-gray-800 border border-purple-700 text-purple-200 px-2 py-1 text-[10px]"
+              />
+            )}
           </div>
         </div>
 

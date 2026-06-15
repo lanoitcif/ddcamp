@@ -10,7 +10,8 @@ Core stack:
 - `useCampaign.js` for game state
 - `useSync.js` for local or remote sync
 - `useAudio.js` for procedural ambience and SFX
-- Ollama-backed `useOllama.js` and `useMusicDirector.js` for local LLM features
+- LiteLLM-backed `useOllama.js` and `useMusicDirector.js` for LLM features
+  (shared model config in `llmConfig.js`)
 
 ## Current Feature Set
 
@@ -19,7 +20,7 @@ Core stack:
 - campaign builder with validation/export/import
 - procedural ambience with scene, mood, novelty, quality, and style controls
 - context-aware music direction driven by synced game state
-- local monster dialogue generation through Ollama
+- monster dialogue generation via the LiteLLM proxy (DM-selectable model)
 - optional WebSocket relay for cross-device sync
 
 ## Runtime Notes
@@ -34,10 +35,16 @@ npm run dev -- --host 0.0.0.0 --port 5173 --strictPort
 Important ports:
 
 - `5173` Vite app
-- `11434` Ollama
+- `4000` LiteLLM proxy (primary LLM endpoint)
+- `11434` Ollama (LiteLLM's usual local backend; legacy direct proxy too)
 - `3001` optional WebSocket relay
 
-The browser does not call Ollama directly. Vite proxies `/api/ollama/*` to `http://127.0.0.1:11434`.
+The browser does not call the LLM directly. Vite proxies `/api/llm/*` to
+`http://127.0.0.1:4000` (LiteLLM) and injects the master key server-side. The
+model name (a LiteLLM alias, default `fast-local`) is chosen in the DM Console
+and stored in `localStorage['dnd_llm_model']`; see `dnd-engine/README.md` and
+`dnd-engine/litellm.config.example.yaml` for the alias → backend map and how to
+swap models during an outage.
 
 ## Important Files
 
@@ -46,7 +53,8 @@ The browser does not call Ollama directly. Vite proxies `/api/ollama/*` to `http
 - `src/useSync.js` — BroadcastChannel and WebSocket sync
 - `src/useAudio.js` — procedural audio engine
 - `src/useMusicDirector.js` — LLM music-direction hook
-- `src/useOllama.js` — local LLM response generation
+- `src/useOllama.js` — LLM monster/character response generation
+- `src/llmConfig.js` — shared LLM endpoint, default model, and selector options
 - `src/Puzzles.jsx` — puzzle registry and scene puzzle logic
 - `src/campaignSchema.js` — campaign validation/factories
 - `server/index.js` — relay server
