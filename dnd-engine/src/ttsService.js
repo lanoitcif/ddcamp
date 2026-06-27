@@ -40,7 +40,14 @@ export function playTts(text, voiceId, onEnd) {
   }
 
   // 1. Map the voice ID to a Kokoro voice and speed
-  const profile = VOICE_PROFILES[voiceId] || VOICE_PROFILES['onyx'];
+  let profile = VOICE_PROFILES[voiceId];
+  if (!profile) {
+    if (voiceId && voiceId.includes('_')) {
+      profile = { voice: voiceId, speed: 1.0 };
+    } else {
+      profile = VOICE_PROFILES['onyx'];
+    }
+  }
   
   // Try Kokoro local TTS first
   const controller = new AbortController();
