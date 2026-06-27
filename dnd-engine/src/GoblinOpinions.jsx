@@ -1,5 +1,5 @@
 import React from 'react';
-import { LLM_ENDPOINT, getLlmModel } from './llmConfig';
+import { LLM_ENDPOINT, getLlmModel } from './llmConfig.js';
 
 /* ─── Optinio the Goblin ──────────────────────────────────────────
  * Clippy-style TV companion. Watches live game state and pops up

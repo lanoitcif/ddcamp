@@ -17,7 +17,7 @@ export const LLM_ENDPOINT = '/api/llm/v1/chat/completions';
 // secret (unlike LITELLM_KEY), and this lets the default be swapped at build
 // time without touching code. Falls back to the 'fast-local' alias.
 export const DEFAULT_LLM_MODEL =
-  import.meta.env.VITE_DEFAULT_LLM_MODEL || 'fast-local';
+  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_DEFAULT_LLM_MODEL) || 'fast-local';
 
 // Where the DM Console model override lives.
 const STORAGE_KEY = 'dnd_llm_model';

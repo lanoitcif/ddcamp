@@ -3,7 +3,7 @@ import { useCampaign } from './useCampaign';
 import { useAudio } from './useAudio';
 import { useOllama } from './useOllama';
 import { useMusicDirector } from './useMusicDirector';
-import { LLM_MODEL_OPTIONS, getLlmModel, setLlmModel } from './llmConfig';
+import { LLM_MODEL_OPTIONS, getLlmModel, setLlmModel } from './llmConfig.js';
 import { normalizeNarrationDuration } from './narrationUtils';
 import { secureRoll } from './cryptoUtils';
 import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } from './SceneEffects';

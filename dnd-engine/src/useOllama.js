@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { LLM_ENDPOINT, getLlmModel } from './llmConfig';
+import { LLM_ENDPOINT, getLlmModel } from './llmConfig.js';
 
 export function useOllama() {
   const [isGenerating, setIsGenerating] = useState(false);

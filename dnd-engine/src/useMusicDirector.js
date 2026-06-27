@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { LLM_ENDPOINT, getLlmModel } from './llmConfig';
+import { LLM_ENDPOINT, getLlmModel } from './llmConfig.js';
 
 const FALLBACK_DIRECTION = {
   tempoScale: 1,
