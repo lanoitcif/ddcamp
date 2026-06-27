@@ -3,8 +3,7 @@ import campaignData from './campaign_data.json';
 import { useSync } from './useSync';
 import { awardXp as computeXpAward, defaultXpState } from './xpSystem';
 import { secureRoll } from './cryptoUtils';
-
-
+import { normalizeNarrationDuration } from './narrationUtils';
 
 function defaultState() {
   return {
@@ -227,7 +226,11 @@ export function useCampaign() {
   }, [gameState.completedQuests, updateGameState]);
 
   const setNarration = useCallback((text, duration, voiceId) => {
-    updateGameState({ narration: text ? { text, id: Date.now(), duration: duration || 15000, voiceId } : null });
+    updateGameState({
+      narration: text
+        ? { text, id: Date.now(), duration: normalizeNarrationDuration(duration), voiceId }
+        : null,
+    });
   }, [updateGameState]);
 
   const helpAction = useCallback((helperName, targetName) => {

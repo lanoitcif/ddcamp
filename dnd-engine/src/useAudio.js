@@ -206,7 +206,7 @@ class ChiptuneSequencer {
   }
 
   maybeStartPhrase(theme, stepsPerBar) {
-    const phraseLength = Math.max(stepsPerBar * (this.director.phraseBars || 4), stepsPerBar);
+    const phraseLength = Math.max(stepsPerBar * (this.director.phraseBars ?? 4), stepsPerBar);
     const phraseIndex = Math.floor(this.step / phraseLength);
     if (phraseIndex !== this.currentPhraseIndex) {
       this.currentPhraseIndex = phraseIndex;
@@ -345,7 +345,7 @@ class ChiptuneSequencer {
     const moodConf = MOODS[this.mood] || MOODS.calm;
     const styleConf = STYLE_PROFILES[this.settings.style] || STYLE_PROFILES.alpha;
     const qualityConf = QUALITY_PROFILES[this.settings.quality] || QUALITY_PROFILES.full;
-    const tempoScale = clamp((this.director.tempoScale || 1) * moodConf.speed, 0.55, 1.8);
+    const tempoScale = clamp((this.director.tempoScale ?? 1) * moodConf.speed, 0.55, 1.8);
     const stepDuration = (60 / (theme.bpm * tempoScale)) / 2;
 
     while (this.nextNoteTime < this.ctx.currentTime + 0.12) {
