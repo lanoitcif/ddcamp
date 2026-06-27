@@ -5,6 +5,7 @@ import { useOllama } from './useOllama';
 import { useMusicDirector } from './useMusicDirector';
 import { LLM_MODEL_OPTIONS, getLlmModel, setLlmModel } from './llmConfig.js';
 import { normalizeNarrationDuration } from './narrationUtils';
+import { playTts } from './ttsService.js';
 import { secureRoll } from './cryptoUtils';
 import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } from './SceneEffects';
 import { PUZZLES } from './Puzzles';
@@ -1457,35 +1458,10 @@ function PlayerView() {
   React.useEffect(() => {
     if (!gameState.narration?.text || !gameState.narration?.voiceId) return;
 
-    let cancelled = false;
-
-    if ('speechSynthesis' in window) {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
-
-      const utterance = new SpeechSynthesisUtterance(gameState.narration.text);
-      
-      // 8-bit retro vibes: Monsters are slow/deep, characters are fast/high
-      if (gameState.narration.voiceId === 'monster') {
-        utterance.pitch = 0.3;
-        utterance.rate = 0.7;
-      } else {
-        utterance.pitch = 1.4;
-        utterance.rate = 1.1;
-      }
-
-      const voices = window.speechSynthesis.getVoices();
-      const engVoice = voices.find(v => v.lang.startsWith('en'));
-      if (engVoice) utterance.voice = engVoice;
-
-      if (!cancelled) window.speechSynthesis.speak(utterance);
-    } else {
-      console.warn("TTS not supported in this browser.");
-    }
+    const cancel = playTts(gameState.narration.text, gameState.narration.voiceId);
 
     return () => {
-      cancelled = true;
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      cancel();
     };
   }, [gameState.narration?.id, gameState.narration?.text, gameState.narration?.voiceId]);
 

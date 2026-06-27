@@ -31,6 +31,12 @@ export default defineConfig(({ mode }) => {
             });
           },
         },
+        // Kokoro local TTS proxy
+        '/api/tts': {
+          target: 'http://127.0.0.1:8880',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/api\/tts/, ''),
+        },
       },
     },
   }

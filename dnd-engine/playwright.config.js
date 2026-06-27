@@ -10,10 +10,18 @@ export default defineConfig({
     baseURL: 'http://localhost:5173',
     screenshot: 'only-on-failure',
   },
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: true,
-    timeout: 30_000,
-  },
+  webServer: [
+    {
+      command: 'npm run dev',
+      url: 'http://localhost:5173',
+      reuseExistingServer: true,
+      timeout: 30_000,
+    },
+    {
+      command: 'PORT=3737 node server/index.js',
+      url: 'http://localhost:3737',
+      reuseExistingServer: true,
+      timeout: 30_000,
+    }
+  ],
 });
