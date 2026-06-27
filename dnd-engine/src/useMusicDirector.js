@@ -18,6 +18,12 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+function numberOrFallback(value, fallback) {
+  if (value === null || value === undefined || value === '') return fallback;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
 function extractJson(text) {
   const start = text.indexOf('{');
   const end = text.lastIndexOf('}');
@@ -25,19 +31,19 @@ function extractJson(text) {
   return text.slice(start, end + 1);
 }
 
-function normalizeDirection(raw) {
+export function normalizeDirection(raw) {
   if (!raw || typeof raw !== 'object') return FALLBACK_DIRECTION;
   return {
-    tempoScale:       clamp(Number(raw.tempoScale)       || FALLBACK_DIRECTION.tempoScale,       0.7, 1.5),
-    density:          clamp(Number(raw.density)           || FALLBACK_DIRECTION.density,           0.1, 1),
-    tension:          clamp(Number(raw.tension)           || FALLBACK_DIRECTION.tension,           0,   1),
+    tempoScale:       clamp(numberOrFallback(raw.tempoScale,       FALLBACK_DIRECTION.tempoScale),       0.7, 1.5),
+    density:          clamp(numberOrFallback(raw.density,          FALLBACK_DIRECTION.density),          0.1, 1),
+    tension:          clamp(numberOrFallback(raw.tension,          FALLBACK_DIRECTION.tension),          0,   1),
     register:         ['low', 'mid', 'high'].includes(raw.register)                    ? raw.register         : FALLBACK_DIRECTION.register,
     motifShape:       ['rise', 'fall', 'arc', 'wave', 'static'].includes(raw.motifShape) ? raw.motifShape     : FALLBACK_DIRECTION.motifShape,
     instrumentBlend:  ['soft', 'balanced', 'bright'].includes(raw.instrumentBlend)      ? raw.instrumentBlend : FALLBACK_DIRECTION.instrumentBlend,
-    restProbability:  clamp(Number(raw.restProbability)  || FALLBACK_DIRECTION.restProbability,   0.02, 0.6),
-    ornamentChance:   clamp(Number(raw.ornamentChance)   || FALLBACK_DIRECTION.ornamentChance,    0,    0.75),
-    seed:             clamp(Number(raw.seed)             || FALLBACK_DIRECTION.seed,              0,    1),
-    phraseBars:       clamp(Math.round(Number(raw.phraseBars) || FALLBACK_DIRECTION.phraseBars),  2,    8),
+    restProbability:  clamp(numberOrFallback(raw.restProbability,  FALLBACK_DIRECTION.restProbability),  0.02, 0.6),
+    ornamentChance:   clamp(numberOrFallback(raw.ornamentChance,   FALLBACK_DIRECTION.ornamentChance),   0,    0.75),
+    seed:             clamp(numberOrFallback(raw.seed,             FALLBACK_DIRECTION.seed),             0,    1),
+    phraseBars:       clamp(Math.round(numberOrFallback(raw.phraseBars, FALLBACK_DIRECTION.phraseBars)), 2,    8),
   };
 }
 

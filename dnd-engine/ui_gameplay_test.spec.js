@@ -237,6 +237,19 @@ test.describe('D&D Engine Exhaustive UI and Gameplay Tests', () => {
     await dmPage.locator('button:has-text("Clear")').click();
   });
 
+  test('Infinite narration duration stores zero in game state', async () => {
+    const narrationInput = dmPage.locator('textarea');
+    await narrationInput.fill('Persistent narration');
+    await dmPage.locator('button:has-text("∞")').click();
+
+    await expect(playerPage.locator('text=Persistent narration')).toBeVisible({ timeout: 3000 });
+
+    const state = await dmPage.evaluate(() => JSON.parse(localStorage.getItem('dnd_game_state')));
+    expect(state.narration.duration).toBe(0);
+
+    await dmPage.locator('button:has-text("Clear")').click();
+  });
+
   test('Monster AI Prompt Input visible on monster cards', async () => {
     // Navigate to Whispering Peak which has monsters
     await dmPage.locator('button:has-text("Whispering Peak")').click();

@@ -4,6 +4,7 @@ import { useAudio } from './useAudio';
 import { useOllama } from './useOllama';
 import { useMusicDirector } from './useMusicDirector';
 import { LLM_MODEL_OPTIONS, getLlmModel, setLlmModel } from './llmConfig';
+import { normalizeNarrationDuration } from './narrationUtils';
 import { secureRoll } from './cryptoUtils';
 import SceneParticles, { ActionVfx, PingLayer, HandoutOverlay, ReactionLayer } from './SceneEffects';
 import { PUZZLES } from './Puzzles';
@@ -357,6 +358,9 @@ function DMControl() {
     [campaignData.characters, campaignData.monsters, gameState.activeTurnId]
   );
   const audioSettings = gameState.audioSettings || {};
+  const refreshSeconds = Number.isFinite(Number(audioSettings.refreshSeconds))
+    ? Number(audioSettings.refreshSeconds)
+    : 24;
   const musicScreenContext = React.useMemo(() =>
     buildMusicScreenContext({ scene: activeScene, gameState, activeTurnEntity, sceneMonsters }),
     [activeScene, gameState, activeTurnEntity, sceneMonsters]
@@ -476,7 +480,7 @@ function DMControl() {
     if (!gameState.audioPlaying || !audioSettings.llmEnabled || !directorContext) return undefined;
 
     let cancelled = false;
-    const refreshMs = Math.max(8, Number(audioSettings.refreshSeconds) || 24) * 1000;
+    const refreshMs = Math.max(8, refreshSeconds) * 1000;
     const lastGeneratedAt = gameState.audioDirector?.generatedAt || 0;
     const sameContextAsLast =
       gameState.audioDirector?.sceneId === gameState.currentSceneId &&
@@ -539,7 +543,7 @@ function DMControl() {
   }, [
     activeScene,
     audioSettings.llmEnabled,
-    audioSettings.refreshSeconds,
+    refreshSeconds,
     directorContext,
     gameState.audioPlaying,
     gameState.audioDirector?.generatedAt,
@@ -1003,12 +1007,12 @@ function DMControl() {
           <div className="mt-3">
             <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-gray-500 mb-1">
               <span>Refresh</span>
-              <span>{gameState.audioSettings?.refreshSeconds || 24}s</span>
+              <span>{refreshSeconds}s</span>
             </div>
             <input
               type="range"
               min="8" max="45" step="1"
-              value={gameState.audioSettings?.refreshSeconds || 24}
+              value={refreshSeconds}
               onChange={e => updateGameState({
                 audioSettings: {
                   ...(gameState.audioSettings || {}),
@@ -1316,8 +1320,8 @@ function DMControl() {
 function NarrationAutoDismiss({ gameState, updateGameState }) {
   React.useEffect(() => {
     if (!gameState.narration) return;
-    const duration = gameState.narration.duration || 15000;
-    if (!duration) return; // duration of 0 means infinite
+    const duration = normalizeNarrationDuration(gameState.narration.duration);
+    if (duration === 0) return; // duration of 0 means infinite
     const timer = setTimeout(() => {
       if (gameState.narration?.id) {
         updateGameState({ narration: null });
