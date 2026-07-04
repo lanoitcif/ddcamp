@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import campaignData from './campaign_data.json';
 import { useSync } from './useSync';
 import { awardXp as computeXpAward, defaultXpState } from './xpSystem';
 import { secureRoll } from './cryptoUtils';
+import { applyPartyToCampaign } from './partyConfig';
 
 
 
@@ -85,6 +86,14 @@ export function useCampaign() {
     }
   });
 
+  // The campaign adapted to the configured party (custom heroes and/or the
+  // short first-adventure arc). partyConfig lives in synced game state, so
+  // remote player TVs adapt too.
+  const activeCampaign = useMemo(
+    () => applyPartyToCampaign(campaignData, gameState.partyConfig),
+    [gameState.partyConfig]
+  );
+
   const updateGameState = useCallback((updates) => {
     setGameState(prev => {
       const newState = { ...prev, ...updates };
@@ -95,12 +104,12 @@ export function useCampaign() {
   }, [sync]);
 
   const getMaxHp = useCallback((id) => {
-    const char = campaignData.characters.find(c => c.id === id);
+    const char = activeCampaign.characters.find(c => c.id === id);
     if (char) return char.maxHp;
-    const mon = campaignData.monsters.find(m => m.id === id);
+    const mon = activeCampaign.monsters.find(m => m.id === id);
     if (!mon) console.warn(`getMaxHp: unknown entity "${id}"`);
     return mon?.maxHp ?? mon?.hp ?? 1;
-  }, []);
+  }, [activeCampaign]);
 
   const handleHpChange = useCallback((id, delta) => {
     const maxHp = getMaxHp(id);
@@ -139,7 +148,7 @@ export function useCampaign() {
     let d20, advantageRolls = null, usedAdvantage = false;
 
     // Check if the rolling entity has advantage
-    const rollingEntityId = [...campaignData.characters, ...campaignData.monsters]
+    const rollingEntityId = [...activeCampaign.characters, ...activeCampaign.monsters]
       .find(e => label.startsWith(e.name + ':'))?.id;
 
     if (gameState.hasAdvantage && rollingEntityId === gameState.hasAdvantage) {
@@ -162,8 +171,8 @@ export function useCampaign() {
     }
 
     if (targetId && damage) {
-      const targetEntity = campaignData.characters.find(c => c.id === targetId) ||
-                           campaignData.monsters.find(m => m.id === targetId);
+      const targetEntity = activeCampaign.characters.find(c => c.id === targetId) ||
+                           activeCampaign.monsters.find(m => m.id === targetId);
       const targetName = targetEntity?.name || targetId;
       handleHpChange(targetId, -damage.total);
       roll.targetId = targetId;
@@ -180,7 +189,7 @@ export function useCampaign() {
 
     updateGameState(updates);
     addLogEntry({ ...roll, time: new Date().toLocaleTimeString() });
-  }, [updateGameState, addLogEntry, handleHpChange, gameState.hasAdvantage, gameState.audioPlaying, gameState.audioMood]);
+  }, [updateGameState, addLogEntry, handleHpChange, gameState.hasAdvantage, gameState.audioPlaying, gameState.audioMood, activeCampaign]);
 
   const rollSkillCheck = useCallback((label) => {
     const d20 = secureRoll(20);
@@ -196,18 +205,18 @@ export function useCampaign() {
     return roll;
   }, [addLogEntry]);
 
-  const sceneMonsters = campaignData.monsters.filter(m =>
+  const sceneMonsters = activeCampaign.monsters.filter(m =>
     m.sceneId === gameState.currentSceneId
   );
 
   const nextTurn = useCallback(() => {
     const allIds = [
-      ...campaignData.characters.map(c => c.id),
+      ...activeCampaign.characters.map(c => c.id),
       ...sceneMonsters.map(m => m.id),
     ];
     // Filter out dead monsters (HP <= 0), keep all characters
     const aliveIds = allIds.filter(id => {
-      const isMonster = campaignData.monsters.some(m => m.id === id);
+      const isMonster = activeCampaign.monsters.some(m => m.id === id);
       if (!isMonster) return true;
       return (gameState.characterHp[id] ?? 0) > 0;
     });
@@ -215,23 +224,23 @@ export function useCampaign() {
     const currentIndex = aliveIds.indexOf(gameState.activeTurnId);
     const nextIndex = (currentIndex + 1) % aliveIds.length;
     updateGameState({ activeTurnId: aliveIds[nextIndex] });
-  }, [gameState.activeTurnId, gameState.characterHp, sceneMonsters, updateGameState]);
+  }, [gameState.activeTurnId, gameState.characterHp, sceneMonsters, updateGameState, activeCampaign]);
 
   const awardLoot = useCallback((questId) => {
     if (gameState.completedQuests.includes(questId)) return;
-    const quest = campaignData.quests.find(q => q.id === questId);
+    const quest = activeCampaign.quests.find(q => q.id === questId);
     updateGameState({
       completedQuests: [...gameState.completedQuests, questId],
       toast: { title: "Quest Complete!", message: `You found: ${quest.reward}`, id: Date.now() }
     });
-  }, [gameState.completedQuests, updateGameState]);
+  }, [gameState.completedQuests, updateGameState, activeCampaign]);
 
   const setNarration = useCallback((text, duration, voiceId) => {
     updateGameState({ narration: text ? { text, id: Date.now(), duration: duration || 15000, voiceId } : null });
   }, [updateGameState]);
 
   const helpAction = useCallback((helperName, targetName) => {
-    const targetChar = campaignData.characters.find(c => c.name === targetName);
+    const targetChar = activeCampaign.characters.find(c => c.name === targetName);
     addLogEntry({
       id: Date.now(),
       time: new Date().toLocaleTimeString(),
@@ -244,7 +253,7 @@ export function useCampaign() {
       toast: { title: "Help!", message: `${helperName} gives Advantage to ${targetName}!`, id: Date.now() },
       hasAdvantage: targetChar?.id || null,
     });
-  }, [addLogEntry, updateGameState]);
+  }, [addLogEntry, updateGameState, activeCampaign]);
 
   const snackAction = useCallback((id, name) => {
     const current = gameState.characterHp[id] ?? 0;
@@ -288,16 +297,67 @@ export function useCampaign() {
     updateGameState({ activePuzzle: null });
   }, [updateGameState]);
 
+  // Applies the Party Setup wizard's config without destroying progress:
+  // HP/XP survive for hero ids still in the roster (ids are index-stable, so
+  // renaming a kid's hero keeps their stats). Turn/scene/quests are fixed up
+  // if the new config filtered them out.
+  const applyPartySetup = useCallback((config) => {
+    const nextConfig = {
+      configured: true,
+      players: Array.isArray(config?.players) && config.players.length > 0 ? config.players : null,
+      shortSession: !!config?.shortSession,
+    };
+    const campaign = applyPartyToCampaign(campaignData, nextConfig);
+    const heroes = campaign.characters;
+
+    const characterHp = { ...gameState.characterHp };
+    heroes.forEach(h => {
+      const existing = characterHp[h.id];
+      characterHp[h.id] = existing == null ? h.hp : Math.min(existing, h.maxHp);
+    });
+
+    const prevXp = gameState.characterXp || {};
+    const characterXp = { ...defaultXpState(heroes) };
+    heroes.forEach(h => {
+      if (prevXp[h.id] != null) characterXp[h.id] = prevXp[h.id];
+    });
+
+    const updates = { partyConfig: nextConfig, characterHp, characterXp };
+    const turnStillValid =
+      heroes.some(h => h.id === gameState.activeTurnId) ||
+      campaign.monsters.some(m => m.id === gameState.activeTurnId);
+    if (!turnStillValid) updates.activeTurnId = heroes[0].id;
+    if (!campaign.scenes.some(s => s.id === gameState.currentSceneId)) {
+      updates.currentSceneId = campaign.scenes[0].id;
+    }
+    updates.completedQuests = (gameState.completedQuests || [])
+      .filter(qid => campaign.quests.some(q => q.id === qid));
+    updateGameState(updates);
+  }, [gameState.characterHp, gameState.characterXp, gameState.activeTurnId, gameState.currentSceneId, gameState.completedQuests, updateGameState]);
+
   const resetGame = useCallback(() => {
-    const fresh = defaultState();
-    localStorage.removeItem('dnd_game_state');
+    // A reset starts the adventure over for the SAME party — the kids'
+    // heroes survive, their progress doesn't.
+    const partyConfig = gameState.partyConfig;
+    const fresh = { ...defaultState(), partyConfig };
+    if (partyConfig?.configured) {
+      const campaign = applyPartyToCampaign(campaignData, partyConfig);
+      fresh.currentSceneId = campaign.scenes[0].id;
+      fresh.activeTurnId = campaign.characters[0].id;
+      fresh.characterHp = {
+        ...campaign.characters.reduce((acc, c) => ({ ...acc, [c.id]: c.hp }), {}),
+        ...campaign.monsters.reduce((acc, m) => ({ ...acc, [m.id]: m.hp }), {}),
+      };
+      fresh.characterXp = defaultXpState(campaign.characters);
+    }
+    localStorage.setItem('dnd_game_state', JSON.stringify(fresh));
     setGameState(fresh);
     sync.send(fresh);
-  }, [sync]);
+  }, [sync, gameState.partyConfig]);
 
   const awardXpAction = useCallback((characterId, amount, reason) => {
     const result = computeXpAward(gameState.characterXp || {}, characterId, amount);
-    const character = campaignData.characters.find(c => c.id === characterId);
+    const character = activeCampaign.characters.find(c => c.id === characterId);
     const charName = character?.name || characterId;
     const updates = {
       characterXp: result.updatedXp,
@@ -317,7 +377,7 @@ export function useCampaign() {
       label: `⭐ ${charName} gains ${amount} XP${reason ? ` (${reason})` : ''}${result.levelUp ? ` — LEVEL UP to ${result.levelUp.newLevel}!` : ''}`,
       d20: 'XP', total: `+${amount}`, bonus: 0,
     });
-  }, [gameState.characterXp, gameState.characterHp, updateGameState, addLogEntry]);
+  }, [gameState.characterXp, gameState.characterHp, updateGameState, addLogEntry, activeCampaign]);
 
   // Auto-combat mood: fade back after 30s idle
   useEffect(() => {
@@ -335,7 +395,7 @@ export function useCampaign() {
   }, [gameState.lastCombatAction, gameState.audioPlaying, gameState.audioMood, updateGameState]);
 
   return {
-    campaignData,
+    campaignData: activeCampaign,
     gameState,
     sceneMonsters,
     sync,
@@ -360,5 +420,6 @@ export function useCampaign() {
     endPuzzle,
     resetGame,
     awardXpAction,
+    applyPartySetup,
   };
 }
