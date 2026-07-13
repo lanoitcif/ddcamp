@@ -12,7 +12,8 @@ import { PUZZLES } from './Puzzles';
 import CampaignBuilder from './CampaignBuilder';
 import { XpBar, LevelUpOverlay, XpToast, DmXpPanel } from './LevelUpOverlay';
 import GoblinOpinions from './GoblinOpinions';
-import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon, Wifi, WifiOff, Brain, Crosshair, Sparkles } from 'lucide-react';
+import PartySetup from './PartySetup';
+import { Sword, Heart, Scroll, Tv, Trophy, FastForward, CheckCircle, Star, RotateCcw, Skull, Zap, BookOpen, Eye, EyeOff, Send, X, Shield, Volume2, VolumeX, Play, Pause, Music, Puzzle, Image as ImageIcon, Wifi, WifiOff, Brain, Crosshair, Sparkles, Users } from 'lucide-react';
 
 /* ─── Error Boundary ─────────────────────────────────────────── */
 
@@ -316,7 +317,7 @@ function DMControl() {
     nextTurn, awardLoot, setNarration,
     helpAction, snackAction, setPing, setHandout, sendReaction,
     dismissOverlay, startPuzzle, updatePuzzle, endPuzzle, resetGame,
-    awardXpAction,
+    awardXpAction, applyPartySetup,
   } = useCampaign();
 
   const [hpInput, setHpInput] = React.useState({});
@@ -330,6 +331,10 @@ function DMControl() {
   const [prepSceneId, setPrepSceneId] = React.useState(null);
   const [showGuide, setShowGuide] = React.useState(false);
   const [aiPromptInput, setAiPromptInput] = React.useState({});
+  // Auto-open Party Setup on first run so the game starts adapted to the table.
+  const [showPartySetup, setShowPartySetup] = React.useState(
+    () => !gameState.partyConfig?.configured
+  );
   // AI model selector: track the active model so a saved custom value (one not in
   // LLM_MODEL_OPTIONS) keeps the "Custom…" input visible and editable.
   const [llmModel, setLlmModelState] = React.useState(() => getLlmModel());
@@ -1085,6 +1090,15 @@ function DMControl() {
             </div>
           )}
           <button
+            onClick={() => setShowPartySetup(true)}
+            className="w-full bg-gray-800 hover:bg-gray-700 text-white p-3 rounded flex items-center justify-center gap-2 border border-gray-600 transition-all"
+          >
+            <Users size={18} /> Party Setup
+            {campaignData.characters.length > 0 && (
+              <span className="text-[10px] text-gray-500">({campaignData.characters.length} heroes)</span>
+            )}
+          </button>
+          <button
             onClick={() => window.open('/?mode=player', '_blank')}
             className="w-full bg-gray-800 hover:bg-gray-700 text-white p-3 rounded flex items-center justify-center gap-2 border border-gray-600 transition-all"
           >
@@ -1115,9 +1129,16 @@ function DMControl() {
       {/* ─── Main Panel ─── */}
       <div className="flex-1 p-8 overflow-y-auto">
         {showPortraits && (
-          <PortraitGallery 
-            onClose={() => setShowPortraits(null)} 
-            onSelect={(url) => { setPortrait(showPortraits, url); setShowPortraits(null); }} 
+          <PortraitGallery
+            onClose={() => setShowPortraits(null)}
+            onSelect={(url) => { setPortrait(showPortraits, url); setShowPortraits(null); }}
+          />
+        )}
+        {showPartySetup && (
+          <PartySetup
+            partyConfig={gameState.partyConfig}
+            onSave={applyPartySetup}
+            onClose={() => setShowPartySetup(false)}
           />
         )}
         <header className="mb-8 flex justify-between items-center">

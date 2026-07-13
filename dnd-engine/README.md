@@ -6,6 +6,11 @@
 
 - Synced DM/player state via `BroadcastChannel` by default
 - Optional remote sync via `?ws=host:port&room=name`
+- **Party Setup wizard**: adapts the game to your real table — 1–6 heroes with
+  your kids' names and classes (Rogue/Fighter/Paladin/Wizard), plus an optional
+  "Short adventure" first-session arc (Bakery → Fairy Glade, ~60–90 min).
+  Auto-opens on first run; reopen anytime via the sidebar **Party Setup** button.
+  The config syncs to the player TV and survives resets.
 - Procedural Web Audio ambience in `src/useAudio.js`
 - LiteLLM-backed LLM features (proxied to local Ollama or any provider):
   - monster response generation via `src/useOllama.js`

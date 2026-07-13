@@ -5,6 +5,13 @@
 
 ## 🎲 The Console Tools
 
+### 🧙 Party Setup (do this first!)
+- Auto-opens the first time you launch the DM Console; reopen anytime via the sidebar **Party Setup** button.
+- Add 1–6 heroes: type each kid's hero name and pick a class — **Rogue** (sneaky, 9 HP), **Fighter** (brave, 12 HP), **Paladin** (kind, 12 HP), or **Wizard** (clever, 8 HP). Two kids can share a class.
+- **Short adventure (~60–90 min):** trims the game to Bakery → Market → Sparkle Woods → Fairy Glade (4 scenes, 6 quests) — perfect for a first session. Uncheck later to unlock the full journey to Whispering Peak; progress carries over.
+- Saving is safe mid-game: renaming a hero keeps their HP and XP. **Reset Campaign** restarts the story but keeps your party.
+- The party syncs to the TV automatically. Swap any portrait via the image button on a hero card.
+
 ### 🎛️ Ambience & Audio
 - **Start/Playing:** Toggle the procedural audio engine. Each scene has its own ambient palette.
 - **Moods:** `calm` (exploration), `tense` (investigating), `combat` (action). Click to switch — the music crossfades automatically.
