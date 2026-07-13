@@ -1,6 +1,6 @@
 import React from 'react';
 import { Users, Plus, Trash2, X, Sparkles } from 'lucide-react';
-import { CLASS_TEMPLATES, MAX_PARTY_SIZE, SHORT_SESSION } from './partyConfig';
+import { CLASS_TEMPLATES, MAX_PARTY_SIZE, SHORT_SESSION } from './partyConfig.js';
 
 /* ─── Party Setup wizard ──────────────────────────────────────────
  * Lets the DM adapt the campaign to the real table: how many kids are

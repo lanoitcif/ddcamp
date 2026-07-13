@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node src/campaignSchema.test.js && node src/security.test.js && node xpSystem.unit.test.js && node src/partyConfig.test.js",
+    "test": "node src/campaignSchema.test.js && node src/security.test.js && node src/narrationUtils.test.js && node src/useMusicDirector.test.js && node xpSystem.unit.test.js && node src/partyConfig.test.js",
     "test:e2e": "playwright test"
   },
   "dependencies": {

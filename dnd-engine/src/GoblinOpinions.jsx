@@ -1,5 +1,6 @@
 import React from 'react';
-import { LLM_ENDPOINT, getLlmModel } from './llmConfig';
+import { LLM_ENDPOINT, getLlmModel } from './llmConfig.js';
+import { playTts } from './ttsService.js';
 
 /* ─── Optinio the Goblin ──────────────────────────────────────────
  * Clippy-style TV companion. Watches live game state and pops up
@@ -68,18 +69,13 @@ async function generateOpinion(eventKey, context) {
   }
 }
 
+let activeGoblinSpeechCancel = null;
+
 function speakAsGoblin(text) {
-  if (!('speechSynthesis' in window)) return;
-  // Don't cancel: if narration is mid-sentence we skip instead (see caller).
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.pitch = 1.75; // squeaky
-  utterance.rate = 1.15;  // motormouth
-  const voices = window.speechSynthesis.getVoices();
-  const voice =
-    voices.find(v => v.lang.startsWith('en') && /google/i.test(v.name)) ||
-    voices.find(v => v.lang.startsWith('en'));
-  if (voice) utterance.voice = voice;
-  window.speechSynthesis.speak(utterance);
+  if (activeGoblinSpeechCancel) {
+    activeGoblinSpeechCancel();
+  }
+  activeGoblinSpeechCancel = playTts(text, 'goblin');
 }
 
 export function GoblinOpinions({ gameState, campaignData }) {
