@@ -82,23 +82,39 @@ export const SHORT_SESSION = {
 };
 
 /**
+ * Returns the lowest unused hero-N id for a new wizard row, so removing a
+ * middle hero never shifts the ids of the remaining kids.
+ */
+export function nextHeroId(players) {
+  const used = new Set(players.map(p => p.id).filter(Boolean));
+  for (let n = 1; n <= MAX_PARTY_SIZE; n++) {
+    const id = `hero-${n}`;
+    if (!used.has(id)) return id;
+  }
+  return `hero-${players.length + 1}`;
+}
+
+/**
  * Builds schema-valid hero objects from wizard entries.
- * IDs are index-stable (hero-1..hero-6) so renaming a kid's hero never
- * orphans their HP/XP entries in game state.
+ * Each entry carries a stable id assigned when the row was created (falling
+ * back to index for configs saved before ids existed), so renaming OR
+ * removing another hero never orphans a kid's HP/XP entries in game state.
  */
 export function buildPartyCharacters(players) {
   return players.map((p, i) => {
     const template = CLASS_TEMPLATES[p.classKey] || CLASS_TEMPLATES.fighter;
+    const id = p.id || `hero-${i + 1}`;
     const name = (p.name || '').trim() || `Hero ${i + 1}`;
     return {
-      id: `hero-${i + 1}`,
+      id,
       name,
       class: template.class,
       hp: template.hp,
       maxHp: template.hp,
-      // Give the wizard a per-hero portrait seed so two wizards look distinct.
+      // Wizard portraits: seed by the stable hero id, not the kid's name —
+      // no player names in third-party URLs, and renames keep the portrait.
       image: p.classKey === 'wizard'
-        ? `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name)}`
+        ? `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(id)}`
         : template.image,
       bonus: template.bonus,
       actions: template.actions.map(a => ({ ...a })),

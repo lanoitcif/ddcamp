@@ -7,6 +7,7 @@ import {
   SHORT_SESSION,
   buildPartyCharacters,
   applyPartyToCampaign,
+  nextHeroId,
 } from './partyConfig.js';
 import { validateCharacter, validateCampaign } from './campaignSchema.js';
 
@@ -42,12 +43,37 @@ test('buildPartyCharacters - produces schema-valid characters', () => {
   }
 });
 
-test('buildPartyCharacters - ids are index-stable across renames', () => {
+test('buildPartyCharacters - ids are stable across renames', () => {
   const before = buildPartyCharacters([{ name: 'Ava', classKey: 'rogue' }, { name: 'Ben', classKey: 'wizard' }]);
   const after = buildPartyCharacters([{ name: 'Ava the Swift', classKey: 'rogue' }, { name: 'Benjamin', classKey: 'wizard' }]);
   assert.deepStrictEqual(before.map(c => c.id), after.map(c => c.id));
   assert.strictEqual(before[0].id, 'hero-1');
   assert.strictEqual(before[1].id, 'hero-2');
+});
+
+test('buildPartyCharacters - explicit ids survive a middle removal', () => {
+  const roster = [
+    { id: 'hero-1', name: 'Ava', classKey: 'rogue' },
+    { id: 'hero-2', name: 'Ben', classKey: 'fighter' },
+    { id: 'hero-3', name: 'Cleo', classKey: 'wizard' },
+  ];
+  const afterRemoval = buildPartyCharacters(roster.filter(p => p.id !== 'hero-2'));
+  assert.deepStrictEqual(afterRemoval.map(c => c.id), ['hero-1', 'hero-3']);
+  assert.strictEqual(afterRemoval[1].name, 'Cleo');
+});
+
+test('nextHeroId - returns the lowest unused id', () => {
+  assert.strictEqual(nextHeroId([]), 'hero-1');
+  assert.strictEqual(nextHeroId([{ id: 'hero-1' }, { id: 'hero-3' }]), 'hero-2');
+  assert.strictEqual(nextHeroId([{ id: 'hero-1' }, { id: 'hero-2' }]), 'hero-3');
+});
+
+test('buildPartyCharacters - wizard portrait seed is the hero id, not the name', () => {
+  const [wiz] = buildPartyCharacters([{ id: 'hero-4', name: 'Penelope Smith', classKey: 'wizard' }]);
+  assert.ok(wiz.image.includes('seed=hero-4'), wiz.image);
+  assert.ok(!wiz.image.includes('Penelope'), 'player name must not appear in third-party URL');
+  const renamed = buildPartyCharacters([{ id: 'hero-4', name: 'Penny', classKey: 'wizard' }]);
+  assert.strictEqual(renamed[0].image, wiz.image, 'portrait must survive a rename');
 });
 
 test('buildPartyCharacters - blank names get friendly defaults', () => {

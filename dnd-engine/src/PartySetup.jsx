@@ -1,6 +1,6 @@
 import React from 'react';
 import { Users, Plus, Trash2, X, Sparkles } from 'lucide-react';
-import { CLASS_TEMPLATES, MAX_PARTY_SIZE, SHORT_SESSION } from './partyConfig.js';
+import { CLASS_TEMPLATES, MAX_PARTY_SIZE, SHORT_SESSION, nextHeroId } from './partyConfig.js';
 
 /* ─── Party Setup wizard ──────────────────────────────────────────
  * Lets the DM adapt the campaign to the real table: how many kids are
@@ -13,17 +13,19 @@ import { CLASS_TEMPLATES, MAX_PARTY_SIZE, SHORT_SESSION } from './partyConfig.js
 const DEFAULT_ROW = { name: '', classKey: 'fighter' };
 
 export default function PartySetup({ partyConfig, onSave, onClose }) {
+  // Each row carries a stable hero id from the moment it's created, so
+  // removing a middle hero never shifts another kid's id (and thus HP/XP).
   const [players, setPlayers] = React.useState(() =>
     partyConfig?.players?.length
-      ? partyConfig.players.map(p => ({ ...p }))
-      : [{ ...DEFAULT_ROW }]
+      ? partyConfig.players.map((p, i) => ({ id: p.id || `hero-${i + 1}`, ...p }))
+      : [{ id: 'hero-1', ...DEFAULT_ROW }]
   );
   const [shortSession, setShortSession] = React.useState(!!partyConfig?.shortSession);
 
   const setPlayer = (i, updates) =>
     setPlayers(prev => prev.map((p, idx) => (idx === i ? { ...p, ...updates } : p)));
   const addPlayer = () =>
-    setPlayers(prev => (prev.length >= MAX_PARTY_SIZE ? prev : [...prev, { ...DEFAULT_ROW }]));
+    setPlayers(prev => (prev.length >= MAX_PARTY_SIZE ? prev : [...prev, { id: nextHeroId(prev), ...DEFAULT_ROW }]));
   const removePlayer = (i) =>
     setPlayers(prev => (prev.length <= 1 ? prev : prev.filter((_, idx) => idx !== i)));
 
@@ -48,7 +50,7 @@ export default function PartySetup({ partyConfig, onSave, onClose }) {
 
         <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
           {players.map((p, i) => (
-            <div key={i} className="flex items-center gap-2">
+            <div key={p.id} className="flex items-center gap-2">
               <span className="text-[10px] text-gray-500 w-4 text-right">{i + 1}</span>
               <input
                 type="text"
